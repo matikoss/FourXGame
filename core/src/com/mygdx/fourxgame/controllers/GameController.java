@@ -1,28 +1,36 @@
-package com.mygdx.fourxgame;
+package com.mygdx.fourxgame.controllers;
 
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.MathUtils;
+
 
 public class GameController {
     public Sprite[] testSprites;
     public int selectedSprite;
+    public CameraController cameraController;
+    private WorldMap worldMap;
 
     public GameController() {
         init();
     }
 
     public void init() {
-        initTestObjects();
+        cameraController = new CameraController();
+        worldMap = new WorldMap();
+        //initTestObjects();
     }
 
     public void update(float deltaTime) {
-        updateTestObjects(deltaTime);
+        cameraController.update(deltaTime);
+        //updateTestObjects(deltaTime);
+
     }
 
-    private void initTestObjects() {
-        testSprites = new Sprite[5];
+    public WorldMap getWorldMap() {
+        return worldMap;
+    }
+
+    /*private void initTestObjects() {
+        testSprites = new Sprite[6];
 
         int width = 32;
         int height = 32;
@@ -31,7 +39,7 @@ public class GameController {
 
         Texture texture = new Texture(pixmap);
 
-        for (int i = 0; i < testSprites.length; i++) {
+        for (int i = 0; i < testSprites.length-1; i++) {
             Sprite spr = new Sprite(texture);
             spr.setSize(1, 1);
             spr.setOrigin(spr.getWidth() / 2.0f, spr.getHeight() / 2.0f);
@@ -41,11 +49,16 @@ public class GameController {
 
             testSprites[i] = spr;
         }
+        Sprite testspr = new Sprite(texture);
+        testspr.setSize(1,1);
+        testspr.setPosition(10.0f, 10.0f);
+        testSprites[5] = testspr;
+
 
         selectedSprite = 0;
-    }
+    }*/
 
-    private Pixmap createProceduralPixmap(int width, int height){
+    /*private Pixmap createProceduralPixmap(int width, int height) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setColor(1, 0, 0, 0.5f);
         pixmap.fill();
@@ -55,13 +68,15 @@ public class GameController {
         pixmap.setColor(0, 1, 1, 1);
         pixmap.drawRectangle(0, 0, width, height);
         return pixmap;
-    }
+    }*/
 
-    private void updateTestObjects(float deltaTime) {
+    /*private void updateTestObjects(float deltaTime) {
         float rotation = testSprites[selectedSprite].getRotation();
         rotation += 90 * deltaTime;
         rotation %= 360;
         testSprites[selectedSprite].setRotation(rotation);
-    }
+    }*/
+
+
 }
 
