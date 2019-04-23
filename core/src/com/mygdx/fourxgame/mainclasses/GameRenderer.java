@@ -9,6 +9,7 @@ public class GameRenderer {
     private GameController gameController;
     private WorldMapRenderer worldMapRenderer;
 
+
     public GameRenderer(GameController gameController) {
         this.gameController = gameController;
         init();
@@ -20,11 +21,12 @@ public class GameRenderer {
         camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
         camera.position.set(0, 0, 0);
         camera.update();
+        gameController.getWorldMap().setCamera(camera);
 
     }
 
     public void render() {
-        gameController.cameraController.test(camera);
+        //gameController.cameraController.test(camera);
         //renderTestObjects();
         worldMapRenderer.render();
     }
@@ -37,7 +39,7 @@ public class GameRenderer {
     public void dispose() {
         batch.dispose();
     }
-    public void update(){
+    public void update() {
         gameController.cameraController.applyTo(camera);
         batch.setProjectionMatrix(camera.combined);
     }

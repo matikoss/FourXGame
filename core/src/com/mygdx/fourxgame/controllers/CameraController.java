@@ -126,13 +126,4 @@ public class CameraController {
         y += getPosition().y;
         setPosition(x, y);
     }
-
-    public void test(OrthographicCamera camera){
-        int x = Gdx.input.getX();
-        int y = Gdx.input.getY();
-        Vector3 worldCoordinates = new Vector3(x, y, 0);
-        camera.unproject(worldCoordinates);
-        System.out.println(worldCoordinates.x);
-        System.out.println(worldCoordinates.y);
-    }
 }

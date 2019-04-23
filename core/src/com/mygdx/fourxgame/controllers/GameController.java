@@ -21,6 +21,7 @@ public class GameController {
 
     public void update(float deltaTime) {
         cameraController.update(deltaTime);
+        worldMap.update(deltaTime);
         //updateTestObjects(deltaTime);
 
     }

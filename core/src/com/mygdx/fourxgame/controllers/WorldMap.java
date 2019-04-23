@@ -1,20 +1,51 @@
 package com.mygdx.fourxgame.controllers;
 
-import com.mygdx.fourxgame.maptiles.EmptyTile;
-import com.mygdx.fourxgame.maptiles.MapTile;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector3;
+import com.mygdx.fourxgame.maptiles.*;
 
-import com.mygdx.fourxgame.maptiles.TownTile;
-import com.mygdx.fourxgame.maptiles.WoodTile;
 import org.neo4j.driver.v1.*;
 
 import java.util.ArrayList;
+import java.util.Random;
 
-public class WorldMap {
+public class WorldMap implements InputProcessor {
     private ArrayList<MapTile> mapOfWorld;
+    private MapTile selectedTile;
+    private boolean isTileSelected;
+    private int selectedTileIndex;
+    private OrthographicCamera camera;
+    private boolean keyReleased;
 
     public WorldMap() {
         mapOfWorld = new ArrayList<>();
-        loadMapFromDatabase();
+        selectedTile = null;
+        isTileSelected = false;
+        //loadMapFromDatabase();
+        //mapOfWorld.add(new Army(2, 2, "Mati", 0, 0, 0));
+        generatePlayerChunk("Mati", 0, 0);
+        generatePlayerChunk("Mati", 5, 0);
+        generatePlayerChunk("Mati", 10, 0);
+        generatePlayerChunk("Mati", 0, 5);
+        generatePlayerChunk("Mati", 0, 10);
+        generatePlayerChunk("Mati", 0, 15);
+        generatePlayerChunk("Mati", -5, 0);
+        generatePlayerChunk("Mati", -10, 5);
+        generatePlayerChunk("Mati", -15, 10);
+        generatePlayerChunk("Mati", 5, 5);
+        generatePlayerChunk("Mati", 10, 10);
+        Gdx.input.setInputProcessor(this);
+        keyReleased = true;
+    }
+
+    public void update(float deltaTime) {
+//        checkTileSelection();
+//        if(isTileSelected) {
+//            moveArmy();
+//        }
     }
 
     public void addToMap(MapTile mapTile) {
@@ -23,6 +54,68 @@ public class WorldMap {
 
     public ArrayList<MapTile> getMapOfWorld() {
         return mapOfWorld;
+    }
+
+    private void checkTileSelection() {
+        if (Gdx.input.justTouched() && !isTileSelected) {
+            selectTile();
+        }
+    }
+
+    private void selectTile() {
+        int x = Gdx.input.getX();
+        int y = Gdx.input.getY();
+        Vector3 tileCoordinates = translateCoordinates(x, y);
+
+        x = (int) tileCoordinates.x;
+        y = (int) tileCoordinates.y;
+
+        for (MapTile tile : mapOfWorld) {
+            if (tile.x == x && tile.y == y) {
+                selectedTile = tile;
+                isTileSelected = true;
+                selectedTileIndex = mapOfWorld.indexOf(tile);
+            }
+            if (tile.getClass().getSimpleName().equals("Army")) {
+                return;
+            }
+        }
+        System.out.println(selectedTile.getClass().getSimpleName());
+        System.out.println(selectedTile.getClass().getSimpleName().equals("Army"));
+        System.out.println(selectedTileIndex);
+    }
+
+    private void switchSelection() {
+        for (MapTile tile : mapOfWorld) {
+            if (tile.x == selectedTile.x && tile.y == selectedTile.y && !tile.getClass().getSimpleName().equals(selectedTile.getClass().getSimpleName())) {
+                System.out.println(tile.getClass().getSimpleName() + "<-------" + selectedTile.getClass().getSimpleName());
+                selectedTile = tile;
+                isTileSelected = true;
+                selectedTileIndex = mapOfWorld.indexOf(tile);
+                return;
+            }
+        }
+        System.out.println("Nazwa znalezionej klasy" + selectedTile.getClass().getSimpleName());
+    }
+
+    private void moveArmy() {
+
+        int newX = Gdx.input.getX();
+        int newY = Gdx.input.getY();
+        Vector3 tileCoordinates = translateCoordinates(newX, newY);
+
+        newX = (int) tileCoordinates.x;
+        newY = (int) tileCoordinates.y;
+
+        //((Army) selectedTile).move(newX, newY);
+        System.out.println(mapOfWorld.get(selectedTileIndex).x);
+        ((Army) mapOfWorld.get(selectedTileIndex)).move(newX, newY);
+        System.out.println(mapOfWorld.get(selectedTileIndex).x);
+
+        selectedTile = null;
+        isTileSelected = false;
+        selectedTileIndex = 0;
+
     }
 
     private void loadMapFromDatabase() {
@@ -75,5 +168,126 @@ public class WorldMap {
         }
 
         System.out.println(mapOfWorld);
+    }
+
+    public void generateMap(int numberOfPlayers) {
+
+    }
+
+    public void generatePlayerChunk(String playerName, int startingX, int startingY) {
+        ArrayList<MapTile> tmpChunk = new ArrayList<>();
+        MapTile tmpMapTile;
+        Random random = new Random();
+        int low = - 2;
+        int high =  2;
+        int tmpX, tmpY;
+        int counter;
+
+        while (tmpChunk.size() < 25) {
+            tmpX = random.nextInt(high + 1 - low ) + low + startingX;
+            tmpY = random.nextInt(high + 1 - low ) + low + startingY;
+
+
+            if (tmpChunk.isEmpty()) {
+                tmpMapTile = new TownTile(tmpX, tmpY, playerName);
+            } else if (tmpChunk.size() == 1) {
+                tmpMapTile = new IronTile(tmpX, tmpY, playerName);
+            } else if (tmpChunk.size() == 2) {
+                tmpMapTile = new GoldTile(tmpX, tmpY, playerName);
+            } else if (tmpChunk.size() == 3) {
+                tmpMapTile = new WoodTile(tmpX, tmpY, playerName);
+            } else if (tmpChunk.size() == 4) {
+                tmpMapTile = new WoodTile(tmpX, tmpY, playerName);
+            } else {
+                tmpMapTile = new EmptyTile(tmpX, tmpY, playerName);
+            }
+            counter = 0;
+            for (MapTile tile : tmpChunk) {
+                if (tmpX != tile.x || tmpY != tile.y) {
+                    counter++;
+                }
+            }
+            if (counter == tmpChunk.size()) {
+                tmpChunk.add(tmpMapTile);
+            }
+        }
+        mapOfWorld.addAll(tmpChunk);
+    }
+
+    public void setCamera(OrthographicCamera camera) {
+        this.camera = camera;
+    }
+
+    private Vector3 translateCoordinates(int x, int y) {
+        Vector3 worldCoordinates = new Vector3(x, y, 0);
+        camera.unproject(worldCoordinates);
+        return worldCoordinates;
+    }
+
+    public boolean isTileSelected() {
+        return isTileSelected;
+    }
+
+    public MapTile getSelectedTile() {
+        return selectedTile;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        System.out.println("KeyDown");
+        if (keycode == Input.Keys.ESCAPE && isTileSelected) {
+            selectedTile = null;
+            isTileSelected = false;
+            selectedTileIndex = 0;
+            return true;
+        }
+        if (keycode == Input.Keys.TAB && isTileSelected) {
+            switchSelection();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if (button == Input.Buttons.LEFT) {
+            selectTile();
+            return true;
+        }
+        if (button == Input.Buttons.RIGHT && isTileSelected && selectedTile.getClass().getSimpleName().equals("Army")) {
+            moveArmy();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int amount) {
+        return false;
     }
 }

@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 
-public abstract class MapTile{
+public abstract class MapTile {
     public int x;
     public int y;
     private String spriteImageDir;
@@ -23,7 +23,7 @@ public abstract class MapTile{
         return texture;
     }
 
-    public void dispose(){
+    public void dispose() {
         texture.dispose();
     }
 
