@@ -7,7 +7,7 @@ public class GameController {
     public Sprite[] testSprites;
     public int selectedSprite;
     public CameraController cameraController;
-    private WorldMap worldMap;
+    private GameSession gameSession;
 
     public GameController() {
         init();
@@ -15,19 +15,19 @@ public class GameController {
 
     public void init() {
         cameraController = new CameraController();
-        worldMap = new WorldMap();
+        gameSession = new GameSession();
         //initTestObjects();
     }
 
     public void update(float deltaTime) {
         cameraController.update(deltaTime);
-        worldMap.update(deltaTime);
+        gameSession.update(deltaTime);
         //updateTestObjects(deltaTime);
 
     }
 
-    public WorldMap getWorldMap() {
-        return worldMap;
+    public GameSession getGameSession() {
+        return gameSession;
     }
 
     /*private void initTestObjects() {

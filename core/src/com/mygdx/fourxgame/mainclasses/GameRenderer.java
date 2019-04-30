@@ -7,7 +7,7 @@ public class GameRenderer {
     private OrthographicCamera camera;
     private SpriteBatch batch;
     private GameController gameController;
-    private WorldMapRenderer worldMapRenderer;
+    private GameSessionRenderer gameSessionRenderer;
 
 
     public GameRenderer(GameController gameController) {
@@ -17,18 +17,18 @@ public class GameRenderer {
 
     private void init() {
         batch = new SpriteBatch();
-        worldMapRenderer = new WorldMapRenderer(gameController.getWorldMap(), batch);
+        gameSessionRenderer = new GameSessionRenderer(gameController.getGameSession(), batch);
         camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
         camera.position.set(0, 0, 0);
         camera.update();
-        gameController.getWorldMap().setCamera(camera);
+        gameController.getGameSession().setCamera(camera);
 
     }
 
     public void render() {
         //gameController.cameraController.test(camera);
         //renderTestObjects();
-        worldMapRenderer.render();
+        gameSessionRenderer.render();
     }
 
     public void resize(int width, int height) {

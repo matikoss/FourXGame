@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
+import com.mygdx.fourxgame.mainclasses.WorldMap;
 import com.mygdx.fourxgame.maptiles.*;
 
 import org.neo4j.driver.v1.*;
@@ -12,48 +13,25 @@ import org.neo4j.driver.v1.*;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class WorldMap implements InputProcessor {
-    private ArrayList<MapTile> mapOfWorld;
+public class GameSession implements InputProcessor {
+
     private MapTile selectedTile;
     private boolean isTileSelected;
     private int selectedTileIndex;
     private OrthographicCamera camera;
-    private boolean keyReleased;
+    private WorldMap worldMap;
 
-    public WorldMap() {
-        mapOfWorld = new ArrayList<>();
+    public GameSession() {
+        worldMap = new WorldMap();
         selectedTile = null;
         isTileSelected = false;
         //loadMapFromDatabase();
         //mapOfWorld.add(new Army(2, 2, "Mati", 0, 0, 0));
-        generatePlayerChunk("Mati", 0, 0);
-        generatePlayerChunk("Mati", 5, 0);
-        generatePlayerChunk("Mati", 10, 0);
-        generatePlayerChunk("Mati", 0, 5);
-        generatePlayerChunk("Mati", 0, 10);
-        generatePlayerChunk("Mati", 0, 15);
-        generatePlayerChunk("Mati", -5, 0);
-        generatePlayerChunk("Mati", -10, 5);
-        generatePlayerChunk("Mati", -15, 10);
-        generatePlayerChunk("Mati", 5, 5);
-        generatePlayerChunk("Mati", 10, 10);
         Gdx.input.setInputProcessor(this);
-        keyReleased = true;
     }
 
     public void update(float deltaTime) {
-//        checkTileSelection();
-//        if(isTileSelected) {
-//            moveArmy();
-//        }
-    }
-
-    public void addToMap(MapTile mapTile) {
-        mapOfWorld.add(mapTile);
-    }
-
-    public ArrayList<MapTile> getMapOfWorld() {
-        return mapOfWorld;
+        worldMap.update(deltaTime);
     }
 
     private void checkTileSelection() {
@@ -70,11 +48,11 @@ public class WorldMap implements InputProcessor {
         x = (int) tileCoordinates.x;
         y = (int) tileCoordinates.y;
 
-        for (MapTile tile : mapOfWorld) {
+        for (MapTile tile : worldMap.getMapOfWorld()) {
             if (tile.x == x && tile.y == y) {
                 selectedTile = tile;
                 isTileSelected = true;
-                selectedTileIndex = mapOfWorld.indexOf(tile);
+                selectedTileIndex = worldMap.getMapOfWorld().indexOf(tile);
             }
             if (tile.getClass().getSimpleName().equals("Army")) {
                 return;
@@ -86,12 +64,12 @@ public class WorldMap implements InputProcessor {
     }
 
     private void switchSelection() {
-        for (MapTile tile : mapOfWorld) {
+        for (MapTile tile : worldMap.getMapOfWorld()) {
             if (tile.x == selectedTile.x && tile.y == selectedTile.y && !tile.getClass().getSimpleName().equals(selectedTile.getClass().getSimpleName())) {
                 System.out.println(tile.getClass().getSimpleName() + "<-------" + selectedTile.getClass().getSimpleName());
                 selectedTile = tile;
                 isTileSelected = true;
-                selectedTileIndex = mapOfWorld.indexOf(tile);
+                selectedTileIndex = worldMap.getMapOfWorld().indexOf(tile);
                 return;
             }
         }
@@ -108,9 +86,9 @@ public class WorldMap implements InputProcessor {
         newY = (int) tileCoordinates.y;
 
         //((Army) selectedTile).move(newX, newY);
-        System.out.println(mapOfWorld.get(selectedTileIndex).x);
-        ((Army) mapOfWorld.get(selectedTileIndex)).move(newX, newY);
-        System.out.println(mapOfWorld.get(selectedTileIndex).x);
+        System.out.println(worldMap.getMapOfWorld().get(selectedTileIndex).x);
+        ((Army) worldMap.getMapOfWorld().get(selectedTileIndex)).move(newX, newY);
+        System.out.println(worldMap.getMapOfWorld().get(selectedTileIndex).x);
 
         selectedTile = null;
         isTileSelected = false;
@@ -133,11 +111,11 @@ public class WorldMap implements InputProcessor {
                 String owner = record.get("e.owner").asString();
                 System.out.println(tileType);
                 if (tileType.equals("EmptyTile")) {
-                    addToMap(new EmptyTile(x, y, owner));
+                    worldMap.addToMap(new EmptyTile(x, y, owner));
                 } else if (tileType.equals("TownTile")) {
-                    addToMap(new TownTile(x, y, owner));
+                    worldMap.addToMap(new TownTile(x, y, owner));
                 } else if (tileType.equals("WoodTile")) {
-                    addToMap(new WoodTile(x, y, owner));
+                    worldMap.addToMap(new WoodTile(x, y, owner));
                 }
             }
 //            result = session.run("MATCH(t:City) RETURN t.x, t.y, t.owner");
@@ -167,51 +145,7 @@ public class WorldMap implements InputProcessor {
             }
         }
 
-        System.out.println(mapOfWorld);
-    }
-
-    public void generateMap(int numberOfPlayers) {
-
-    }
-
-    public void generatePlayerChunk(String playerName, int startingX, int startingY) {
-        ArrayList<MapTile> tmpChunk = new ArrayList<>();
-        MapTile tmpMapTile;
-        Random random = new Random();
-        int low = - 2;
-        int high =  2;
-        int tmpX, tmpY;
-        int counter;
-
-        while (tmpChunk.size() < 25) {
-            tmpX = random.nextInt(high + 1 - low ) + low + startingX;
-            tmpY = random.nextInt(high + 1 - low ) + low + startingY;
-
-
-            if (tmpChunk.isEmpty()) {
-                tmpMapTile = new TownTile(tmpX, tmpY, playerName);
-            } else if (tmpChunk.size() == 1) {
-                tmpMapTile = new IronTile(tmpX, tmpY, playerName);
-            } else if (tmpChunk.size() == 2) {
-                tmpMapTile = new GoldTile(tmpX, tmpY, playerName);
-            } else if (tmpChunk.size() == 3) {
-                tmpMapTile = new WoodTile(tmpX, tmpY, playerName);
-            } else if (tmpChunk.size() == 4) {
-                tmpMapTile = new WoodTile(tmpX, tmpY, playerName);
-            } else {
-                tmpMapTile = new EmptyTile(tmpX, tmpY, playerName);
-            }
-            counter = 0;
-            for (MapTile tile : tmpChunk) {
-                if (tmpX != tile.x || tmpY != tile.y) {
-                    counter++;
-                }
-            }
-            if (counter == tmpChunk.size()) {
-                tmpChunk.add(tmpMapTile);
-            }
-        }
-        mapOfWorld.addAll(tmpChunk);
+        System.out.println(worldMap.getMapOfWorld());
     }
 
     public void setCamera(OrthographicCamera camera) {
@@ -290,4 +224,10 @@ public class WorldMap implements InputProcessor {
     public boolean scrolled(int amount) {
         return false;
     }
+
+    public ArrayList<MapTile> getMap(){
+        return worldMap.getMapOfWorld();
+
+    }
+
 }
