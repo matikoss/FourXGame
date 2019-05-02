@@ -48,6 +48,13 @@ public class GameSession implements InputProcessor {
         x = (int) tileCoordinates.x;
         y = (int) tileCoordinates.y;
 
+        if(x<0){
+            x--;
+        }
+        if(y<0){
+            y--;
+        }
+
         for (MapTile tile : worldMap.getMapOfWorld()) {
             if (tile.x == x && tile.y == y) {
                 selectedTile = tile;
@@ -61,6 +68,7 @@ public class GameSession implements InputProcessor {
         System.out.println(selectedTile.getClass().getSimpleName());
         System.out.println(selectedTile.getClass().getSimpleName().equals("Army"));
         System.out.println(selectedTileIndex);
+        System.out.println(selectedTile.x + " " + selectedTile.y);
     }
 
     private void switchSelection() {

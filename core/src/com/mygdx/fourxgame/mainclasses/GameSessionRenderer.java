@@ -19,6 +19,9 @@ public class GameSessionRenderer {
         this.gameSession = gameSession;
         this.batch = batch;
     }
+    private void init(){
+
+    }
 
     public void render() {
         batch.begin();
@@ -35,6 +38,19 @@ public class GameSessionRenderer {
             sprite.setPosition(gameSession.getSelectedTile().x, gameSession.getSelectedTile().y);
             sprite.draw(batch);
         }
+        renderGrid(batch);
         batch.end();
     }
+    public void renderGrid(SpriteBatch batch){
+        Texture texture = new Texture(Gdx.files.internal("selectionTexture.png"));
+        for(int i=-100; i<=100; i++){
+            for (int j=-100; j<=100; j++){
+                sprite = new Sprite(texture);
+                sprite.setSize(1, 1);
+                sprite.setPosition(i, j);
+                sprite.draw(batch);
+            }
+        }
+    }
+
 }

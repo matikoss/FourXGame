@@ -3,6 +3,7 @@ package com.mygdx.fourxgame.mainclasses;
 import com.mygdx.fourxgame.maptiles.*;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Random;
 import java.lang.Math;
 
@@ -23,14 +24,104 @@ public class WorldMap {
 //        generatePlayerChunk("Mati", 5, 5);
 //        generatePlayerChunk("Mati", 10, 10);
 //        generateStandardChunk("Mati", 15, 15);
-        generatePlayers(10);
+        //generatePlayers(3);
+        generateMap(10);
     }
 
     public void update(float deltaTime) {
 
     }
 
+    private void generateMap(int numberOfPlayers) {
+        generatePlayers(numberOfPlayers);
+        fillMap();
+
+    }
+
+    private void fillMap() {
+        ArrayList<MapTile> tilesWithTowns = new ArrayList<>();
+        for (MapTile mapTile : mapOfWorld) {
+            if (mapTile.getClass().getSimpleName().equals("TownTile")) {
+                tilesWithTowns.add(mapTile);
+            }
+        }
+        int maxX, maxY, minX, minY;
+        maxX = tilesWithTowns.get(0).x;
+        maxY = tilesWithTowns.get(0).y;
+        minX = tilesWithTowns.get(0).x;
+        minY = tilesWithTowns.get(0).y;
+
+        for (MapTile mapTile : tilesWithTowns) {
+            if (mapTile.x > maxX) {
+                maxX = mapTile.x;
+            }
+            if (mapTile.y > maxY) {
+                maxY = mapTile.y;
+            }
+            if (mapTile.x < minX) {
+                minX = mapTile.x;
+            }
+            if (mapTile.y < minY) {
+                minY = mapTile.y;
+            }
+        }
+        boolean isEqual;
+        for (int y = minY - 15; y <= maxY + 15; y += 5) {
+            for (int x = minX - 15; x <= maxX + 15; x += 5) {
+                isEqual = false;
+                for (MapTile mapTile : tilesWithTowns) {
+                    if (x == mapTile.x && y == mapTile.y) {
+                        isEqual = true;
+                        break;
+                    }
+                }
+                if (!isEqual) {
+                    generateStandardChunk("none", x, y);
+                }
+            }
+        }
+
+//        int radius = 3;
+//        ArrayList<MapTile> tilesWithTowns = new ArrayList<>();
+//        ArrayList<MapTile> generatorSeeds = new ArrayList<>();
+//        for (MapTile mapTile : mapOfWorld) {
+//            if (mapTile.getClass().getSimpleName().equals("TownTile")) {
+//                tilesWithTowns.add(mapTile);
+//            }
+//        }
+//        for (MapTile mapTile : tilesWithTowns) {
+//            for (int i = radius * (-5); i <= radius * 5; i += 5) {
+//                for (int j = radius * (-5); j <= radius * 5; j += 5) {
+//                    if (i != 0 || j != 0) {
+//                        generatorSeeds.add(new EmptyTile(j + mapTile.x, i + mapTile.y, "none"));
+//                    }
+//                }
+//            }
+//        }
+//        LinkedHashSet<MapTile> noDuplicates = new LinkedHashSet<>();
+//        noDuplicates.addAll(generatorSeeds);
+//        generatorSeeds.clear();
+//        generatorSeeds.addAll(noDuplicates);
+//        for (int i = 0; i < generatorSeeds.size(); i++) {
+//            for (int j = i + 1; j < generatorSeeds.size(); j++) {
+//                if (generatorSeeds.get(i).x == generatorSeeds.get(j).x && generatorSeeds.get(i).y == generatorSeeds.get(j).y) {
+//                    generatorSeeds.remove(j);
+//                }
+//            }
+//        }
+//
+//        for (MapTile mapTile : generatorSeeds) {
+//            for (MapTile mapTileTowns : tilesWithTowns) {
+//                if ((mapTile.x != mapTileTowns.x) || (mapTile.y != mapTileTowns.y)) {
+//                    generateStandardChunk("none", mapTile.x, mapTile.y);
+//                }
+//            }
+//        }
+    }
+
     private void generatePlayers(int numberOfPlayers) {
+        ArrayList<MapTile> checkedTiles = new ArrayList<>();
+        MapTile tmpTile;
 
         Random random = new Random();
         int high = 25;
@@ -39,6 +130,7 @@ public class WorldMap {
         int playerY = random.nextInt(high + 1 - low) + low;
         int tryCounter = 0;
         int lastTryIndex = 1;
+        int last = checkedTiles.size() - lastTryIndex;
         System.out.println(playerX + " " + playerY);
         generatePlayerChunk("Player", playerX, playerY);
         int oldPlayerX = playerX;
@@ -58,13 +150,17 @@ public class WorldMap {
             do {
                 boolean changeX = random.nextBoolean();
                 if (changeX && increaseX) {
-                    playerX++;
+                    //playerX++;
+                    playerX += 5;
                 } else if (changeX) {
-                    playerX--;
+                    //playerX--;
+                    playerX -= 5;
                 } else if (increaseY) {
-                    playerY++;
+                    //playerY++;
+                    playerY += 5;
                 } else {
-                    playerY--;
+                    //playerY--;
+                    playerY -= 5;
                 }
             } while (calculateDistance(oldPlayerX, oldPlayerY, playerX, playerY) < 15);
             System.out.println(calculateDistance(oldPlayerX, oldPlayerY, playerX, playerY));
@@ -81,19 +177,23 @@ public class WorldMap {
                 }
             }
             if (tryCounter >= 50) {
+                if (last >= 0) {
+                    checkedTiles.remove(last);
+                }
                 changeOldPlayerXY = false;
-                int last = mapOfWorld.size() - lastTryIndex;
+                last = checkedTiles.size() - lastTryIndex;
+                //int last = mapOfWorld.size() - lastTryIndex;
                 if (last < 0) {
                     lastTryIndex = 1;
                 }
                 if (!fromStart) {
-                    oldPlayerX = mapOfWorld.get(last).x;
-                    oldPlayerY = mapOfWorld.get(last).y;
+                    oldPlayerX = checkedTiles.get(last).x;
+                    oldPlayerY = checkedTiles.get(last).y;
                     tryCounter = 0;
                     fromStart = true;
                 } else {
-                    oldPlayerX = mapOfWorld.get(lastTryIndex).x;
-                    oldPlayerY = mapOfWorld.get(lastTryIndex).y;
+                    oldPlayerX = checkedTiles.get(lastTryIndex).x;
+                    oldPlayerY = checkedTiles.get(lastTryIndex).y;
                     tryCounter = 0;
                     fromStart = false;
                     lastTryIndex++;
@@ -101,6 +201,8 @@ public class WorldMap {
             }
             if (!duplicate) {
                 System.out.println(playerX + " " + playerY);
+                tmpTile = new TownTile(playerX, playerY, "Player");
+                checkedTiles.add(tmpTile);
                 generatePlayerChunk("Player", playerX, playerY);
                 changeOldPlayerXY = random.nextBoolean();
                 tryCounter = 0;
@@ -161,13 +263,13 @@ public class WorldMap {
             tmpY = yPosition - 2 + i;
             for (int j = 0; j < columns; j++) {
                 tmpX = xPosition - 2 + j;
-                int type = random.nextInt(10) + 1;
+                int type = random.nextInt(100) + 1;
                 System.out.println(type);
-                if (type == 1) {
+                if (type == 5 || type == 56) {
                     tmpMapTile = new GoldTile(tmpX, tmpY, playerName);
-                } else if (type == 2) {
+                } else if (type == 85 || type == 1) {
                     tmpMapTile = new IronTile(tmpX, tmpY, playerName);
-                } else if (type >= 3 && type <= 5) {
+                } else if (type >= 11 && type <= 30) {
                     tmpMapTile = new WoodTile(tmpX, tmpY, playerName);
                 } else {
                     tmpMapTile = new EmptyTile(tmpX, tmpY, playerName);

@@ -34,4 +34,5 @@ public abstract class MapTile {
     public void setOwner(String owner) {
         this.owner = owner;
     }
+
 }
