@@ -15,6 +15,7 @@ import java.util.Random;
 
 public class GameSession implements InputProcessor {
 
+    public CameraController cameraController;
     private MapTile selectedTile;
     private boolean isTileSelected;
     private int selectedTileIndex;
@@ -22,6 +23,7 @@ public class GameSession implements InputProcessor {
     private WorldMap worldMap;
 
     public GameSession() {
+        cameraController = new CameraController();
         worldMap = new WorldMap();
         selectedTile = null;
         isTileSelected = false;
@@ -31,6 +33,7 @@ public class GameSession implements InputProcessor {
     }
 
     public void update(float deltaTime) {
+        cameraController.update(deltaTime);
         worldMap.update(deltaTime);
     }
 

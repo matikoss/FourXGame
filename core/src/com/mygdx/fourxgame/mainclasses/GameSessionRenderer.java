@@ -2,6 +2,7 @@ package com.mygdx.fourxgame.mainclasses;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -9,18 +10,22 @@ import com.mygdx.fourxgame.controllers.GameSession;
 import com.mygdx.fourxgame.maptiles.MapTile;
 
 public class GameSessionRenderer {
+    private OrthographicCamera camera;
     private GameSession gameSession;
     private SpriteBatch batch;
     private Sprite sprite;
 
 
-    public GameSessionRenderer(GameSession gameSession, SpriteBatch batch) {
-
+    public GameSessionRenderer(GameSession gameSession) {
         this.gameSession = gameSession;
-        this.batch = batch;
+        init();
     }
     private void init(){
-
+        batch = new SpriteBatch();
+        camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
+        camera.position.set(0, 0, 0);
+        camera.update();
+        gameSession.setCamera(camera);
     }
 
     public void render() {
@@ -41,6 +46,20 @@ public class GameSessionRenderer {
         renderGrid(batch);
         batch.end();
     }
+    public void resize(int width, int height){
+        camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / height) * width;
+        camera.update();
+    }
+
+    public void dispose(){
+        batch.dispose();
+    }
+
+    public void update(){
+        gameSession.cameraController.applyTo(camera);
+        batch.setProjectionMatrix(camera.combined);
+    }
+
     public void renderGrid(SpriteBatch batch){
         Texture texture = new Texture(Gdx.files.internal("selectionTexture.png"));
         for(int i=-100; i<=100; i++){
