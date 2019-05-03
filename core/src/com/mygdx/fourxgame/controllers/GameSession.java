@@ -22,9 +22,9 @@ public class GameSession implements InputProcessor {
     private OrthographicCamera camera;
     private WorldMap worldMap;
 
-    public GameSession() {
+    public GameSession(int numberOfPlayers) {
         cameraController = new CameraController();
-        worldMap = new WorldMap();
+        worldMap = new WorldMap(numberOfPlayers);
         selectedTile = null;
         isTileSelected = false;
         //loadMapFromDatabase();

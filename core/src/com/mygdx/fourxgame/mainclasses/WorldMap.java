@@ -9,8 +9,10 @@ import java.lang.Math;
 
 public class WorldMap {
     private ArrayList<MapTile> mapOfWorld;
+    private int numberOfPlayers;
 
-    public WorldMap() {
+    public WorldMap(int numberOfPlayers) {
+        this.numberOfPlayers = numberOfPlayers;
         mapOfWorld = new ArrayList<>();
 //        generatePlayerChunk("Mati", 0, 0);
 //        generatePlayerChunk("Mati", 5, 0);
@@ -25,7 +27,7 @@ public class WorldMap {
 //        generatePlayerChunk("Mati", 10, 10);
 //        generateStandardChunk("Mati", 15, 15);
         //generatePlayers(3);
-        generateMap(10);
+        generateMap(numberOfPlayers);
     }
 
     public void update(float deltaTime) {
