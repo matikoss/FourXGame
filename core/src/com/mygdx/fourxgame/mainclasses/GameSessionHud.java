@@ -99,7 +99,7 @@ public class GameSessionHud implements Disposable {
         addResourcesInfoToStage();
 
         Table buttonTable = new Table();
-        buttonTable.setPosition(360, -250);
+        buttonTable.setPosition(380, -250);
         buttonTable.setFillParent(true);
 
         buttonTable.add(menuBtn).pad(5);
