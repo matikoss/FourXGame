@@ -1,6 +1,5 @@
 package com.mygdx.fourxgame.mainclasses;
 
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.fourxgame.controllers.GameController;
 
@@ -37,12 +36,16 @@ public class GameRenderer {
     }
 
     public void resize(int width, int height) {
+        if(!gameController.isInGame() && gameController.isInMainMenu()){
+            mainMenu.resize(width,height);
+        }
         if (gameController.isInGame() && !gameController.isInMainMenu()) {
             gameSessionRenderer.resize(width, height);
         }
     }
 
     public void dispose() {
+        mainMenu.dispose();
         batch.dispose();
     }
 
@@ -50,5 +53,6 @@ public class GameRenderer {
         if (gameController.isInGame() && !gameController.isInMainMenu()) {
             gameSessionRenderer.update();
         }
+
     }
 }

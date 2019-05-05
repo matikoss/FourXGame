@@ -5,13 +5,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
+import com.mygdx.fourxgame.mainclasses.Player;
 import com.mygdx.fourxgame.mainclasses.WorldMap;
 import com.mygdx.fourxgame.maptiles.*;
 
 import org.neo4j.driver.v1.*;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class GameSession implements InputProcessor {
 
@@ -21,20 +21,35 @@ public class GameSession implements InputProcessor {
     private int selectedTileIndex;
     private OrthographicCamera camera;
     private WorldMap worldMap;
+    private ArrayList<Player> players;
+    private int numberOfPlayers;
+
+
+    private Player playerWhoseTurnIs;
 
     public GameSession(int numberOfPlayers) {
         cameraController = new CameraController();
+        this.numberOfPlayers = numberOfPlayers;
         worldMap = new WorldMap(numberOfPlayers);
+        players = new ArrayList<>();
+        createPlayers();
         selectedTile = null;
         isTileSelected = false;
         //loadMapFromDatabase();
         //mapOfWorld.add(new Army(2, 2, "Mati", 0, 0, 0));
-        Gdx.input.setInputProcessor(this);
+        //Gdx.input.setInputProcessor(this);
     }
 
     public void update(float deltaTime) {
         cameraController.update(deltaTime);
         worldMap.update(deltaTime);
+    }
+
+    private void createPlayers() {
+        for (int i = 0; i < numberOfPlayers; i++) {
+            players.add(new Player("Player" + i, null, null, 100, 100, 100, 50));
+        }
+        playerWhoseTurnIs = players.get(0);
     }
 
     private void checkTileSelection() {
@@ -46,15 +61,24 @@ public class GameSession implements InputProcessor {
     private void selectTile() {
         int x = Gdx.input.getX();
         int y = Gdx.input.getY();
+        System.out.println(x + " " + y);
+        if ((y >= (Gdx.graphics.getHeight() - 20 * (Gdx.graphics.getHeight() / 720))) || (y <= (40 * (Gdx.graphics.getHeight() / 720))) || ((x >= (Gdx.graphics.getWidth() - 330 * Gdx.graphics.getWidth() / 1280)) && (y >= (Gdx.graphics.getHeight() - 220 * Gdx.graphics.getHeight() / 720)))) {
+            System.out.println(Gdx.graphics.getWidth() + " " + Gdx.graphics.getHeight());
+            return;
+        }
+
         Vector3 tileCoordinates = translateCoordinates(x, y);
+
+        System.out.println(tileCoordinates.x + " " + tileCoordinates.y);
 
         x = (int) tileCoordinates.x;
         y = (int) tileCoordinates.y;
 
-        if(x<0){
+
+        if (tileCoordinates.x < 0) {
             x--;
         }
-        if(y<0){
+        if (tileCoordinates.y < 0) {
             y--;
         }
 
@@ -177,6 +201,18 @@ public class GameSession implements InputProcessor {
         return selectedTile;
     }
 
+    public void setSelectedTile(MapTile selectedTile) {
+        this.selectedTile = selectedTile;
+    }
+
+    public void setTileSelected(boolean tileSelected) {
+        isTileSelected = tileSelected;
+    }
+
+    public Player getPlayerWhoseTurnIs() {
+        return playerWhoseTurnIs;
+    }
+
     @Override
     public boolean keyDown(int keycode) {
         System.out.println("KeyDown");
@@ -205,6 +241,14 @@ public class GameSession implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        int x = Gdx.input.getX();
+        int y = Gdx.input.getY();
+
+        if ((y >= (Gdx.graphics.getHeight() - 20 * (Gdx.graphics.getHeight() / 720))) || (y <= (40 * (Gdx.graphics.getHeight() / 720)))
+                || ((x >= (Gdx.graphics.getWidth() - 330 * Gdx.graphics.getWidth() / 1280)) && (y >= (Gdx.graphics.getHeight() - 220 * Gdx.graphics.getHeight() / 720)))) {
+            return  false;
+        }
+
         if (button == Input.Buttons.LEFT) {
             selectTile();
             return true;
@@ -236,7 +280,7 @@ public class GameSession implements InputProcessor {
         return false;
     }
 
-    public ArrayList<MapTile> getMap(){
+    public ArrayList<MapTile> getMap() {
         return worldMap.getMapOfWorld();
 
     }

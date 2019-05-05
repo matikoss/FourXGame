@@ -41,7 +41,7 @@ public class MainMenu {
         this.gameController = gameController;
         init();
         initMenuElements();
-        setButtonsListeners();
+        setButtonsListenersMainMenu();
         showFirstMenu();
     }
 
@@ -209,7 +209,7 @@ public class MainMenu {
 
     }
 
-    private void setButtonsListeners() {
+    private void setButtonsListenersMainMenu() {
         newGameBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -251,6 +251,14 @@ public class MainMenu {
                 showFirstMenu();
             }
         });
+    }
+    public void resize(int width, int height){
+        viewport.update(width,height);
+
+    }
+
+    public void dispose(){
+        stage.dispose();
     }
 
 }

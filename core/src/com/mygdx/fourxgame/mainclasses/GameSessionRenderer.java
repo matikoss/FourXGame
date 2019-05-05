@@ -2,6 +2,8 @@ package com.mygdx.fourxgame.mainclasses;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -19,16 +21,21 @@ public class GameSessionRenderer {
     private GameSessionHud hud;
     private Viewport viewport;
 
+    private InputProcessor gameSessionInputProcessor;
+    private InputProcessor hudInputProcessor;
+    private InputMultiplexer inputMultiplexer;
 
 
     public GameSessionRenderer(GameSession gameSession, SpriteBatch batch) {
         this.batch = batch;
         this.gameSession = gameSession;
         init();
+        setupInput();
     }
 
     private void init() {
         camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
+        hud = new GameSessionHud(batch, gameSession);
         camera.position.set(0, 0, 0);
         //camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / Gdx.graphics.getHeight()) * Gdx.graphics.getWidth();
         resize(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
@@ -36,10 +43,21 @@ public class GameSessionRenderer {
 //        viewport = new FitViewport(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT, camera);
 //        viewport.apply();
         gameSession.setCamera(camera);
-        hud = new GameSessionHud(batch);
+    }
+
+    private void setupInput(){
+        inputMultiplexer = new InputMultiplexer();
+        gameSessionInputProcessor = gameSession;
+        hudInputProcessor = hud.stage;
+
+        inputMultiplexer.addProcessor(gameSessionInputProcessor);
+        inputMultiplexer.addProcessor(hudInputProcessor);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+
     }
 
     public void render() {
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
         for (MapTile tile : gameSession.getMap()) {
             sprite = new Sprite(tile.getTexture());
@@ -54,19 +72,24 @@ public class GameSessionRenderer {
             sprite.setPosition(gameSession.getSelectedTile().x, gameSession.getSelectedTile().y);
             sprite.draw(batch);
         }
-        renderGrid(batch);
+        //renderGrid(batch);
         batch.end();
         batch.setProjectionMatrix(hud.stage.getCamera().combined);
+        hud.render();
         hud.stage.draw();
 
     }
 
     public void resize(int width, int height) {
+        hud.resize(width, height);
         camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / height) * width;
         camera.update();
+
     }
 
     public void update() {
+        hud.setPlayerWhoseTurnIs(gameSession.getPlayerWhoseTurnIs());
+        hud.update();
         gameSession.cameraController.applyTo(camera);
         batch.setProjectionMatrix(camera.combined);
     }
