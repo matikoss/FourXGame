@@ -13,5 +13,41 @@ public class TownTile extends MapTile {
 
     public TownTile(int x, int y, String owner) {
         super(x, y, owner, "townTexture.png");
+        castle=0;
+        townHall=0;
+        wall=0;
+        barrack=0;
+        stable=0;
+        bank=0;
+        houses=0;
     }
+
+    public int getCastle() {
+        return castle;
+    }
+
+    public int getTownHall() {
+        return townHall;
+    }
+
+    public int getWall() {
+        return wall;
+    }
+
+    public int getBarrack() {
+        return barrack;
+    }
+
+    public int getStable() {
+        return stable;
+    }
+
+    public int getBank() {
+        return bank;
+    }
+
+    public int getHouses() {
+        return houses;
+    }
+
 }

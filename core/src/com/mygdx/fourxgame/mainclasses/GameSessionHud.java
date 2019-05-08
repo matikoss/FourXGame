@@ -48,6 +48,15 @@ public class GameSessionHud implements Disposable {
     private Button recruitmentMenuBtn;
     private Button buyTilesBtn;
 
+    private Button buildCastleBtn;
+    private Button buildBarracksBtn;
+    private Button buildTownHallBtn;
+    private Button buildStablesButton;
+    private Button buildWallBtn;
+    private Button buildBankBtn;
+    private Button buildHousesBtn;
+    private Button buildMenuBackBtn;
+
     private boolean isTownMenu = false;
 
 
@@ -129,6 +138,31 @@ public class GameSessionHud implements Disposable {
             stage.addActor(buttonTable);
             isTownMenu = true;
         }
+    }
+
+    private void showBuildingMenu(){
+        stage.clear();
+
+        addResourcesInfoToStage();
+
+        Table buildingButtonsTable = new Table();
+        buildingButtonsTable.setPosition(480, -250);
+        buildingButtonsTable.setFillParent(true);
+
+        buildingButtonsTable.add(buildCastleBtn).pad(3);
+        buildingButtonsTable.add(buildTownHallBtn).pad(3);
+        buildingButtonsTable.add(buildHousesBtn).pad(3);
+        buildingButtonsTable.row();
+        buildingButtonsTable.add(buildBarracksBtn).pad(3);
+        buildingButtonsTable.add(buildStablesButton).pad(3);
+        buildingButtonsTable.add(buildWallBtn).pad(3);
+        buildingButtonsTable.row();
+        buildingButtonsTable.add(buildMenuBackBtn).pad(3);
+        buildingButtonsTable.add(buildBankBtn).pad(3);
+
+        stage.addActor(buildingButtonsTable);
+
+
     }
 
     private void initResourcesBar() {
@@ -228,6 +262,15 @@ public class GameSessionHud implements Disposable {
         recruitmentMenuBtn = new ImageButton(recruitButtonStyle);
         buyTilesBtn = new TextButton("Buy Tiles", emptyTextButtonStyle);
 
+        buildCastleBtn = new TextButton("Castle", emptyTextButtonStyle);
+        buildBarracksBtn = new TextButton("Barracks", emptyTextButtonStyle);
+        buildTownHallBtn = new TextButton("Town Hall", emptyTextButtonStyle);
+        buildStablesButton = new TextButton("Stables", emptyTextButtonStyle);
+        buildBankBtn = new TextButton("Bank", emptyTextButtonStyle);
+        buildHousesBtn = new TextButton("Houses", emptyTextButtonStyle);
+        buildWallBtn = new TextButton("Wall", emptyTextButtonStyle);
+        buildMenuBackBtn = new TextButton("Back", emptyTextButtonStyle);
+
 
         //Gdx.input.setInputProcessor(stage);
 
@@ -252,6 +295,20 @@ public class GameSessionHud implements Disposable {
                 showMainButtons();
             }
         });
+        buildingMenuBtn.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showBuildingMenu();
+            }
+        });
+
+        buildMenuBackBtn.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showTownButtons();
+            }
+        });
+
 
     }
 }
