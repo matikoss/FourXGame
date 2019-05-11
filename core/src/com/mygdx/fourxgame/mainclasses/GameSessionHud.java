@@ -14,10 +14,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.fourxgame.controllers.GameSession;
+import com.mygdx.fourxgame.maptiles.MapTile;
+import com.mygdx.fourxgame.maptiles.TownTile;
+import javafx.scene.control.Tab;
 
 
 public class GameSessionHud implements Disposable {
@@ -57,7 +61,35 @@ public class GameSessionHud implements Disposable {
     private Button buildHousesBtn;
     private Button buildMenuBackBtn;
 
+    private Button recruitBtn;
+    private Button backRecruitmentMenuBtn;
+    private Label recruitMenuArchersLabel;
+    private Label recruitMenuFootmanLabel;
+    private Label recruitMenuCavalryLabel;
+    private TextField amountOfArchersToRecruit;
+    private TextField amountOfFootmansToRecruit;
+    private TextField amountOfCavalryToRecruit;
+
+    private Image townInfoBackground;
+    private Label townInfoTitle;
+
+    private Label townInfoCastle;
+    private Label townInfoTownhall;
+    private Label townInfoWall;
+    private Label townInfoBarracks;
+    private Label townInfoStables;
+    private Label townInfoHouses;
+    private Label townInfoBank;
+
+    private Label armySectionInfo;
+    private Label inTownArchersAmount;
+    private Label inTownFootmansAmount;
+    private Label inTownCavalryAmount;
+
+
     private boolean isTownMenu = false;
+    private boolean isBuildingMenu = false;
+    private boolean isRecruitmentMenu = false;
 
 
     public GameSessionHud(SpriteBatch batch, GameSession gameSession) {
@@ -120,7 +152,7 @@ public class GameSessionHud implements Disposable {
     }
 
     private void showTownButtons() {
-        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("TownTile") && !isTownMenu) {
+        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("TownTile") && !isTownMenu && !isBuildingMenu && !isRecruitmentMenu) {
             stage.clear();
 
             addResourcesInfoToStage();
@@ -136,12 +168,16 @@ public class GameSessionHud implements Disposable {
             buttonTable.add(backBtnTownMenu);
 
             stage.addActor(buttonTable);
+            showTownInfo();
             isTownMenu = true;
         }
     }
 
-    private void showBuildingMenu(){
+    private void showBuildingMenu() {
         stage.clear();
+
+        isBuildingMenu = true;
+        isTownMenu = false;
 
         addResourcesInfoToStage();
 
@@ -159,10 +195,90 @@ public class GameSessionHud implements Disposable {
         buildingButtonsTable.row();
         buildingButtonsTable.add(buildMenuBackBtn).pad(3);
         buildingButtonsTable.add(buildBankBtn).pad(3);
+        showTownInfo();
 
         stage.addActor(buildingButtonsTable);
 
 
+    }
+
+    private void showRecruitmentMenu() {
+        stage.clear();
+
+        isRecruitmentMenu = true;
+        isTownMenu = false;
+
+        addResourcesInfoToStage();
+
+        Table recruitmentTable = new Table();
+        recruitmentTable.setPosition(480, -250);
+        recruitmentTable.setFillParent(true);
+
+        recruitmentTable.add(recruitMenuArchersLabel).padBottom(3);
+        recruitmentTable.add(amountOfArchersToRecruit).padBottom(3);
+        recruitmentTable.row();
+        recruitmentTable.add(recruitMenuFootmanLabel).padBottom(3);
+        recruitmentTable.add(amountOfFootmansToRecruit).padBottom(3);
+        recruitmentTable.row();
+        recruitmentTable.add(recruitMenuCavalryLabel).padBottom(3);
+        recruitmentTable.add(amountOfCavalryToRecruit).padBottom(3);
+        recruitmentTable.row();
+        recruitmentTable.add(backRecruitmentMenuBtn).pad(3);
+        recruitmentTable.add(recruitBtn);
+        showTownInfo();
+
+        stage.addActor(recruitmentTable);
+    }
+
+    private void updateTownInfo() {
+        TownTile tmpSelectedTown = (TownTile) gameSession.getSelectedTile();
+        townInfoCastle.setText("Castle level: " + tmpSelectedTown.getCastle());
+        townInfoTownhall.setText("Town Hall level: " + tmpSelectedTown.getTownHall());
+        townInfoHouses.setText("Houses level: " + tmpSelectedTown.getHouses());
+        townInfoBank.setText("Bank level: " + tmpSelectedTown.getBank());
+        townInfoWall.setText("Wall level: " + tmpSelectedTown.getWall());
+        townInfoBarracks.setText("Barracks level: " + tmpSelectedTown.getBarrack());
+        townInfoStables.setText("Stable level: " + tmpSelectedTown.getStable());
+    }
+
+    private void showTownInfo() {
+        townInfoBackground.setPosition(viewport.getWorldWidth() - 330, 250);
+
+        Table townInfoTable = new Table();
+        townInfoTable.setPosition(viewport.getWorldWidth() - 165, 450);
+        townInfoTitle.setFontScale(1.5f);
+        armySectionInfo.setFontScale(1.2f);
+        updateTownInfo();
+
+
+        townInfoTable.add(townInfoTitle).pad(2);
+        townInfoTable.row();
+        townInfoTable.add(townInfoCastle).pad(2);
+        townInfoTable.row();
+        townInfoTable.add(townInfoTownhall).pad(2);
+        townInfoTable.row();
+        townInfoTable.add(townInfoHouses).pad(2);
+        townInfoTable.row();
+        townInfoTable.add(townInfoBank).pad(2);
+        townInfoTable.row();
+        townInfoTable.add(townInfoBarracks).pad(2);
+        townInfoTable.row();
+        townInfoTable.add(townInfoStables).pad(2);
+        townInfoTable.row();
+        townInfoTable.add(townInfoWall).pad(2);
+        townInfoTable.row();
+        townInfoTable.row();
+        townInfoTable.add(armySectionInfo).pad(2);
+        townInfoTable.row();
+        townInfoTable.add(inTownArchersAmount).pad(2);
+        townInfoTable.row();
+        townInfoTable.add(inTownFootmansAmount).pad(2);
+        townInfoTable.row();
+        townInfoTable.add(inTownCavalryAmount).pad(2);
+        townInfoTable.row();
+
+        stage.addActor(townInfoBackground);
+        stage.addActor(townInfoTable);
     }
 
     private void initResourcesBar() {
@@ -208,6 +324,7 @@ public class GameSessionHud implements Disposable {
 
     }
 
+
     private void addResourcesInfoToStage() {
         stage.addActor(woodAmountLabel);
         stage.addActor(ironAmountLabel);
@@ -229,6 +346,7 @@ public class GameSessionHud implements Disposable {
         Texture buildingTextureBtnDown = new Texture(Gdx.files.internal("buildButtonOn.png"));
         Texture recruitTextureBtnUp = new Texture(Gdx.files.internal("recruitButtonOff.png"));
         Texture recruitTextureBtnDown = new Texture(Gdx.files.internal("recruitButtonOn.png"));
+        Texture townInfoBackgroundTexture = new Texture(Gdx.files.internal("townInfoBackgroundTexture.png"));
 
 
         Drawable drawableEmptyTextureBtnUp = new TextureRegionDrawable(new TextureRegion(emptyTextureBtnUp));
@@ -262,16 +380,39 @@ public class GameSessionHud implements Disposable {
         recruitmentMenuBtn = new ImageButton(recruitButtonStyle);
         buyTilesBtn = new TextButton("Buy Tiles", emptyTextButtonStyle);
 
-        buildCastleBtn = new TextButton("Castle", emptyTextButtonStyle);
-        buildBarracksBtn = new TextButton("Barracks", emptyTextButtonStyle);
-        buildTownHallBtn = new TextButton("Town Hall", emptyTextButtonStyle);
-        buildStablesButton = new TextButton("Stables", emptyTextButtonStyle);
-        buildBankBtn = new TextButton("Bank", emptyTextButtonStyle);
-        buildHousesBtn = new TextButton("Houses", emptyTextButtonStyle);
-        buildWallBtn = new TextButton("Wall", emptyTextButtonStyle);
+        buildCastleBtn = new TextButton("Build Castle", emptyTextButtonStyle);
+        buildBarracksBtn = new TextButton("Build Barracks", emptyTextButtonStyle);
+        buildTownHallBtn = new TextButton("Build Town Hall", emptyTextButtonStyle);
+        buildStablesButton = new TextButton("Build Stables", emptyTextButtonStyle);
+        buildBankBtn = new TextButton("Build Bank", emptyTextButtonStyle);
+        buildHousesBtn = new TextButton("Build Houses", emptyTextButtonStyle);
+        buildWallBtn = new TextButton("Build Wall", emptyTextButtonStyle);
         buildMenuBackBtn = new TextButton("Back", emptyTextButtonStyle);
 
+        backRecruitmentMenuBtn = new TextButton("Back", emptyTextButtonStyle);
+        recruitBtn = new TextButton("Recruit!", emptyTextButtonStyle);
+        recruitMenuArchersLabel = new Label("Amount of archers:", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        recruitMenuFootmanLabel = new Label("Amount of footman:", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        recruitMenuCavalryLabel = new Label("Amount of cavalry:", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        amountOfArchersToRecruit = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
+        amountOfFootmansToRecruit = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
+        amountOfCavalryToRecruit = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
 
+        townInfoBackground = new Image(townInfoBackgroundTexture);
+
+        townInfoTitle = new Label("Town Information", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        townInfoCastle = new Label("Castle: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        townInfoTownhall = new Label("Townhall: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        townInfoHouses = new Label("Houses: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        townInfoBank = new Label("Bank: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        townInfoBarracks = new Label("Barracks: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        townInfoStables = new Label("Stables: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        townInfoWall = new Label("Wall: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+
+        armySectionInfo = new Label("Army in town: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        inTownArchersAmount = new Label("Archers: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        inTownFootmansAmount = new Label("Footmans: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        inTownCavalryAmount = new Label("Cavalry: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         //Gdx.input.setInputProcessor(stage);
 
     }
@@ -295,16 +436,33 @@ public class GameSessionHud implements Disposable {
                 showMainButtons();
             }
         });
-        buildingMenuBtn.addListener(new ClickListener(){
+        buildingMenuBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 showBuildingMenu();
             }
         });
 
-        buildMenuBackBtn.addListener(new ClickListener(){
+        recruitmentMenuBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
+                showRecruitmentMenu();
+            }
+        });
+
+        buildMenuBackBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                isBuildingMenu = false;
+                showTownButtons();
+            }
+        });
+
+        backRecruitmentMenuBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                isRecruitmentMenu = false;
                 showTownButtons();
             }
         });
