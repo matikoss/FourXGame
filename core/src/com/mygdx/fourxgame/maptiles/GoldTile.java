@@ -6,4 +6,9 @@ public class GoldTile extends ResourcesTile {
         super(x, y, owner, "goldTexture.png");
         isGoldMineBuilt = false;
     }
+
+    @Override
+    public void newTurnUpdate() {
+
+    }
 }

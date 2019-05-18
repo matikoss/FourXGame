@@ -252,12 +252,13 @@ public class MainMenu {
             }
         });
     }
-    public void resize(int width, int height){
-        viewport.update(width,height);
+
+    public void resize(int width, int height) {
+        viewport.update(width, height);
 
     }
 
-    public void dispose(){
+    public void dispose() {
         stage.dispose();
     }
 

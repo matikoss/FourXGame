@@ -10,10 +10,13 @@ import java.lang.Math;
 public class WorldMap {
     private ArrayList<MapTile> mapOfWorld;
     private int numberOfPlayers;
+    private ArrayList<Player> players;
 
-    public WorldMap(int numberOfPlayers) {
+    public WorldMap(int numberOfPlayers, ArrayList<Player> players) {
         this.numberOfPlayers = numberOfPlayers;
+
         mapOfWorld = new ArrayList<>();
+        this.players = players;
 //        generatePlayerChunk("Mati", 0, 0);
 //        generatePlayerChunk("Mati", 5, 0);
 //        generatePlayerChunk("Mati", 10, 0);
@@ -134,7 +137,7 @@ public class WorldMap {
         int lastTryIndex = 1;
         int last = checkedTiles.size() - lastTryIndex;
         System.out.println(playerX + " " + playerY);
-        generatePlayerChunk("Player", playerX, playerY);
+        generatePlayerChunk(players.get(0).playerName, playerX, playerY, players.get(0));
         int oldPlayerX = playerX;
         int oldPlayerY = playerY;
         boolean changeOldPlayerXY = false;
@@ -203,9 +206,9 @@ public class WorldMap {
             }
             if (!duplicate) {
                 System.out.println(playerX + " " + playerY);
-                tmpTile = new TownTile(playerX, playerY, "Player");
+                tmpTile = new TownTile(playerX, playerY, players.get(i+1).playerName);
                 checkedTiles.add(tmpTile);
-                generatePlayerChunk("Player", playerX, playerY);
+                generatePlayerChunk(players.get(i+1).playerName, playerX, playerY, players.get(i+1));
                 changeOldPlayerXY = random.nextBoolean();
                 tryCounter = 0;
                 lastTryIndex = 1;
@@ -213,7 +216,7 @@ public class WorldMap {
         }
     }
 
-    private void generatePlayerChunk(String playerName, int startingX, int startingY) {
+    private void generatePlayerChunk(String playerName, int startingX, int startingY, Player ownerOfStartingChunk) {
         ArrayList<MapTile> tmpChunk = new ArrayList<>();
         MapTile tmpMapTile;
         Random random = new Random();
@@ -252,6 +255,7 @@ public class WorldMap {
             }
         }
         mapOfWorld.addAll(tmpChunk);
+        ownerOfStartingChunk.addMultipleTilesToPlayer(tmpChunk);
     }
 
     private void generateStandardChunk(String playerName, int xPosition, int yPosition) {
@@ -282,7 +286,7 @@ public class WorldMap {
         mapOfWorld.addAll(tmpChunk);
     }
 
-    private int calculateDistance(int firstTileX, int firstTileY, int secondTileX, int secondTileY) {
+    public int calculateDistance(int firstTileX, int firstTileY, int secondTileX, int secondTileY) {
         return Math.max(Math.abs(secondTileX - firstTileX), Math.abs(secondTileY - firstTileY));
     }
 

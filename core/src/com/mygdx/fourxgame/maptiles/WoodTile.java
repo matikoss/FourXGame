@@ -6,4 +6,8 @@ public class WoodTile extends ResourcesTile {
         super(x, y, owner, "forestTexture.png");
         isLumbermillBuilt = false;
     }
+
+    public void newTurnUpdate(){
+
+    }
 }

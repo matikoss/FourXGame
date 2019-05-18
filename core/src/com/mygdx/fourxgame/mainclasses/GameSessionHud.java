@@ -1,5 +1,6 @@
 package com.mygdx.fourxgame.mainclasses;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -14,14 +15,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.fourxgame.controllers.GameSession;
-import com.mygdx.fourxgame.maptiles.MapTile;
+import com.mygdx.fourxgame.maptiles.Army;
 import com.mygdx.fourxgame.maptiles.TownTile;
-import javafx.scene.control.Tab;
 
 
 public class GameSessionHud implements Disposable {
@@ -51,6 +50,7 @@ public class GameSessionHud implements Disposable {
     private Button buildingMenuBtn;
     private Button recruitmentMenuBtn;
     private Button buyTilesBtn;
+    private Button leaveArmyFromTownBtn;
 
     private Button buildCastleBtn;
     private Button buildBarracksBtn;
@@ -66,11 +66,11 @@ public class GameSessionHud implements Disposable {
     private Label recruitMenuArchersLabel;
     private Label recruitMenuFootmanLabel;
     private Label recruitMenuCavalryLabel;
-    private TextField amountOfArchersToRecruit;
-    private TextField amountOfFootmansToRecruit;
-    private TextField amountOfCavalryToRecruit;
+    private TextField amountOfArchersToRecruitTF;
+    private TextField amountOfFootmansToRecruitTF;
+    private TextField amountOfCavalryToRecruitTF;
 
-    private Image townInfoBackground;
+    private Image infoBackground;
     private Label townInfoTitle;
 
     private Label townInfoCastle;
@@ -86,10 +86,26 @@ public class GameSessionHud implements Disposable {
     private Label inTownFootmansAmount;
     private Label inTownCavalryAmount;
 
+    private Label armyInfo;
+    private Label armyArchersAmountInfo;
+    private Label armyFootmansAmountInfo;
+    private Label armyCavalryAmountInfo;
+
+    private Label currentPlayer;
+
+    private TextField amountOfArchersToLeaveTown;
+    private TextField amountOfFootmansToLeaveTown;
+    private TextField amountOfCavalryToLeaveTown;
+    private Label amountOfArchersToLeaveTownLabel;
+    private Label amountOfFootmansToLeaveTownLabel;
+    private Label amountOfCavalryToLeaveTownLabel;
+    private Button leaveTownBackBtn;
+
 
     private boolean isTownMenu = false;
     private boolean isBuildingMenu = false;
     private boolean isRecruitmentMenu = false;
+    private boolean isArmyLeaveMenu = false;
 
 
     public GameSessionHud(SpriteBatch batch, GameSession gameSession) {
@@ -127,6 +143,7 @@ public class GameSessionHud implements Disposable {
     public void update() {
         updateResources();
         showTownButtons();
+        showArmyInfo();
     }
 
     @Override
@@ -152,7 +169,7 @@ public class GameSessionHud implements Disposable {
     }
 
     private void showTownButtons() {
-        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("TownTile") && !isTownMenu && !isBuildingMenu && !isRecruitmentMenu) {
+        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("TownTile") && !isTownMenu && !isBuildingMenu && !isRecruitmentMenu && !isArmyLeaveMenu) {
             stage.clear();
 
             addResourcesInfoToStage();
@@ -166,6 +183,7 @@ public class GameSessionHud implements Disposable {
             buttonTable.add(buyTilesBtn).pad(5);
             buttonTable.row();
             buttonTable.add(backBtnTownMenu);
+            buttonTable.add(leaveArmyFromTownBtn);
 
             stage.addActor(buttonTable);
             showTownInfo();
@@ -215,13 +233,13 @@ public class GameSessionHud implements Disposable {
         recruitmentTable.setFillParent(true);
 
         recruitmentTable.add(recruitMenuArchersLabel).padBottom(3);
-        recruitmentTable.add(amountOfArchersToRecruit).padBottom(3);
+        recruitmentTable.add(amountOfArchersToRecruitTF).padBottom(3);
         recruitmentTable.row();
         recruitmentTable.add(recruitMenuFootmanLabel).padBottom(3);
-        recruitmentTable.add(amountOfFootmansToRecruit).padBottom(3);
+        recruitmentTable.add(amountOfFootmansToRecruitTF).padBottom(3);
         recruitmentTable.row();
         recruitmentTable.add(recruitMenuCavalryLabel).padBottom(3);
-        recruitmentTable.add(amountOfCavalryToRecruit).padBottom(3);
+        recruitmentTable.add(amountOfCavalryToRecruitTF).padBottom(3);
         recruitmentTable.row();
         recruitmentTable.add(backRecruitmentMenuBtn).pad(3);
         recruitmentTable.add(recruitBtn);
@@ -232,17 +250,23 @@ public class GameSessionHud implements Disposable {
 
     private void updateTownInfo() {
         TownTile tmpSelectedTown = (TownTile) gameSession.getSelectedTile();
-        townInfoCastle.setText("Castle level: " + tmpSelectedTown.getCastle());
-        townInfoTownhall.setText("Town Hall level: " + tmpSelectedTown.getTownHall());
-        townInfoHouses.setText("Houses level: " + tmpSelectedTown.getHouses());
-        townInfoBank.setText("Bank level: " + tmpSelectedTown.getBank());
-        townInfoWall.setText("Wall level: " + tmpSelectedTown.getWall());
-        townInfoBarracks.setText("Barracks level: " + tmpSelectedTown.getBarrack());
-        townInfoStables.setText("Stable level: " + tmpSelectedTown.getStable());
+        townInfoCastle.setText("Castle: " + tmpSelectedTown.getCastle() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.castleIndex));
+        townInfoTownhall.setText("Town Hall: " + tmpSelectedTown.getTownHall() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.townhallIndex));
+        townInfoHouses.setText("Houses level: " + tmpSelectedTown.getHouses() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.housesIndex));
+        townInfoBank.setText("Bank level: " + tmpSelectedTown.getBank() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.bankIndex));
+        townInfoWall.setText("Wall level: " + tmpSelectedTown.getWall() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.wallIndex));
+        townInfoBarracks.setText("Barracks level: " + tmpSelectedTown.getBarrack() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.barracksIndex));
+        townInfoStables.setText("Stable level: " + tmpSelectedTown.getStable() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.stablesIndex));
+
+        inTownArchersAmount.setText("Archers: " + tmpSelectedTown.getArchersInTown());
+        inTownFootmansAmount.setText("Footmans: " + tmpSelectedTown.getFootmansInTown());
+        inTownCavalryAmount.setText("Cavalry: " + tmpSelectedTown.getCavalryInTown());
+
+
     }
 
     private void showTownInfo() {
-        townInfoBackground.setPosition(viewport.getWorldWidth() - 330, 250);
+        infoBackground.setPosition(viewport.getWorldWidth() - 330, 250);
 
         Table townInfoTable = new Table();
         townInfoTable.setPosition(viewport.getWorldWidth() - 165, 450);
@@ -277,8 +301,70 @@ public class GameSessionHud implements Disposable {
         townInfoTable.add(inTownCavalryAmount).pad(2);
         townInfoTable.row();
 
-        stage.addActor(townInfoBackground);
+        stage.addActor(infoBackground);
         stage.addActor(townInfoTable);
+    }
+
+    private void showArmyInfo() {
+        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("Army")) {
+            isTownMenu = false;
+            stage.clear();
+            showMainButtons();
+            addResourcesInfoToStage();
+
+            infoBackground.setPosition(viewport.getWorldWidth() - 330, 250);
+
+
+            Table armyInfoTable = new Table();
+            armyInfoTable.setPosition(viewport.getWorldWidth() - 165, 450);
+            armyArchersAmountInfo.setText("Archers: " + ((Army) gameSession.getSelectedTile()).getArchersAmount());
+            armyFootmansAmountInfo.setText("Footmans: " + ((Army) gameSession.getSelectedTile()).getFootmansAmount());
+            armyCavalryAmountInfo.setText("Cavalry:" + ((Army) gameSession.getSelectedTile()).getCavalryAmount());
+
+
+            armyInfoTable.add(armyInfo).pad(3);
+            armyInfoTable.row();
+            armyInfoTable.add(armyArchersAmountInfo).pad(1);
+            armyInfoTable.row();
+            armyInfoTable.add(armyFootmansAmountInfo).pad(1);
+            armyInfoTable.row();
+            armyInfoTable.add(armyCavalryAmountInfo).pad(1);
+            armyInfoTable.row();
+
+            stage.addActor(infoBackground);
+            stage.addActor(armyInfoTable);
+
+        }
+
+    }
+
+    private void showArmyLeaveMenu() {
+        stage.clear();
+
+        isTownMenu = false;
+        isArmyLeaveMenu = true;
+
+        addResourcesInfoToStage();
+
+        Table armyLeaveTable = new Table();
+        armyLeaveTable.setPosition(480, -250);
+        armyLeaveTable.setFillParent(true);
+
+        armyLeaveTable.add(amountOfArchersToLeaveTownLabel).pad(2);
+        armyLeaveTable.add(amountOfArchersToLeaveTown);
+        armyLeaveTable.row();
+        armyLeaveTable.add(amountOfFootmansToLeaveTownLabel).pad(2);
+        armyLeaveTable.add(amountOfFootmansToLeaveTown);
+        armyLeaveTable.row();
+        armyLeaveTable.add(amountOfCavalryToLeaveTownLabel).pad(2);
+        armyLeaveTable.add(amountOfCavalryToLeaveTown);
+        armyLeaveTable.row();
+        armyLeaveTable.add(leaveTownBackBtn);
+
+
+
+        stage.addActor(armyLeaveTable);
+
     }
 
     private void initResourcesBar() {
@@ -291,36 +377,43 @@ public class GameSessionHud implements Disposable {
         texture = new Texture(Gdx.files.internal("populationIcon.png"));
         populationIconSprite = new Sprite(texture);
 
-        woodIconSprite.setPosition(10, Gdx.graphics.getHeight() - 38);
-        ironIconSprite.setPosition(160, Gdx.graphics.getHeight() - 38);
-        goldIconSprite.setPosition(310, Gdx.graphics.getHeight() - 38);
-        populationIconSprite.setPosition(460, Gdx.graphics.getHeight() - 38);
+        woodIconSprite.setPosition(10, viewport.getWorldHeight() - 38);
+        ironIconSprite.setPosition(160, viewport.getWorldHeight() - 38);
+        goldIconSprite.setPosition(310, viewport.getWorldHeight() - 38);
+        populationIconSprite.setPosition(460, viewport.getWorldHeight() - 38);
 
         woodAmountLabel = new Label(Integer.toString(0), new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         ironAmountLabel = new Label(Integer.toString(0), new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         goldAmountLabel = new Label(Integer.toString(0), new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         populationLabel = new Label(Integer.toString(0), new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        currentPlayer = new Label("Player", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
 
         woodAmountLabel.setX(60);
-        woodAmountLabel.setY(Gdx.graphics.getHeight() - 30);
+        woodAmountLabel.setY(viewport.getWorldHeight() - 30);
         woodAmountLabel.setFontScale(1f);
 
         ironAmountLabel.setX(210);
-        ironAmountLabel.setY(Gdx.graphics.getHeight() - 30);
+        ironAmountLabel.setY(viewport.getWorldHeight() - 30);
         ironAmountLabel.setFontScale(1f);
 
         goldAmountLabel.setX(360);
-        goldAmountLabel.setY(Gdx.graphics.getHeight() - 30);
+        goldAmountLabel.setY(viewport.getWorldHeight() - 30);
         goldAmountLabel.setFontScale(1f);
 
         populationLabel.setX(510);
-        populationLabel.setY(Gdx.graphics.getHeight() - 30);
+        populationLabel.setY(viewport.getWorldHeight() - 30);
         populationLabel.setFontScale(1f);
+
+        currentPlayer.setX(viewport.getWorldWidth() - 100);
+        currentPlayer.setY(viewport.getWorldHeight() - 30);
+        currentPlayer.setFontScale(1f);
+
 
         stage.addActor(woodAmountLabel);
         stage.addActor(ironAmountLabel);
         stage.addActor(goldAmountLabel);
         stage.addActor(populationLabel);
+        stage.addActor(currentPlayer);
 
     }
 
@@ -330,6 +423,7 @@ public class GameSessionHud implements Disposable {
         stage.addActor(ironAmountLabel);
         stage.addActor(goldAmountLabel);
         stage.addActor(populationLabel);
+        stage.addActor(currentPlayer);
     }
 
     private void updateResources() {
@@ -337,6 +431,7 @@ public class GameSessionHud implements Disposable {
         ironAmountLabel.setText(Integer.toString(playerWhoseTurnIs.getAmountOfIron()));
         goldAmountLabel.setText(Integer.toString(playerWhoseTurnIs.getAmountOfGold()));
         populationLabel.setText(Integer.toString(playerWhoseTurnIs.getPopulation()));
+        currentPlayer.setText(playerWhoseTurnIs.playerName);
     }
 
     private void initButtons() {
@@ -379,6 +474,7 @@ public class GameSessionHud implements Disposable {
         buildingMenuBtn = new ImageButton(buildingButtonStyle);
         recruitmentMenuBtn = new ImageButton(recruitButtonStyle);
         buyTilesBtn = new TextButton("Buy Tiles", emptyTextButtonStyle);
+        leaveArmyFromTownBtn = new TextButton("Leave the army", emptyTextButtonStyle);
 
         buildCastleBtn = new TextButton("Build Castle", emptyTextButtonStyle);
         buildBarracksBtn = new TextButton("Build Barracks", emptyTextButtonStyle);
@@ -394,13 +490,22 @@ public class GameSessionHud implements Disposable {
         recruitMenuArchersLabel = new Label("Amount of archers:", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         recruitMenuFootmanLabel = new Label("Amount of footman:", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         recruitMenuCavalryLabel = new Label("Amount of cavalry:", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        amountOfArchersToRecruit = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
-        amountOfFootmansToRecruit = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
-        amountOfCavalryToRecruit = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
+        amountOfArchersToRecruitTF = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
+        amountOfFootmansToRecruitTF = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
+        amountOfCavalryToRecruitTF = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
 
-        townInfoBackground = new Image(townInfoBackgroundTexture);
+        amountOfArchersToLeaveTown = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
+        amountOfFootmansToLeaveTown = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
+        amountOfCavalryToLeaveTown = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
 
-        townInfoTitle = new Label("Town Information", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        amountOfArchersToLeaveTownLabel = new Label("Archers leaving town: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        amountOfFootmansToLeaveTownLabel = new Label("Footmans leaving town: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        amountOfCavalryToLeaveTownLabel = new Label("Cavalry leaving town: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        leaveTownBackBtn = new TextButton("Back", emptyTextButtonStyle);
+
+        infoBackground = new Image(townInfoBackgroundTexture);
+
+        townInfoTitle = new Label("Town statistics", new Label.LabelStyle(new BitmapFont(), Color.BROWN));
         townInfoCastle = new Label("Castle: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         townInfoTownhall = new Label("Townhall: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         townInfoHouses = new Label("Houses: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
@@ -409,10 +514,16 @@ public class GameSessionHud implements Disposable {
         townInfoStables = new Label("Stables: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         townInfoWall = new Label("Wall: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
 
-        armySectionInfo = new Label("Army in town: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        armySectionInfo = new Label("Army in town: ", new Label.LabelStyle(new BitmapFont(), Color.BROWN));
         inTownArchersAmount = new Label("Archers: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         inTownFootmansAmount = new Label("Footmans: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         inTownCavalryAmount = new Label("Cavalry: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+
+        armyInfo = new Label("Army statistics", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        armyArchersAmountInfo = new Label("Archers amount: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        armyFootmansAmountInfo = new Label("Footmans amount: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        armyCavalryAmountInfo = new Label("Cavalry amount: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        armyInfo.setFontScale(1.5f);
         //Gdx.input.setInputProcessor(stage);
 
     }
@@ -427,6 +538,13 @@ public class GameSessionHud implements Disposable {
     }
 
     private void setButtonsListenersHud() {
+        endTurnBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameSession.endTurn();
+            }
+        });
+
         backBtnTownMenu.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -459,6 +577,13 @@ public class GameSessionHud implements Disposable {
             }
         });
 
+        leaveArmyFromTownBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showArmyLeaveMenu();
+            }
+        });
+
         backRecruitmentMenuBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -467,6 +592,26 @@ public class GameSessionHud implements Disposable {
             }
         });
 
+        recruitBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                int amountOfArchers, amountOfFootmans, amountOfCavalry;
+
+                amountOfArchers = Integer.parseInt(amountOfArchersToRecruitTF.getText());
+                amountOfFootmans = Integer.parseInt(amountOfFootmansToRecruitTF.getText());
+                amountOfCavalry = Integer.parseInt(amountOfCavalryToRecruitTF.getText());
+                gameSession.recruit(amountOfArchers, amountOfFootmans, amountOfCavalry, (TownTile) gameSession.getSelectedTile());
+            }
+        });
+
+        leaveTownBackBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                isArmyLeaveMenu = false;
+                showTownButtons();
+            }
+        });
 
     }
+
 }

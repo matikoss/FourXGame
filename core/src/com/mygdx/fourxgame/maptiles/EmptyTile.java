@@ -15,4 +15,9 @@ public class EmptyTile extends MapTile {
         MapTile mapTile = (MapTile) o;
         return (x == mapTile.x && y == mapTile.y);
     }
+
+    @Override
+    public void newTurnUpdate() {
+
+    }
 }

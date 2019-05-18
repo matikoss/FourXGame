@@ -18,6 +18,7 @@ public abstract class MapTile {
         this.owner = owner;
         texture = new Texture(Gdx.files.internal(spriteImageDir));
     }
+    public abstract void newTurnUpdate();
 
     public Texture getTexture() {
         return texture;

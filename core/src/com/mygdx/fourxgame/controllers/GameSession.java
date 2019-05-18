@@ -26,15 +26,18 @@ public class GameSession implements InputProcessor {
 
 
     private Player playerWhoseTurnIs;
+    private int indexOfPlayerWhoseTurnIs;
+
 
     public GameSession(int numberOfPlayers) {
         cameraController = new CameraController();
         this.numberOfPlayers = numberOfPlayers;
-        worldMap = new WorldMap(numberOfPlayers);
         players = new ArrayList<>();
         createPlayers();
+        worldMap = new WorldMap(numberOfPlayers, players);
         selectedTile = null;
         isTileSelected = false;
+        worldMap.getMapOfWorld().add(new Army(0, 0, "OWNER", 100, 115, 50));
         //loadMapFromDatabase();
         //mapOfWorld.add(new Army(2, 2, "Mati", 0, 0, 0));
         //Gdx.input.setInputProcessor(this);
@@ -45,11 +48,44 @@ public class GameSession implements InputProcessor {
         worldMap.update(deltaTime);
     }
 
+    public void endTurn() {
+        indexOfPlayerWhoseTurnIs++;
+        System.out.println(indexOfPlayerWhoseTurnIs);
+        System.out.println(players.size());
+        if (indexOfPlayerWhoseTurnIs < players.size()) {
+            nextPlayerTurn();
+        } else {
+            nextGameTurn();
+        }
+    }
+
+    private void nextPlayerTurn() {
+        playerWhoseTurnIs = players.get(indexOfPlayerWhoseTurnIs);
+    }
+
+    private void nextGameTurn() {
+        indexOfPlayerWhoseTurnIs = 0;
+        playerWhoseTurnIs = players.get(indexOfPlayerWhoseTurnIs);
+        newTurnUpdate();
+
+    }
+
+    private void newTurnUpdate() {
+        for (Player player : players) {
+            player.newTurnUpdate();
+        }
+    }
+
+    public void recruit(int amountOfArchers, int amountOfFootmans, int amountOfCavalry, TownTile townWhereRecruit) {
+        players.get(indexOfPlayerWhoseTurnIs).recruit(townWhereRecruit, amountOfArchers, amountOfFootmans, amountOfCavalry);
+    }
+
     private void createPlayers() {
         for (int i = 0; i < numberOfPlayers; i++) {
-            players.add(new Player("Player" + i, null, null, 100, 100, 100, 50));
+            players.add(new Player("Player" + i, 100, 100, 100, 50));
         }
         playerWhoseTurnIs = players.get(0);
+        indexOfPlayerWhoseTurnIs = 0;
     }
 
     private void checkTileSelection() {
@@ -120,9 +156,20 @@ public class GameSession implements InputProcessor {
         newX = (int) tileCoordinates.x;
         newY = (int) tileCoordinates.y;
 
+        if (tileCoordinates.x < 0) {
+            newX--;
+        }
+        if (tileCoordinates.y < 0) {
+            newY--;
+        }
+
+        if (worldMap.calculateDistance(selectedTile.x, selectedTile.y, newX, newY) > ((Army) selectedTile).calculateRange()) {
+            return;
+        }
+
         //((Army) selectedTile).move(newX, newY);
         System.out.println(worldMap.getMapOfWorld().get(selectedTileIndex).x);
-        ((Army) worldMap.getMapOfWorld().get(selectedTileIndex)).move(newX, newY);
+        ((Army) worldMap.getMapOfWorld().get(selectedTileIndex)).move(newX, newY, worldMap.calculateDistance(selectedTile.x, selectedTile.y, newX, newY));
         System.out.println(worldMap.getMapOfWorld().get(selectedTileIndex).x);
 
         selectedTile = null;
@@ -246,7 +293,7 @@ public class GameSession implements InputProcessor {
 
         if ((y >= (Gdx.graphics.getHeight() - 20 * (Gdx.graphics.getHeight() / 720))) || (y <= (40 * (Gdx.graphics.getHeight() / 720)))
                 || ((x >= (Gdx.graphics.getWidth() - 330 * Gdx.graphics.getWidth() / 1280)) && (y >= (Gdx.graphics.getHeight() - 220 * Gdx.graphics.getHeight() / 720)))) {
-            return  false;
+            return false;
         }
 
         if (button == Input.Buttons.LEFT) {

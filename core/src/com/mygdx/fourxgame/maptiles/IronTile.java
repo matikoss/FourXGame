@@ -7,4 +7,7 @@ public class IronTile extends ResourcesTile {
         super(x, y, owner, "ironTexture.png");
         isIronMineBuilt = false;
     }
+    public void newTurnUpdate(){
+        
+    }
 }
