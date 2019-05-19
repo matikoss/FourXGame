@@ -45,7 +45,7 @@ public class CameraController {
             changePositionOfCamera(0, -cameraMoveSpeed);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.BACKSPACE)) {
-            this.setPosition(0, 0);
+            //this.setPosition(0, 0);
         }
     }
 

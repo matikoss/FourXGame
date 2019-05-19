@@ -10,4 +10,12 @@ public class IronTile extends ResourcesTile {
     public void newTurnUpdate(){
         
     }
+
+    public boolean isIronMineBuilt() {
+        return isIronMineBuilt;
+    }
+
+    public void setIronMineBuilt(boolean ironMineBuilt) {
+        isIronMineBuilt = ironMineBuilt;
+    }
 }

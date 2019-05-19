@@ -24,7 +24,6 @@ public class GameSession implements InputProcessor {
     private ArrayList<Player> players;
     private int numberOfPlayers;
 
-
     private Player playerWhoseTurnIs;
     private int indexOfPlayerWhoseTurnIs;
 
@@ -175,6 +174,38 @@ public class GameSession implements InputProcessor {
         selectedTile = null;
         isTileSelected = false;
         selectedTileIndex = 0;
+
+    }
+
+    public void leaveTheTownWithArmy(int archersLeaving, int footmansLeaving, int cavalryLeaving) {
+        if ((archersLeaving != 0 || footmansLeaving != 0 || cavalryLeaving != 0) && selectedTile.getClass().getSimpleName().equals("TownTile")) {
+            Army armyAtEntrance = getArmyAtTownEntrance();
+            Army armyLeaving = ((TownTile) selectedTile).leaveTheTownWithArmy(archersLeaving, footmansLeaving, cavalryLeaving);
+            if (armyAtEntrance == null) {
+                playerWhoseTurnIs.addArmyToPlayer(armyLeaving);
+                worldMap.addToMap(armyLeaving);
+                return;
+            } else if (armyAtEntrance.getOwner().equals(playerWhoseTurnIs.playerName)) {
+                mergeArmy(armyAtEntrance, armyLeaving);
+                return;
+            }
+        }
+    }
+
+    private Army getArmyAtTownEntrance() {
+        for (MapTile armyTile : worldMap.getMapOfWorld()) {
+            if (selectedTile.x == armyTile.x && selectedTile.y - 1 == armyTile.y && armyTile.getClass().getSimpleName().equals("Army")) {
+                return (Army) armyTile;
+            }
+        }
+        return null;
+    }
+
+    private void mergeArmy(Army armyAtEntrance, Army armyLeaving) {
+        armyAtEntrance.addArmy(armyLeaving.getArchersAmount(), armyLeaving.getFootmansAmount(), armyLeaving.getCavalryAmount());
+    }
+
+    private void fight(Army armyAttacking, Army armyAttacked){
 
     }
 

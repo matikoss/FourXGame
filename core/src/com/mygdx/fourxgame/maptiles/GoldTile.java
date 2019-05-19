@@ -11,4 +11,12 @@ public class GoldTile extends ResourcesTile {
     public void newTurnUpdate() {
 
     }
+
+    public boolean isGoldMineBuilt() {
+        return isGoldMineBuilt;
+    }
+
+    public void setGoldMineBuilt(boolean goldMineBuilt) {
+        isGoldMineBuilt = goldMineBuilt;
+    }
 }

@@ -10,4 +10,12 @@ public class WoodTile extends ResourcesTile {
     public void newTurnUpdate(){
 
     }
+
+    public boolean isLumbermillBuilt() {
+        return isLumbermillBuilt;
+    }
+
+    public void setLumbermillBuilt(boolean lumbermillBuilt) {
+        isLumbermillBuilt = lumbermillBuilt;
+    }
 }

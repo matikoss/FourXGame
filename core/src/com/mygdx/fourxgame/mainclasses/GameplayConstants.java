@@ -60,5 +60,9 @@ public class GameplayConstants {
     public static int barracksMaxLvl = 3;
     public static int stablesMaxLvl = 1;
 
+    public static int woodIncome = 10;
+    public static int ironIncome = 10;
+    public static int goldIncome = 10;
+
 
 }

@@ -8,6 +8,7 @@ public class Army extends MapTile {
     private int cavalryAmount;
 
     private int moveDistanceLeft;
+    private boolean isFighting;
 
 
     public Army(int x, int y, String owner, int archersAmount, int footmansAmount, int cavalryAmount) {
@@ -40,6 +41,19 @@ public class Army extends MapTile {
             return GameplayConstants.cavalrySpeed;
         }
     }
+
+    public void addArmy(int archersToAdd, int footmansToAdd, int cavalryToAdd){
+        archersAmount += archersToAdd;
+        footmansAmount +=footmansToAdd;
+        cavalryAmount +=cavalryToAdd;
+    }
+
+    public void removeUnitsFromArmy(int archersAmountToRemove, int footmansAmountToRemove, int cavalryAmountToRemove){
+        archersAmount-=archersAmountToRemove;
+        footmansAmount-=footmansAmountToRemove;
+        cavalryAmount-=cavalryAmountToRemove;
+    }
+
     private void resetMovement(){
         moveDistanceLeft = calculateRange();
     }
@@ -54,10 +68,6 @@ public class Army extends MapTile {
 
     public int getCavalryAmount() {
         return cavalryAmount;
-    }
-
-    public void armyResetAtNewTurn(){
-        moveDistanceLeft = calculateRange();
     }
 
 }

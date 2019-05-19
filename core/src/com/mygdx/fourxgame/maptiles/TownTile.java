@@ -224,6 +224,17 @@ public class TownTile extends MapTile {
         return goldCost + (goldCost / 4) * building;
     }
 
+    public Army leaveTheTownWithArmy(int archersLeavingAmount, int footmansLeavingAmount, int cavalryLeavingAmount) {
+        if (archersInTown >= archersLeavingAmount && footmansInTown >= footmansLeavingAmount && cavalryInTown >= cavalryLeavingAmount) {
+            archersInTown -= archersLeavingAmount;
+            footmansInTown -= footmansLeavingAmount;
+            cavalryInTown -= cavalryLeavingAmount;
+            return new Army(x, y-1, getOwner(), archersLeavingAmount, footmansLeavingAmount, cavalryLeavingAmount);
+        } else {
+            return null;
+        }
+    }
+
     public int getCastle() {
         return castle;
     }
@@ -284,7 +295,7 @@ public class TownTile extends MapTile {
         }
     }
 
-    public String buildingTotalCostToString(int buildingConstant){
+    public String buildingTotalCostToString(int buildingConstant) {
         return "W:" + calculateWoodCostOfBuilding(buildingConstant) + " I:" + calculateIronCostOfBuilding(buildingConstant) + " G:" + calculateGoldCostOfBuilding(buildingConstant);
     }
 

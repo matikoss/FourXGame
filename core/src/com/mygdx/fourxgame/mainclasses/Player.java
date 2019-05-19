@@ -1,9 +1,7 @@
 package com.mygdx.fourxgame.mainclasses;
 
 import com.badlogic.gdx.Game;
-import com.mygdx.fourxgame.maptiles.Army;
-import com.mygdx.fourxgame.maptiles.MapTile;
-import com.mygdx.fourxgame.maptiles.TownTile;
+import com.mygdx.fourxgame.maptiles.*;
 
 import java.util.ArrayList;
 
@@ -35,7 +33,39 @@ public class Player {
             for (MapTile tile : tilesOwned) {
                 tile.newTurnUpdate();
             }
+            for (Army army : armyOwned) {
+                army.newTurnUpdate();
+            }
+            addResourcesOnNewTurn();
         }
+    }
+
+    private void addResourcesOnNewTurn() {
+        int woodIncome = 0;
+        int ironIncome = 0;
+        int goldIncome = 0;
+
+        for (MapTile resourceTile : tilesOwned) {
+            if (resourceTile.getClass().getSimpleName().equals("WoodTile")) {
+                woodIncome+=GameplayConstants.woodIncome;
+                if(((WoodTile)resourceTile).isLumbermillBuilt()){
+                    woodIncome+=GameplayConstants.woodIncome;
+                }
+            }else if(resourceTile.getClass().getSimpleName().equals("IronTile")){
+                ironIncome+=GameplayConstants.ironIncome;
+                if(((IronTile)resourceTile).isIronMineBuilt()){
+                    ironIncome+=GameplayConstants.ironIncome;
+                }
+            }else if (resourceTile.getClass().getSimpleName().equals("GoldTile")){
+                goldIncome+=GameplayConstants.goldIncome;
+                if(((GoldTile)resourceTile).isGoldMineBuilt()){
+                    goldIncome+=GameplayConstants.goldIncome;
+                }
+            }
+        }
+        amountOfWood+=woodIncome;
+        amountOfIron+=ironIncome;
+        amountOfGold+=goldIncome;
     }
 
     public boolean build(TownTile townWhereToDoIt, int typeOfBuilding) {
@@ -182,5 +212,18 @@ public class Player {
     public boolean addMultipleTilesToPlayer(ArrayList<MapTile> multipleTilesToAdd) {
         tilesOwned.addAll(multipleTilesToAdd);
         return true;
+    }
+
+    public boolean addArmyToPlayer(Army armyToAdd) {
+        armyOwned.add(armyToAdd);
+        return true;
+    }
+
+    public ArrayList<Army> getArmyOwned() {
+        return armyOwned;
+    }
+
+    public void removeArmy(Army armyToRemove) {
+        armyOwned.remove(armyToRemove);
     }
 }
