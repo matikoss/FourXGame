@@ -12,6 +12,7 @@ import com.mygdx.fourxgame.maptiles.*;
 import org.neo4j.driver.v1.*;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameSession implements InputProcessor {
 
@@ -166,6 +167,12 @@ public class GameSession implements InputProcessor {
             return;
         }
 
+        if (worldMap.calculateDistance(selectedTile.x, selectedTile.y, newX, newY) == 1 && checkIfFight(newX, newY) != null) {
+            Army armyToFightWith = checkIfFight(newX, newY);
+            fightAtField((Army) selectedTile, armyToFightWith);
+            return;
+        }
+
         //((Army) selectedTile).move(newX, newY);
         System.out.println(worldMap.getMapOfWorld().get(selectedTileIndex).x);
         ((Army) worldMap.getMapOfWorld().get(selectedTileIndex)).move(newX, newY, worldMap.calculateDistance(selectedTile.x, selectedTile.y, newX, newY));
@@ -205,8 +212,229 @@ public class GameSession implements InputProcessor {
         armyAtEntrance.addArmy(armyLeaving.getArchersAmount(), armyLeaving.getFootmansAmount(), armyLeaving.getCavalryAmount());
     }
 
-    private void fight(Army armyAttacking, Army armyAttacked){
+    private Army checkIfFight(int newX, int newY) {
+        for (MapTile mapTile : worldMap.getMapOfWorld()) {
+            if (mapTile.getClass().getSimpleName().equals("Army") && mapTile.x == newX && mapTile.y == newY) {
+                return (Army) mapTile;
+            }
+        }
+        return null;
+    }
 
+    private void fightAtField(Army armyAttacking, Army armyAttacked) {
+
+        if (armyAttacking.getArchersAmount() > 0) {
+            archersFightingSequence(armyAttacking, armyAttacked);
+        }
+        if (armyAttacking.getCavalryAmount() > 0) {
+            cavalryFightingSequence(armyAttacking, armyAttacked);
+        }
+        if (armyAttacking.getFootmansAmount() > 0) {
+            infantryFightingSequence(armyAttacking, armyAttacked);
+        }
+
+        if (armyAttacking.isArmyEmpty()) {
+            removeArmy(armyAttacking);
+        }
+
+        if (armyAttacked.isArmyEmpty()) {
+            removeArmy(armyAttacked);
+        }
+    }
+
+    private void archersFightingSequence(Army armyAttacking, Army armyAttacked) {
+        Random k6dice = new Random();
+        int k6value;
+        boolean status;
+        for (int attackingArchersAmount = armyAttacking.getArchersAmount(); attackingArchersAmount > 0; attackingArchersAmount--) {
+            k6value = k6dice.nextInt(6) + 1;
+            if (k6value <= 2) {
+                if (armyAttacked.getCavalryAmount() > 0) {
+                    status = armyAttacking.archersAttacksCavalry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.cavalryEliminated();
+                    }
+                } else if (armyAttacked.getArchersAmount() > 0) {
+                    status = armyAttacking.archersAttacksArchers(k6dice, 0);
+                    if (status) {
+                        armyAttacked.archersEliminated();
+                    }
+                } else if (armyAttacked.getFootmansAmount() > 0) {
+                    status = armyAttacking.archersAttacksInfantry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.infantryEliminated();
+                    }
+                } else {
+                    break;
+                }
+            } else if (k6value <= 4) {
+                if (armyAttacked.getArchersAmount() > 0) {
+                    status = armyAttacking.archersAttacksArchers(k6dice, 0);
+                    if (status) {
+                        armyAttacked.archersEliminated();
+                    }
+                } else if (armyAttacked.getCavalryAmount() > 0) {
+                    status = armyAttacking.archersAttacksCavalry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.cavalryEliminated();
+                    }
+                } else if (armyAttacked.getFootmansAmount() > 0) {
+                    status = armyAttacking.archersAttacksInfantry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.infantryEliminated();
+                    }
+                }
+            } else if (k6value <= 6) {
+                if (armyAttacked.getFootmansAmount() > 0) {
+                    status = armyAttacking.archersAttacksInfantry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.infantryEliminated();
+                    }
+                } else if (armyAttacked.getArchersAmount() > 0) {
+                    status = armyAttacking.archersAttacksArchers(k6dice, 0);
+                    if (status) {
+                        armyAttacked.archersEliminated();
+                    }
+                } else if (armyAttacked.getCavalryAmount() > 0) {
+                    status = armyAttacking.archersAttacksCavalry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.cavalryEliminated();
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+    private void cavalryFightingSequence(Army armyAttacking, Army armyAttacked) {
+        Random k6dice = new Random();
+        int k6value;
+        boolean status;
+        for (int attackingCavalryAmount = armyAttacking.getCavalryAmount(); attackingCavalryAmount > 0; attackingCavalryAmount--) {
+            k6value = k6dice.nextInt(6) + 1;
+            if (k6value <= 2) {
+                if (armyAttacked.getCavalryAmount() > 0) {
+                    status = armyAttacking.cavalryAttacksCavalry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.cavalryEliminated();
+                    }
+                } else if (armyAttacked.getFootmansAmount() > 0) {
+                    status = armyAttacking.cavalryAttacksInfantry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.infantryEliminated();
+                    }
+                } else if (armyAttacked.getArchersAmount() > 0) {
+                    status = armyAttacking.cavalryAttacksArchers(k6dice, 0);
+                    if (status) {
+                        armyAttacked.archersEliminated();
+                    }
+                } else {
+                    break;
+                }
+            } else if (k6value <= 4) {
+                if (armyAttacked.getFootmansAmount() > 0) {
+                    status = armyAttacking.cavalryAttacksInfantry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.infantryEliminated();
+                    }
+                } else if (armyAttacked.getCavalryAmount() > 0) {
+                    status = armyAttacking.cavalryAttacksCavalry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.cavalryEliminated();
+                    }
+                } else if (armyAttacked.getArchersAmount() > 0) {
+                    status = armyAttacking.cavalryAttacksArchers(k6dice, 0);
+                    if (status) {
+                        armyAttacked.archersEliminated();
+                    }
+                }
+            } else if (k6value <= 6) {
+                if (armyAttacked.getArchersAmount() > 0) {
+                    status = armyAttacking.cavalryAttacksArchers(k6dice, 0);
+                    if (status) {
+                        armyAttacked.archersEliminated();
+                    }
+                } else if (armyAttacked.getFootmansAmount() > 0) {
+                    status = armyAttacking.cavalryAttacksInfantry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.infantryEliminated();
+                    }
+                } else if (armyAttacked.getCavalryAmount() > 0) {
+                    status = armyAttacking.cavalryAttacksCavalry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.cavalryEliminated();
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+    private void infantryFightingSequence(Army armyAttacking, Army armyAttacked) {
+        Random k6dice = new Random();
+        int k6value;
+        boolean status;
+        for (int attackingInfantryAmount = armyAttacking.getFootmansAmount(); attackingInfantryAmount > 0; attackingInfantryAmount--) {
+            k6value = k6dice.nextInt(6) + 1;
+            if (k6value <= 2) {
+                if (armyAttacked.getArchersAmount() > 0) {
+                    status = armyAttacking.infantryAttacksArchers(k6dice, 0);
+                    if (status) {
+                        armyAttacked.archersEliminated();
+                    }
+                } else if (armyAttacked.getCavalryAmount() > 0) {
+                    status = armyAttacking.infantryAttacksCavalry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.cavalryEliminated();
+                    }
+                } else if (armyAttacked.getFootmansAmount() > 0) {
+                    status = armyAttacking.infantryAttacksInfantry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.infantryEliminated();
+                    }
+                } else {
+                    break;
+                }
+            } else if (k6value <= 4) {
+                if (armyAttacked.getFootmansAmount() > 0) {
+                    status = armyAttacking.infantryAttacksInfantry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.infantryEliminated();
+                    }
+                } else if (armyAttacked.getArchersAmount() > 0) {
+                    status = armyAttacking.infantryAttacksArchers(k6dice, 0);
+                    if (status) {
+                        armyAttacked.archersEliminated();
+                    }
+                } else if (armyAttacked.getCavalryAmount() > 0) {
+                    status = armyAttacking.infantryAttacksCavalry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.cavalryEliminated();
+                    }
+                }
+            } else if (k6value <= 6) {
+                if (armyAttacked.getFootmansAmount() > 0) {
+                    status = armyAttacking.infantryAttacksInfantry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.infantryEliminated();
+                    }
+                } else if (armyAttacked.getCavalryAmount() > 0) {
+                    status = armyAttacking.infantryAttacksCavalry(k6dice, 0);
+                    if (status) {
+                        armyAttacked.cavalryEliminated();
+                    }
+                } else if (armyAttacked.getArchersAmount() > 0) {
+                    status = armyAttacking.infantryAttacksArchers(k6dice, 0);
+                    if (status) {
+                        armyAttacked.archersEliminated();
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
     }
 
     private void loadMapFromDatabase() {
@@ -259,6 +487,16 @@ public class GameSession implements InputProcessor {
         }
 
         System.out.println(worldMap.getMapOfWorld());
+    }
+
+    private void removeArmy(Army armyToRemove) {
+        String ownerName = armyToRemove.getOwner();
+        for (Player player : players) {
+            if (player.playerName.equals(ownerName)) {
+                player.removeArmy(armyToRemove);
+            }
+        }
+        worldMap.getMapOfWorld().remove(armyToRemove);
     }
 
     public void setCamera(OrthographicCamera camera) {
