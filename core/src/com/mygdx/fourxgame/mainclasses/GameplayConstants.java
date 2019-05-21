@@ -64,5 +64,12 @@ public class GameplayConstants {
     public static int ironIncome = 10;
     public static int goldIncome = 10;
 
-
+    public static final int north = 1;
+    public static final int north_east = 2;
+    public static final int east = 3;
+    public static final int south_east = 4;
+    public static final int south = 5;
+    public static final int south_west = 6;
+    public static final int west = 7;
+    public static final int north_west = 8;
 }

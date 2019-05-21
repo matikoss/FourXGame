@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
+import com.mygdx.fourxgame.mainclasses.GameplayConstants;
 import com.mygdx.fourxgame.mainclasses.Player;
 import com.mygdx.fourxgame.mainclasses.WorldMap;
 import com.mygdx.fourxgame.maptiles.*;
@@ -28,6 +29,8 @@ public class GameSession implements InputProcessor {
     private Player playerWhoseTurnIs;
     private int indexOfPlayerWhoseTurnIs;
 
+    public boolean showBorder;
+
 
     public GameSession(int numberOfPlayers) {
         cameraController = new CameraController();
@@ -38,6 +41,7 @@ public class GameSession implements InputProcessor {
         selectedTile = null;
         isTileSelected = false;
         worldMap.getMapOfWorld().add(new Army(0, 0, "OWNER", 100, 115, 50));
+        showBorder = false;
         //loadMapFromDatabase();
         //mapOfWorld.add(new Army(2, 2, "Mati", 0, 0, 0));
         //Gdx.input.setInputProcessor(this);
@@ -178,6 +182,9 @@ public class GameSession implements InputProcessor {
         ((Army) worldMap.getMapOfWorld().get(selectedTileIndex)).move(newX, newY, worldMap.calculateDistance(selectedTile.x, selectedTile.y, newX, newY));
         System.out.println(worldMap.getMapOfWorld().get(selectedTileIndex).x);
 
+        checkAndExpandMapIfNecessary((Army) selectedTile, 10);
+        //checkExpand((Army) selectedTile);
+
         selectedTile = null;
         isTileSelected = false;
         selectedTileIndex = 0;
@@ -206,6 +213,154 @@ public class GameSession implements InputProcessor {
             }
         }
         return null;
+    }
+
+    private void checkExpand(Army armyToCheck) {
+        int minX = 0;
+        int maxX = 0;
+        int minY = 0;
+        int maxY = 0;
+
+        for (MapTile mapTile : worldMap.getMapOfWorld()) {
+            if (mapTile.x < minX) {
+                minX = mapTile.x;
+            }
+            if (mapTile.x > maxX) {
+                maxX = mapTile.x;
+            }
+            if (mapTile.y < minY) {
+                minY = mapTile.y;
+            }
+            if (mapTile.y > maxY) {
+                maxY = mapTile.y;
+            }
+        }
+
+        if (worldMap.calculateDistance(armyToCheck.x, armyToCheck.y, minX, armyToCheck.y) <= 10) {
+            worldMap.expandMapSimpleVertically("none", minX - 3, minY, maxY);
+        }
+        if (worldMap.calculateDistance(armyToCheck.x, armyToCheck.y, maxX, armyToCheck.y) <= 10) {
+            worldMap.expandMapSimpleVertically("none", maxX + 3, minY, maxY);
+        }
+        if (worldMap.calculateDistance(armyToCheck.x, armyToCheck.y, armyToCheck.x, minY) <= 10) {
+            worldMap.expandMapHorizontally("none", minX, maxX, minY - 3);
+        }
+        if (worldMap.calculateDistance(armyToCheck.x, armyToCheck.y, armyToCheck.x, maxY) <= 10) {
+            worldMap.expandMapHorizontally("none", minX, maxX, maxY + 3);
+        }
+
+    }
+
+    private void checkAndExpandMapIfNecessary(Army armyToCheck, int range) {
+        int moduloForX = armyToCheck.x % 5;
+        int moduloForY = armyToCheck.y % 5;
+        int chunkX, chunkY;
+
+
+        /*if ((armyToCheck.x + moduloForX) % 5 == 0) {
+            chunkX = armyToCheck.x + moduloForX;
+        } else {
+            chunkX = armyToCheck.x - moduloForX;
+        }
+
+        if ((armyToCheck.y + moduloForY) % 5 == 0) {
+            chunkY = armyToCheck.y + moduloForY;
+        } else {
+            chunkY = armyToCheck.y - moduloForY;
+        }*/
+
+        if (moduloForX == 0) {
+            chunkX = armyToCheck.x;
+        } else if (moduloForX == 1) {
+            chunkX = armyToCheck.x - 1;
+        } else if (moduloForX == 2) {
+            chunkX = armyToCheck.x - 2;
+        } else if (moduloForX == 3) {
+            chunkX = armyToCheck.x + 2;
+        } else if (moduloForX == 4) {
+            chunkX = armyToCheck.x + 1;
+        }else if(moduloForX ==-1){
+            chunkX = armyToCheck.x+1;
+        }else if(moduloForX==-2){
+            chunkX = armyToCheck.x+2;
+        }else if(moduloForX==-3){
+            chunkX = armyToCheck.x - 2;
+        }else {
+            chunkX = armyToCheck.x - 1;
+        }
+
+
+        if (moduloForY == 0) {
+            chunkY = armyToCheck.y;
+        } else if (moduloForY == 1) {
+            chunkY = armyToCheck.y - 1;
+        } else if (moduloForY == 2) {
+            chunkY = armyToCheck.y - 2;
+        } else if (moduloForY == 3) {
+            chunkY = armyToCheck.y + 2;
+        } else if (moduloForY == 4) {
+            chunkY = armyToCheck.y + 1;
+        }else if(moduloForY ==-1){
+            chunkY = armyToCheck.y+1;
+        }else if(moduloForY==-2){
+            chunkY = armyToCheck.y+2;
+        }else if(moduloForY==-3){
+            chunkY = armyToCheck.y - 2;
+        }else {
+            chunkY = armyToCheck.y - 1;
+        }
+
+
+
+        boolean[] necessity = new boolean[8];
+
+        for (MapTile mapTile : worldMap.getMapOfWorld()) {
+            if (chunkX + range == mapTile.x && chunkY + range == mapTile.y) {
+                necessity[GameplayConstants.north_east - 1] = true;
+            }
+            if (chunkX + range == mapTile.x && chunkY - range == mapTile.y) {
+                necessity[GameplayConstants.south_east - 1] = true;
+            }
+            if (chunkX - range == mapTile.x && chunkY - range == mapTile.y) {
+                necessity[GameplayConstants.south_west - 1] = true;
+            }
+            if (chunkX - range == mapTile.x && chunkY + range == mapTile.y) {
+                necessity[GameplayConstants.north_west - 1] = true;
+            }
+            if (chunkX + range == mapTile.x && chunkY == mapTile.y) {
+                necessity[GameplayConstants.north - 1] = true;
+            }
+            if (chunkX - range == mapTile.x && chunkY == mapTile.y) {
+                necessity[GameplayConstants.south - 1] = true;
+            }
+            if (chunkX == mapTile.x && chunkY + range == mapTile.y) {
+                necessity[GameplayConstants.east - 1] = true;
+            }
+            if (chunkX == mapTile.x && chunkY - range == mapTile.y) {
+                necessity[GameplayConstants.west - 1] = true;
+            }
+        }
+        for (int i = 0; i < necessity.length; i++) {
+            if (!necessity[i]) {
+                if (i == 0) {
+                    worldMap.expandMap("none", chunkX, chunkY + range, i + 1);
+                } else if (i == 1) {
+                    worldMap.expandMap("none", chunkX + range, chunkY + range, i + 1);
+                } else if (i == 2) {
+                    worldMap.expandMap("none", chunkX + range, chunkY, i + 1);
+                } else if (i == 3) {
+                    worldMap.expandMap("none", chunkX + range, chunkY - range, i + 1);
+                } else if (i == 4) {
+                    worldMap.expandMap("none", chunkX, chunkY - range, i + 1);
+                } else if (i == 5) {
+                    worldMap.expandMap("none", chunkX - range, chunkY - range, i + 1);
+                } else if (i == 6) {
+                    worldMap.expandMap("none", chunkX - range, chunkY, i + 1);
+                } else {
+                    worldMap.expandMap("none", chunkX - range, chunkY + range, i + 1);
+                }
+            }
+        }
     }
 
     private void mergeArmy(Army armyAtEntrance, Army armyLeaving) {
@@ -547,11 +702,19 @@ public class GameSession implements InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
+        if (keycode == Input.Keys.B) {
+            if (!showBorder) {
+                showBorder = true;
+            } else {
+                showBorder = false;
+            }
+        }
         return false;
     }
 
     @Override
     public boolean keyTyped(char character) {
+
         return false;
     }
 

@@ -3,7 +3,6 @@ package com.mygdx.fourxgame.mainclasses;
 import com.mygdx.fourxgame.maptiles.*;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.Random;
 import java.lang.Math;
 
@@ -206,9 +205,9 @@ public class WorldMap {
             }
             if (!duplicate) {
                 System.out.println(playerX + " " + playerY);
-                tmpTile = new TownTile(playerX, playerY, players.get(i+1).playerName);
+                tmpTile = new TownTile(playerX, playerY, players.get(i + 1).playerName);
                 checkedTiles.add(tmpTile);
-                generatePlayerChunk(players.get(i+1).playerName, playerX, playerY, players.get(i+1));
+                generatePlayerChunk(players.get(i + 1).playerName, playerX, playerY, players.get(i + 1));
                 changeOldPlayerXY = random.nextBoolean();
                 tryCounter = 0;
                 lastTryIndex = 1;
@@ -284,6 +283,74 @@ public class WorldMap {
             }
         }
         mapOfWorld.addAll(tmpChunk);
+    }
+
+    public void expandMapHorizontally(String playerName, int startingX, int endingX, int yLevel){
+        for(int i=startingX; i<=endingX; i+=5){
+            generateStandardChunk(playerName, i, yLevel);
+        }
+    }
+
+    public void expandMapSimpleVertically(String playerName, int xLevel, int startingY, int endingY){
+        for(int i=startingY; i<=endingY; i+=5){
+            generateStandardChunk(playerName, xLevel, i);
+        }
+    }
+
+    public void expandMap(String playerName, int startingX, int startingY, int emptyDirection) {
+        if (emptyDirection == GameplayConstants.north) {
+            generationToExpand(playerName, startingX, startingY, -1, 1, 0, 1);
+        } else if (emptyDirection == GameplayConstants.north_east) {
+            generationToExpandWithException(playerName, startingX, startingY, -1, -1);
+        } else if (emptyDirection == GameplayConstants.east) {
+            generationToExpand(playerName, startingX, startingY, 0, 1, -1, 1);
+        } else if (emptyDirection == GameplayConstants.south_east) {
+            generationToExpandWithException(playerName, startingX, startingY, -1, 1);
+        } else if (emptyDirection == GameplayConstants.south) {
+            generationToExpand(playerName, startingX, startingY, -1, 1, -1, 0);
+        } else if (emptyDirection == GameplayConstants.south_west) {
+            generationToExpandWithException(playerName, startingX, startingY, 1, 1);
+        } else if (emptyDirection == GameplayConstants.west) {
+            generationToExpand(playerName, startingX, startingY, -1, 0, -1, 1);
+        } else if (emptyDirection == GameplayConstants.north_west) {
+            generationToExpandWithException(playerName, startingX, startingY, 1, -1);
+        }
+    }
+
+    private void generationToExpand(String playerName, int emptyX, int emptyY, int startX, int endX, int startY, int endY) {
+        for (int i = startY; i <= endY; i++) {
+            for (int j = startX; j <= endX; j++) {
+                if (checkExistanceOfChunk(emptyX + j*5, emptyY + i*5)) {
+                    continue;
+                }
+                generateStandardChunk(playerName, emptyX + j*5, emptyY + i*5);
+            }
+        }
+    }
+
+    private void generationToExpandWithException(String playerName, int emptyX, int emptyY, int exX, int exY) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (checkExistanceOfChunk(emptyX + j*5, emptyY + i*5)) {
+                    continue;
+                }
+
+                if (i == exY && j == exX) {
+                    continue;
+                } else {
+                    generateStandardChunk(playerName, emptyX + j*5, emptyY + i*5);
+                }
+            }
+        }
+    }
+
+    private boolean checkExistanceOfChunk(int x, int y) {
+        for (MapTile mapTile : mapOfWorld) {
+            if (x == mapTile.x && y == mapTile.y) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int calculateDistance(int firstTileX, int firstTileY, int secondTileX, int secondTileY) {

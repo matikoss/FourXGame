@@ -51,7 +51,7 @@ public class GameSessionRenderer {
         myMarkerTexture = new Texture(Gdx.files.internal("myMarker.png"));
     }
 
-    private void setupInput(){
+    private void setupInput() {
         inputMultiplexer = new InputMultiplexer();
         gameSessionInputProcessor = gameSession;
         hudInputProcessor = hud.stage;
@@ -71,55 +71,17 @@ public class GameSessionRenderer {
             sprite.setPosition(tile.x, tile.y);
             sprite.draw(batch);
         }
-        //renderGrid(batch);
-        if(gameSession.getPlayerWhoseTurnIs()!=null){
-            for(MapTile playerTile:gameSession.getPlayerWhoseTurnIs().getArmyOwned()){
-                sprite = new Sprite(myMarkerTexture);
-                sprite.setSize(1,1);
-                sprite.setPosition(playerTile.x,playerTile.y);
-                sprite.draw(batch);
-            }
-
-            for(MapTile playerTile:gameSession.getPlayerWhoseTurnIs().getTilesOwned()){
-                sprite = new Sprite(myMarkerTexture);
-                sprite.setSize(1,1);
-                sprite.setPosition(playerTile.x, playerTile.y);
-                sprite.draw(batch);
-            }
-
-            for (Player player:gameSession.getPlayers()){
-                if(!player.getPlayerName().equals(gameSession.getPlayerWhoseTurnIs().getPlayerName())){
-                    for(MapTile enemyTile : player.getTilesOwned()){
-                        sprite = new Sprite(enemyMarkerTexture);
-                        sprite.setSize(1,1);
-                        sprite.setPosition(enemyTile.x, enemyTile.y);
-                        sprite.draw(batch);
-                    }
-
-                    for(MapTile enemyTile : player.getArmyOwned()){
-                        sprite = new Sprite(enemyMarkerTexture);
-                        sprite.setSize(1,1);
-                        sprite.setPosition(enemyTile.x, enemyTile.y);
-                        sprite.draw(batch);
-                    }
-                }
-            }
+        if(gameSession.showBorder){
+            renderBorders(batch);
         }
-
-
-
+        //renderGrid(batch);
         if (gameSession.isTileSelected()) {
-            Texture texture = new Texture(Gdx.files.internal("selectionTexture.png"));
-            sprite = new Sprite(texture);
-            sprite.setSize(1, 1);
-            sprite.setPosition(gameSession.getSelectedTile().x, gameSession.getSelectedTile().y);
-            sprite.draw(batch);
+            renderSelectionMarker(batch);
         }
         batch.end();
         batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.render();
         hud.stage.draw();
-
     }
 
     public void resize(int width, int height) {
@@ -146,6 +108,51 @@ public class GameSessionRenderer {
                 sprite.draw(batch);
             }
         }
+    }
+
+    private void renderSelectionMarker(SpriteBatch batch){
+        Texture texture = new Texture(Gdx.files.internal("selectionTexture.png"));
+        sprite = new Sprite(texture);
+        sprite.setSize(1, 1);
+        sprite.setPosition(gameSession.getSelectedTile().x, gameSession.getSelectedTile().y);
+        sprite.draw(batch);
+    }
+
+    private void renderBorders(SpriteBatch batch) {
+        if (gameSession.getPlayerWhoseTurnIs() != null) {
+            for (MapTile playerTile : gameSession.getPlayerWhoseTurnIs().getArmyOwned()) {
+                sprite = new Sprite(myMarkerTexture);
+                sprite.setSize(1, 1);
+                sprite.setPosition(playerTile.x, playerTile.y);
+                sprite.draw(batch);
+            }
+
+            for (MapTile playerTile : gameSession.getPlayerWhoseTurnIs().getTilesOwned()) {
+                sprite = new Sprite(myMarkerTexture);
+                sprite.setSize(1, 1);
+                sprite.setPosition(playerTile.x, playerTile.y);
+                sprite.draw(batch);
+            }
+
+            for (Player player : gameSession.getPlayers()) {
+                if (!player.getPlayerName().equals(gameSession.getPlayerWhoseTurnIs().getPlayerName())) {
+                    for (MapTile enemyTile : player.getTilesOwned()) {
+                        sprite = new Sprite(enemyMarkerTexture);
+                        sprite.setSize(1, 1);
+                        sprite.setPosition(enemyTile.x, enemyTile.y);
+                        sprite.draw(batch);
+                    }
+
+                    for (MapTile enemyTile : player.getArmyOwned()) {
+                        sprite = new Sprite(enemyMarkerTexture);
+                        sprite.setSize(1, 1);
+                        sprite.setPosition(enemyTile.x, enemyTile.y);
+                        sprite.draw(batch);
+                    }
+                }
+            }
+        }
+
     }
 
 }
