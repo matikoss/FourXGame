@@ -223,6 +223,14 @@ public class Player {
         return armyOwned;
     }
 
+    public ArrayList<MapTile> getTilesOwned() {
+        return tilesOwned;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
     public void removeArmy(Army armyToRemove) {
         armyOwned.remove(armyToRemove);
     }

@@ -601,4 +601,7 @@ public class GameSession implements InputProcessor {
 
     }
 
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
 }
