@@ -121,6 +121,7 @@ public class GameSession implements InputProcessor {
         if (tileCoordinates.y < 0) {
             y--;
         }
+        System.out.println(x+" " + y);
 
         for (MapTile tile : worldMap.getMapOfWorld()) {
             if (tile.x == x && tile.y == y) {
@@ -328,16 +329,16 @@ public class GameSession implements InputProcessor {
                 necessity[GameplayConstants.north_west - 1] = true;
             }
             if (chunkX + range == mapTile.x && chunkY == mapTile.y) {
-                necessity[GameplayConstants.north - 1] = true;
-            }
-            if (chunkX - range == mapTile.x && chunkY == mapTile.y) {
-                necessity[GameplayConstants.south - 1] = true;
-            }
-            if (chunkX == mapTile.x && chunkY + range == mapTile.y) {
                 necessity[GameplayConstants.east - 1] = true;
             }
-            if (chunkX == mapTile.x && chunkY - range == mapTile.y) {
+            if (chunkX - range == mapTile.x && chunkY == mapTile.y) {
                 necessity[GameplayConstants.west - 1] = true;
+            }
+            if (chunkX == mapTile.x && chunkY + range == mapTile.y) {
+                necessity[GameplayConstants.north - 1] = true;
+            }
+            if (chunkX == mapTile.x && chunkY - range == mapTile.y) {
+                necessity[GameplayConstants.south - 1] = true;
             }
         }
         for (int i = 0; i < necessity.length; i++) {

@@ -84,6 +84,7 @@ public class GameSessionRenderer {
         hud.stage.draw();
     }
 
+
     public void resize(int width, int height) {
         hud.resize(width, height);
         camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / height) * width;
