@@ -178,14 +178,14 @@ public class GameSessionHud implements Disposable {
             Table buttonTable = new Table();
             buttonTable.setPosition(480, -250);
             buttonTable.setFillParent(true);
-            if(gameSession.getSelectedTile().getOwner().equals(playerWhoseTurnIs.playerName)){
+            if (gameSession.getSelectedTile().getOwner().equals(playerWhoseTurnIs.playerName)) {
                 buttonTable.add(buildingMenuBtn).pad(5);
                 buttonTable.add(recruitmentMenuBtn).pad(5);
                 buttonTable.add(buyTilesBtn).pad(5);
                 buttonTable.row();
                 buttonTable.add(backBtnTownMenu);
                 buttonTable.add(leaveArmyFromTownBtn);
-            }else {
+            } else {
                 buttonTable.add(backBtnTownMenu);
             }
             stage.addActor(buttonTable);
@@ -263,11 +263,11 @@ public class GameSessionHud implements Disposable {
         townInfoStables.setText("Stable level: " + tmpSelectedTown.getStable() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.stablesIndex));
 
 
-        if(gameSession.getSelectedTile().getOwner().equals(playerWhoseTurnIs.playerName)){
+        if (gameSession.getSelectedTile().getOwner().equals(playerWhoseTurnIs.playerName)) {
             inTownArchersAmount.setText("Archers: " + tmpSelectedTown.getArchersInTown());
             inTownFootmansAmount.setText("Footmans: " + tmpSelectedTown.getFootmansInTown());
             inTownCavalryAmount.setText("Cavalry: " + tmpSelectedTown.getCavalryInTown());
-        }else {
+        } else {
             inTownArchersAmount.setText("Archers: " + calculateArmyInfo(tmpSelectedTown.getArchersInTown()));
             inTownFootmansAmount.setText("Footmans: " + calculateArmyInfo(tmpSelectedTown.getFootmansInTown()));
             inTownCavalryAmount.setText("Cavalry: " + calculateArmyInfo(tmpSelectedTown.getCavalryInTown()));
@@ -290,7 +290,7 @@ public class GameSessionHud implements Disposable {
         townInfoTable.add(townOwner).pad(2);
         townInfoTable.row();
 
-        if(gameSession.getSelectedTile().getOwner().equals(playerWhoseTurnIs.playerName)){
+        if (gameSession.getSelectedTile().getOwner().equals(playerWhoseTurnIs.playerName)) {
             townInfoTable.add(townInfoCastle).pad(2);
             townInfoTable.row();
             townInfoTable.add(townInfoTownhall).pad(2);
@@ -545,18 +545,18 @@ public class GameSessionHud implements Disposable {
 
     }
 
-    private String calculateArmyInfo(int amountOfUnit){
-        if(amountOfUnit < 5){
+    private String calculateArmyInfo(int amountOfUnit) {
+        if (amountOfUnit < 5) {
             return "Very small";
-        }else if(amountOfUnit < 10){
+        } else if (amountOfUnit < 10) {
             return "Small";
-        }else if(amountOfUnit < 20){
+        } else if (amountOfUnit < 20) {
             return "Medium";
-        }else if(amountOfUnit < 30){
+        } else if (amountOfUnit < 30) {
             return "Large";
-        }else if(amountOfUnit < 40){
+        } else if (amountOfUnit < 40) {
             return "Very large";
-        }else {
+        } else {
             return "Huge";
         }
 
@@ -630,22 +630,28 @@ public class GameSessionHud implements Disposable {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 int amountOfArchers, amountOfFootmans, amountOfCavalry;
-
-                amountOfArchers = Integer.parseInt(amountOfArchersToRecruitTF.getText());
-                amountOfFootmans = Integer.parseInt(amountOfFootmansToRecruitTF.getText());
-                amountOfCavalry = Integer.parseInt(amountOfCavalryToRecruitTF.getText());
-                gameSession.recruit(amountOfArchers, amountOfFootmans, amountOfCavalry, (TownTile) gameSession.getSelectedTile());
+                try {
+                    amountOfArchers = Integer.parseInt(amountOfArchersToRecruitTF.getText());
+                    amountOfFootmans = Integer.parseInt(amountOfFootmansToRecruitTF.getText());
+                    amountOfCavalry = Integer.parseInt(amountOfCavalryToRecruitTF.getText());
+                    gameSession.recruit(amountOfArchers, amountOfFootmans, amountOfCavalry, (TownTile) gameSession.getSelectedTile());
+                } catch (NumberFormatException e) {
+                }
             }
         });
 
-        leaveTownBtn.addListener(new ClickListener(){
+        leaveTownBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                int archersLeaving = Integer.parseInt(amountOfArchersToLeaveTown.getText());
-                int footmansLeaving = Integer.parseInt(amountOfFootmansToLeaveTown.getText());
-                int cavalryLeaving = Integer.parseInt(amountOfCavalryToLeaveTown.getText());
+                try {
+                    int archersLeaving = Integer.parseInt(amountOfArchersToLeaveTown.getText());
+                    int footmansLeaving = Integer.parseInt(amountOfFootmansToLeaveTown.getText());
+                    int cavalryLeaving = Integer.parseInt(amountOfCavalryToLeaveTown.getText());
 
-                gameSession.leaveTheTownWithArmy(archersLeaving, footmansLeaving, cavalryLeaving);
+                    gameSession.leaveTheTownWithArmy(archersLeaving, footmansLeaving, cavalryLeaving);
+                } catch (NumberFormatException e) {
+
+                }
             }
         });
 
@@ -657,46 +663,46 @@ public class GameSessionHud implements Disposable {
             }
         });
 
-        buildCastleBtn.addListener(new ClickListener(){
+        buildCastleBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                gameSession.getPlayerWhoseTurnIs().build((TownTile)gameSession.getSelectedTile(), GameplayConstants.castleIndex);
+                gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.castleIndex);
             }
         });
-        buildTownHallBtn.addListener(new ClickListener(){
+        buildTownHallBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                gameSession.getPlayerWhoseTurnIs().build((TownTile)gameSession.getSelectedTile(), GameplayConstants.townhallIndex);
+                gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.townhallIndex);
             }
         });
-        buildBarracksBtn.addListener(new ClickListener(){
+        buildBarracksBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                gameSession.getPlayerWhoseTurnIs().build((TownTile)gameSession.getSelectedTile(), GameplayConstants.barracksIndex);
+                gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.barracksIndex);
             }
         });
-        buildStablesButton.addListener(new ClickListener(){
+        buildStablesButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                gameSession.getPlayerWhoseTurnIs().build((TownTile)gameSession.getSelectedTile(), GameplayConstants.stablesIndex);
+                gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.stablesIndex);
             }
         });
-        buildHousesBtn.addListener(new ClickListener(){
+        buildHousesBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                gameSession.getPlayerWhoseTurnIs().build((TownTile)gameSession.getSelectedTile(), GameplayConstants.housesIndex);
+                gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.housesIndex);
             }
         });
-        buildWallBtn.addListener(new ClickListener(){
+        buildWallBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                gameSession.getPlayerWhoseTurnIs().build((TownTile)gameSession.getSelectedTile(), GameplayConstants.wallIndex);
+                gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.wallIndex);
             }
         });
-        buildBankBtn.addListener(new ClickListener(){
+        buildBankBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                gameSession.getPlayerWhoseTurnIs().build((TownTile)gameSession.getSelectedTile(), GameplayConstants.bankIndex);
+                gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.bankIndex);
             }
         });
 

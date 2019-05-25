@@ -141,6 +141,9 @@ public class Player {
         if (townWhereToDoIt.getBarrack() <= 0) {
             return false;
         }
+        if(townWhereToDoIt.getStable() <= 0){
+            cavalryToAdd=0;
+        }
         int woodForArchers = archersToAdd * GameplayConstants.archersWoodCost;
         int ironForArchers = archersToAdd * GameplayConstants.archersIronCost;
         int goldForArchers = archersToAdd * GameplayConstants.archersGoldCost;

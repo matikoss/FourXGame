@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.fourxgame.controllers.GameSession;
+import com.mygdx.fourxgame.maptiles.Army;
 import com.mygdx.fourxgame.maptiles.MapTile;
 
 public class GameSessionRenderer {
@@ -65,12 +66,9 @@ public class GameSessionRenderer {
     public void render() {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        for (MapTile tile : gameSession.getMap()) {
-            sprite = new Sprite(tile.getTexture());
-            sprite.setSize(1, 1);
-            sprite.setPosition(tile.x, tile.y);
-            sprite.draw(batch);
-        }
+
+        renderMapTiles(batch);
+        renderArmies(batch);
         if(gameSession.showBorder){
             renderBorders(batch);
         }
@@ -106,6 +104,28 @@ public class GameSessionRenderer {
                 sprite = new Sprite(texture);
                 sprite.setSize(1, 1);
                 sprite.setPosition(i, j);
+                sprite.draw(batch);
+            }
+        }
+    }
+
+    private void renderMapTiles(SpriteBatch batch){
+        for (MapTile tile : gameSession.getMap()) {
+            if(!tile.getClass().getSimpleName().equals("Army")){
+                sprite = new Sprite(tile.getTexture());
+                sprite.setSize(1, 1);
+                sprite.setPosition(tile.x, tile.y);
+                sprite.draw(batch);
+            }
+        }
+    }
+
+    private void renderArmies(SpriteBatch batch){
+        for(Player player : gameSession.getPlayers()){
+            for(Army army : player.getArmyOwned()){
+                sprite = new Sprite(army.getTexture());
+                sprite.setSize(1,1);
+                sprite.setPosition(army.x, army.y);
                 sprite.draw(batch);
             }
         }

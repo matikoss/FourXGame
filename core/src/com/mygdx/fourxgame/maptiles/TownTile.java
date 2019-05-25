@@ -93,8 +93,8 @@ public class TownTile extends MapTile {
                 footmansRecruited++;
             }
             if (cavalryToRecruit > 0) {
-                footmansToRecruit--;
-                footmansRecruited++;
+                cavalryToRecruit--;
+                cavalryRecruited++;
             }
             amountRecruitedInTurn--;
         }

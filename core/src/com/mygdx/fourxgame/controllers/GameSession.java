@@ -45,6 +45,7 @@ public class GameSession implements InputProcessor {
         //loadMapFromDatabase();
         //mapOfWorld.add(new Army(2, 2, "Mati", 0, 0, 0));
         //Gdx.input.setInputProcessor(this);
+        moveCameraToCurrentPlayerFirstTown(playerWhoseTurnIs);
     }
 
     public void update(float deltaTime) {
@@ -65,12 +66,14 @@ public class GameSession implements InputProcessor {
 
     private void nextPlayerTurn() {
         playerWhoseTurnIs = players.get(indexOfPlayerWhoseTurnIs);
+        moveCameraToCurrentPlayerFirstTown(playerWhoseTurnIs);
     }
 
     private void nextGameTurn() {
         indexOfPlayerWhoseTurnIs = 0;
         playerWhoseTurnIs = players.get(indexOfPlayerWhoseTurnIs);
         newTurnUpdate();
+        moveCameraToCurrentPlayerFirstTown(playerWhoseTurnIs);
 
     }
 
@@ -121,22 +124,23 @@ public class GameSession implements InputProcessor {
         if (tileCoordinates.y < 0) {
             y--;
         }
-        System.out.println(x+" " + y);
+        System.out.println(x + " " + y);
 
         for (MapTile tile : worldMap.getMapOfWorld()) {
             if (tile.x == x && tile.y == y) {
                 selectedTile = tile;
                 isTileSelected = true;
                 selectedTileIndex = worldMap.getMapOfWorld().indexOf(tile);
-            }
-            if (tile.getClass().getSimpleName().equals("Army")) {
-                return;
+                if (selectedTile.getClass().getSimpleName().equals("Army")) {
+                    return;
+                }
             }
         }
         System.out.println(selectedTile.getClass().getSimpleName());
-        System.out.println(selectedTile.getClass().getSimpleName().equals("Army"));
-        System.out.println(selectedTileIndex);
-        System.out.println(selectedTile.x + " " + selectedTile.y);
+
+        //System.out.println(selectedTile.getClass().getSimpleName().equals("Army"));
+        //System.out.println(selectedTileIndex);
+        //System.out.println(selectedTile.x + " " + selectedTile.y);
     }
 
     private void switchSelection() {
@@ -196,6 +200,9 @@ public class GameSession implements InputProcessor {
         if ((archersLeaving != 0 || footmansLeaving != 0 || cavalryLeaving != 0) && selectedTile.getClass().getSimpleName().equals("TownTile")) {
             Army armyAtEntrance = getArmyAtTownEntrance();
             Army armyLeaving = ((TownTile) selectedTile).leaveTheTownWithArmy(archersLeaving, footmansLeaving, cavalryLeaving);
+            if (armyLeaving == null) {
+                return;
+            }
             if (armyAtEntrance == null) {
                 playerWhoseTurnIs.addArmyToPlayer(armyLeaving);
                 worldMap.addToMap(armyLeaving);
@@ -253,8 +260,6 @@ public class GameSession implements InputProcessor {
     }
 
     private void checkAndExpandMapIfNecessary(Army armyToCheck, int range) {
-        int moduloForX = armyToCheck.x % 5;
-        int moduloForY = armyToCheck.y % 5;
         int chunkX, chunkY;
 
 
@@ -270,98 +275,95 @@ public class GameSession implements InputProcessor {
             chunkY = armyToCheck.y - moduloForY;
         }*/
 
-        if (moduloForX == 0) {
-            chunkX = armyToCheck.x;
-        } else if (moduloForX == 1) {
-            chunkX = armyToCheck.x - 1;
-        } else if (moduloForX == 2) {
-            chunkX = armyToCheck.x - 2;
-        } else if (moduloForX == 3) {
-            chunkX = armyToCheck.x + 2;
-        } else if (moduloForX == 4) {
-            chunkX = armyToCheck.x + 1;
-        }else if(moduloForX ==-1){
-            chunkX = armyToCheck.x+1;
-        }else if(moduloForX==-2){
-            chunkX = armyToCheck.x+2;
-        }else if(moduloForX==-3){
-            chunkX = armyToCheck.x - 2;
-        }else {
-            chunkX = armyToCheck.x - 1;
-        }
-
-
-        if (moduloForY == 0) {
-            chunkY = armyToCheck.y;
-        } else if (moduloForY == 1) {
-            chunkY = armyToCheck.y - 1;
-        } else if (moduloForY == 2) {
-            chunkY = armyToCheck.y - 2;
-        } else if (moduloForY == 3) {
-            chunkY = armyToCheck.y + 2;
-        } else if (moduloForY == 4) {
-            chunkY = armyToCheck.y + 1;
-        }else if(moduloForY ==-1){
-            chunkY = armyToCheck.y+1;
-        }else if(moduloForY==-2){
-            chunkY = armyToCheck.y+2;
-        }else if(moduloForY==-3){
-            chunkY = armyToCheck.y - 2;
-        }else {
-            chunkY = armyToCheck.y - 1;
-        }
-
+        chunkX = findMiddleOfChunkCoord(armyToCheck.x);
+        chunkY = findMiddleOfChunkCoord(armyToCheck.y);
 
 
         boolean[] necessity = new boolean[8];
-
-        for (MapTile mapTile : worldMap.getMapOfWorld()) {
-            if (chunkX + range == mapTile.x && chunkY + range == mapTile.y) {
-                necessity[GameplayConstants.north_east - 1] = true;
-            }
-            if (chunkX + range == mapTile.x && chunkY - range == mapTile.y) {
-                necessity[GameplayConstants.south_east - 1] = true;
-            }
-            if (chunkX - range == mapTile.x && chunkY - range == mapTile.y) {
-                necessity[GameplayConstants.south_west - 1] = true;
-            }
-            if (chunkX - range == mapTile.x && chunkY + range == mapTile.y) {
-                necessity[GameplayConstants.north_west - 1] = true;
-            }
-            if (chunkX + range == mapTile.x && chunkY == mapTile.y) {
-                necessity[GameplayConstants.east - 1] = true;
-            }
-            if (chunkX - range == mapTile.x && chunkY == mapTile.y) {
-                necessity[GameplayConstants.west - 1] = true;
-            }
-            if (chunkX == mapTile.x && chunkY + range == mapTile.y) {
-                necessity[GameplayConstants.north - 1] = true;
-            }
-            if (chunkX == mapTile.x && chunkY - range == mapTile.y) {
-                necessity[GameplayConstants.south - 1] = true;
-            }
-        }
-        for (int i = 0; i < necessity.length; i++) {
-            if (!necessity[i]) {
-                if (i == 0) {
-                    worldMap.expandMap("none", chunkX, chunkY + range, i + 1);
-                } else if (i == 1) {
-                    worldMap.expandMap("none", chunkX + range, chunkY + range, i + 1);
-                } else if (i == 2) {
-                    worldMap.expandMap("none", chunkX + range, chunkY, i + 1);
-                } else if (i == 3) {
-                    worldMap.expandMap("none", chunkX + range, chunkY - range, i + 1);
-                } else if (i == 4) {
-                    worldMap.expandMap("none", chunkX, chunkY - range, i + 1);
-                } else if (i == 5) {
-                    worldMap.expandMap("none", chunkX - range, chunkY - range, i + 1);
-                } else if (i == 6) {
-                    worldMap.expandMap("none", chunkX - range, chunkY, i + 1);
-                } else {
-                    worldMap.expandMap("none", chunkX - range, chunkY + range, i + 1);
+        for (int checkOnThisRange = range - 2; checkOnThisRange <= range; checkOnThisRange++) {
+            for (MapTile mapTile : worldMap.getMapOfWorld()) {
+                if (chunkX + range == mapTile.x && chunkY + range == mapTile.y) {
+                    necessity[GameplayConstants.north_east - 1] = true;
+                }
+                if (chunkX + range == mapTile.x && chunkY - range == mapTile.y) {
+                    necessity[GameplayConstants.south_east - 1] = true;
+                }
+                if (chunkX - range == mapTile.x && chunkY - range == mapTile.y) {
+                    necessity[GameplayConstants.south_west - 1] = true;
+                }
+                if (chunkX - range == mapTile.x && chunkY + range == mapTile.y) {
+                    necessity[GameplayConstants.north_west - 1] = true;
+                }
+                if (chunkX + range == mapTile.x && chunkY == mapTile.y) {
+                    necessity[GameplayConstants.east - 1] = true;
+                }
+                if (chunkX - range == mapTile.x && chunkY == mapTile.y) {
+                    necessity[GameplayConstants.west - 1] = true;
+                }
+                if (chunkX == mapTile.x && chunkY + range == mapTile.y) {
+                    necessity[GameplayConstants.north - 1] = true;
+                }
+                if (chunkX == mapTile.x && chunkY - range == mapTile.y) {
+                    necessity[GameplayConstants.south - 1] = true;
                 }
             }
+            boolean wasExpanded= false;
+            for (int i = 0; i < necessity.length; i++) {
+                if (!necessity[i]) {
+                    wasExpanded = true;
+                    if (i == 0) {
+                        worldMap.expandMap("none", chunkX, chunkY + range, i + 1);
+                    } else if (i == 1) {
+                        worldMap.expandMap("none", chunkX + range, chunkY + range, i + 1);
+                    } else if (i == 2) {
+                        worldMap.expandMap("none", chunkX + range, chunkY, i + 1);
+                    } else if (i == 3) {
+                        worldMap.expandMap("none", chunkX + range, chunkY - range, i + 1);
+                    } else if (i == 4) {
+                        worldMap.expandMap("none", chunkX, chunkY - range, i + 1);
+                    } else if (i == 5) {
+                        worldMap.expandMap("none", chunkX - range, chunkY - range, i + 1);
+                    } else if (i == 6) {
+                        worldMap.expandMap("none", chunkX - range, chunkY, i + 1);
+                    } else {
+                        worldMap.expandMap("none", chunkX - range, chunkY + range, i + 1);
+                    }
+                }
+            }
+            if(wasExpanded){
+                break;
+            }
+
         }
+
+    }
+
+    private int findMiddleOfChunkCoord(int coordinate) {
+        int chunkMiddleCoord;
+
+        int moduloOfCoordinate = coordinate % 5;
+
+        if (moduloOfCoordinate == 0) {
+            chunkMiddleCoord = coordinate;
+        } else if (moduloOfCoordinate == 1) {
+            chunkMiddleCoord = coordinate - 1;
+        } else if (moduloOfCoordinate == 2) {
+            chunkMiddleCoord = coordinate - 2;
+        } else if (moduloOfCoordinate == 3) {
+            chunkMiddleCoord = coordinate + 2;
+        } else if (moduloOfCoordinate == 4) {
+            chunkMiddleCoord = coordinate + 1;
+        } else if (moduloOfCoordinate == -1) {
+            chunkMiddleCoord = coordinate + 1;
+        } else if (moduloOfCoordinate == -2) {
+            chunkMiddleCoord = coordinate + 2;
+        } else if (moduloOfCoordinate == -3) {
+            chunkMiddleCoord = coordinate - 2;
+        } else {
+            chunkMiddleCoord = coordinate - 1;
+        }
+
+        return chunkMiddleCoord;
     }
 
     private void mergeArmy(Army armyAtEntrance, Army armyLeaving) {
@@ -663,6 +665,16 @@ public class GameSession implements InputProcessor {
         Vector3 worldCoordinates = new Vector3(x, y, 0);
         camera.unproject(worldCoordinates);
         return worldCoordinates;
+    }
+
+    private void moveCameraToCurrentPlayerFirstTown(Player playerWhoseTurnIs) {
+        for (MapTile mapTile : playerWhoseTurnIs.getTilesOwned()) {
+            if (mapTile.getClass().getSimpleName().equals("TownTile")) {
+                //Vector3 vectorProjected = camera.project(new Vector3(mapTile.x, mapTile.y,0));
+                //cameraController.setPosition(vectorProjected.x, vectorProjected.y);
+                cameraController.setPosition(mapTile.x, mapTile.y);
+            }
+        }
     }
 
     public boolean isTileSelected() {
