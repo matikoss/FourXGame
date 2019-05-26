@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
+import com.mygdx.fourxgame.mainclasses.GameSessionHud;
 import com.mygdx.fourxgame.mainclasses.GameplayConstants;
 import com.mygdx.fourxgame.mainclasses.Player;
 import com.mygdx.fourxgame.mainclasses.WorldMap;
@@ -25,9 +26,13 @@ public class GameSession implements InputProcessor {
     private WorldMap worldMap;
     private ArrayList<Player> players;
     private int numberOfPlayers;
+    private GameSessionHud hud;
 
     private Player playerWhoseTurnIs;
     private int indexOfPlayerWhoseTurnIs;
+
+    private boolean isTileToBuySelected;
+    private MapTile selectedTileToBuy;
 
     public boolean showBorder;
 
@@ -40,6 +45,8 @@ public class GameSession implements InputProcessor {
         worldMap = new WorldMap(numberOfPlayers, players);
         selectedTile = null;
         isTileSelected = false;
+        selectedTileToBuy = null;
+        isTileToBuySelected = false;
         worldMap.getMapOfWorld().add(new Army(0, 0, "OWNER", 100, 115, 50));
         showBorder = false;
         //loadMapFromDatabase();
@@ -307,7 +314,7 @@ public class GameSession implements InputProcessor {
                     necessity[GameplayConstants.south - 1] = true;
                 }
             }
-            boolean wasExpanded= false;
+            boolean wasExpanded = false;
             for (int i = 0; i < necessity.length; i++) {
                 if (!necessity[i]) {
                     wasExpanded = true;
@@ -330,7 +337,7 @@ public class GameSession implements InputProcessor {
                     }
                 }
             }
-            if(wasExpanded){
+            if (wasExpanded) {
                 break;
             }
 
@@ -595,6 +602,81 @@ public class GameSession implements InputProcessor {
         }
     }
 
+    private void selectTileToBuy() {
+        ArrayList<EmptyTile> tmpList = getTilesToBuy();
+
+        int x = Gdx.input.getX();
+        int y = Gdx.input.getY();
+        System.out.println(x + " " + y);
+        if ((y >= (Gdx.graphics.getHeight() - 20 * (Gdx.graphics.getHeight() / 720))) || (y <= (40 * (Gdx.graphics.getHeight() / 720))) || ((x >= (Gdx.graphics.getWidth() - 330 * Gdx.graphics.getWidth() / 1280)) && (y >= (Gdx.graphics.getHeight() - 220 * Gdx.graphics.getHeight() / 720)))) {
+            System.out.println(Gdx.graphics.getWidth() + " " + Gdx.graphics.getHeight());
+            return;
+        }
+
+        Vector3 tileCoordinates = translateCoordinates(x, y);
+
+        System.out.println(tileCoordinates.x + " " + tileCoordinates.y);
+
+        x = (int) tileCoordinates.x;
+        y = (int) tileCoordinates.y;
+
+
+        if (tileCoordinates.x < 0) {
+            x--;
+        }
+        if (tileCoordinates.y < 0) {
+            y--;
+        }
+
+        for (EmptyTile tile : tmpList) {
+            if (tile.x == x && tile.y == y) {
+                for(MapTile tmpMapTile : worldMap.getMapOfWorld()){
+                    if(tmpMapTile.x == x && tmpMapTile.y == y && !tmpMapTile.getClass().getSimpleName().equals("Army")){
+                        selectedTileToBuy = tmpMapTile;
+                        isTileToBuySelected = true;
+                        System.out.println("TILE TO BUY SELECTED");
+                    }
+                }
+            }
+        }
+    }
+
+
+    public ArrayList<EmptyTile> getTilesToBuy() {
+        ArrayList<EmptyTile> tmpList = new ArrayList<>();
+        boolean toBuy;
+        boolean duplicate;
+        for (MapTile mapTileChecked : ((TownTile) getSelectedTile()).getTilesNearTown()) {
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    toBuy = true;
+                    for (MapTile mapTileToCompare : ((TownTile) getSelectedTile()).getTilesNearTown()) {
+                        if (mapTileChecked.x + j == mapTileToCompare.x && mapTileChecked.y + i == mapTileToCompare.y) {
+                            toBuy = false;
+                            break;
+                        }
+                    }
+                    if (toBuy) {
+                        duplicate = false;
+                        for (EmptyTile tmpEmptyTile : tmpList) {
+                            if (mapTileChecked.x + j == tmpEmptyTile.x && mapTileChecked.y + i == tmpEmptyTile.y) {
+                                duplicate = true;
+                            }
+                        }
+                        if (!duplicate) {
+                            tmpList.add(new EmptyTile(mapTileChecked.x + j, mapTileChecked.y + i, ""));
+                        }
+                    }
+                }
+            }
+        }
+        return tmpList;
+    }
+
+    public int calculateTileCost(MapTile mapTileToCalculate, int baseCost) {
+        return baseCost * (worldMap.calculateDistance(selectedTile.x, selectedTile.y, mapTileToCalculate.x, mapTileToCalculate.y) - 2);
+    }
+
     private void loadMapFromDatabase() {
         Driver driver = null;
         try {
@@ -741,8 +823,12 @@ public class GameSession implements InputProcessor {
             return false;
         }
 
-        if (button == Input.Buttons.LEFT) {
+        if (button == Input.Buttons.LEFT && !hud.isBuyTileMode) {
             selectTile();
+            return true;
+        }
+        if(button == Input.Buttons.LEFT && hud.isBuyTileMode){
+            selectTileToBuy();
             return true;
         }
         if (button == Input.Buttons.RIGHT && isTileSelected && selectedTile.getClass().getSimpleName().equals("Army")) {
@@ -779,5 +865,9 @@ public class GameSession implements InputProcessor {
 
     public ArrayList<Player> getPlayers() {
         return players;
+    }
+
+    public void setHud(GameSessionHud hud) {
+        this.hud = hud;
     }
 }

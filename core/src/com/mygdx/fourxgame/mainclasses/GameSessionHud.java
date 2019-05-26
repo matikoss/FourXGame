@@ -1,6 +1,5 @@
 package com.mygdx.fourxgame.mainclasses;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -9,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -20,7 +21,10 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.fourxgame.controllers.GameSession;
 import com.mygdx.fourxgame.maptiles.Army;
+import com.mygdx.fourxgame.maptiles.EmptyTile;
 import com.mygdx.fourxgame.maptiles.TownTile;
+
+import java.util.ArrayList;
 
 
 public class GameSessionHud implements Disposable {
@@ -51,6 +55,8 @@ public class GameSessionHud implements Disposable {
     private Button recruitmentMenuBtn;
     private Button buyTilesBtn;
     private Button leaveArmyFromTownBtn;
+
+    private Button buyTilesMenuBackBtn;
 
     private Button buildCastleBtn;
     private Button buildBarracksBtn;
@@ -102,11 +108,14 @@ public class GameSessionHud implements Disposable {
     private Button leaveTownBtn;
     private Button leaveTownBackBtn;
 
+    private Label hoveringLabel;
 
     private boolean isTownMenu = false;
     private boolean isBuildingMenu = false;
     private boolean isRecruitmentMenu = false;
     private boolean isArmyLeaveMenu = false;
+    private boolean isMouseOnButton = false;
+    public boolean isBuyTileMode = false;
 
 
     public GameSessionHud(SpriteBatch batch, GameSession gameSession) {
@@ -126,7 +135,14 @@ public class GameSessionHud implements Disposable {
     }
 
     public void render() {
+        stage.act();
+
         drawBasicHUD();
+        showTownButtons();
+        showArmyInfo();
+        emptyTileSelectedHud();
+        showBuildingCostLabel();
+        System.out.println(isMouseOnButton);
     }
 
     private void drawBasicHUD() {
@@ -136,15 +152,11 @@ public class GameSessionHud implements Disposable {
         ironIconSprite.draw(batch);
         goldIconSprite.draw(batch);
         populationIconSprite.draw(batch);
-
-
         batch.end();
     }
 
     public void update() {
         updateResources();
-        showTownButtons();
-        showArmyInfo();
     }
 
     @Override
@@ -170,7 +182,7 @@ public class GameSessionHud implements Disposable {
     }
 
     private void showTownButtons() {
-        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("TownTile") && !isTownMenu && !isBuildingMenu && !isRecruitmentMenu && !isArmyLeaveMenu) {
+        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("TownTile") && !isTownMenu && !isBuildingMenu && !isRecruitmentMenu && !isArmyLeaveMenu && !isBuyTileMode) {
             stage.clear();
 
             addResourcesInfoToStage();
@@ -254,13 +266,13 @@ public class GameSessionHud implements Disposable {
     private void updateTownInfo() {
         TownTile tmpSelectedTown = (TownTile) gameSession.getSelectedTile();
         townOwner.setText("Owner: " + tmpSelectedTown.getOwner());
-        townInfoCastle.setText("Castle: " + tmpSelectedTown.getCastle() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.castleIndex));
-        townInfoTownhall.setText("Town Hall: " + tmpSelectedTown.getTownHall() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.townhallIndex));
-        townInfoHouses.setText("Houses level: " + tmpSelectedTown.getHouses() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.housesIndex));
-        townInfoBank.setText("Bank level: " + tmpSelectedTown.getBank() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.bankIndex));
-        townInfoWall.setText("Wall level: " + tmpSelectedTown.getWall() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.wallIndex));
-        townInfoBarracks.setText("Barracks level: " + tmpSelectedTown.getBarrack() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.barracksIndex));
-        townInfoStables.setText("Stable level: " + tmpSelectedTown.getStable() + "lvl" + " Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.stablesIndex));
+        townInfoCastle.setText("Castle: " + tmpSelectedTown.getCastle() + "lvl");
+        townInfoTownhall.setText("Town Hall: " + tmpSelectedTown.getTownHall() + "lvl");
+        townInfoHouses.setText("Houses level: " + tmpSelectedTown.getHouses() + "lvl");
+        townInfoBank.setText("Bank level: " + tmpSelectedTown.getBank() + "lvl");
+        townInfoWall.setText("Wall level: " + tmpSelectedTown.getWall() + "lvl");
+        townInfoBarracks.setText("Barracks level: " + tmpSelectedTown.getBarrack() + "lvl");
+        townInfoStables.setText("Stable level: " + tmpSelectedTown.getStable() + "lvl");
 
 
         if (gameSession.getSelectedTile().getOwner().equals(playerWhoseTurnIs.playerName)) {
@@ -351,6 +363,37 @@ public class GameSessionHud implements Disposable {
 
         }
 
+    }
+
+    private void showBuyTilesButtons() {
+        stage.clear();
+        isBuyTileMode = true;
+        isTownMenu = false;
+        Table table = new Table();
+        table.setPosition(480, -250);
+        table.setFillParent(true);
+        table.add(buyTilesMenuBackBtn);
+        addResourcesInfoToStage();
+        showTownInfo();
+        stage.addActor(table);
+    }
+
+    private void emptyTileSelectedHud() {
+        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("EmptyTile")) {
+            isTownMenu = false;
+            stage.clear();
+            showMainButtons();
+            addResourcesInfoToStage();
+        }
+    }
+
+    private void showBuildingCostLabel() {
+        if (isMouseOnButton) {
+            Vector3 vector3 = viewport.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+            hoveringLabel.setX(vector3.x - 200);
+            hoveringLabel.setY(vector3.y + 10);
+            stage.addActor(hoveringLabel);
+        }
     }
 
     private void showArmyLeaveMenu() {
@@ -491,6 +534,8 @@ public class GameSessionHud implements Disposable {
         buyTilesBtn = new TextButton("Buy Tiles", emptyTextButtonStyle);
         leaveArmyFromTownBtn = new TextButton("Leave the army", emptyTextButtonStyle);
 
+        buyTilesMenuBackBtn = new TextButton("Back", emptyTextButtonStyle);
+
         buildCastleBtn = new TextButton("Build Castle", emptyTextButtonStyle);
         buildBarracksBtn = new TextButton("Build Barracks", emptyTextButtonStyle);
         buildTownHallBtn = new TextButton("Build Town Hall", emptyTextButtonStyle);
@@ -531,6 +576,10 @@ public class GameSessionHud implements Disposable {
         townInfoStables = new Label("Stables: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         townInfoWall = new Label("Wall: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
 
+        hoveringLabel = new Label("", new Label.LabelStyle(new BitmapFont(), Color.GOLD));
+        hoveringLabel.setFontScale(1f);
+
+
         armySectionInfo = new Label("Army in town: ", new Label.LabelStyle(new BitmapFont(), Color.BROWN));
         inTownArchersAmount = new Label("Archers: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
         inTownFootmansAmount = new Label("Footmans: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
@@ -560,6 +609,16 @@ public class GameSessionHud implements Disposable {
             return "Huge";
         }
 
+    }
+
+    private void hoveringLabelSetupOnEnter(String infoOnHoveringLabel) {
+        isMouseOnButton = true;
+        hoveringLabel.setText(infoOnHoveringLabel);
+    }
+
+    private void hoveringLabelSetupOnExit() {
+        isMouseOnButton = false;
+        hoveringLabel.setText("");
     }
 
 
@@ -600,6 +659,20 @@ public class GameSessionHud implements Disposable {
             public void clicked(InputEvent event, float x, float y) {
 
                 showRecruitmentMenu();
+            }
+        });
+        buyTilesBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showBuyTilesButtons();
+            }
+        });
+
+        buyTilesMenuBackBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                isBuyTileMode = false;
+                showTownButtons();
             }
         });
 
@@ -668,11 +741,33 @@ public class GameSessionHud implements Disposable {
             public void clicked(InputEvent event, float x, float y) {
                 gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.castleIndex);
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                TownTile tmpSelectedTown = (TownTile) gameSession.getSelectedTile();
+                hoveringLabelSetupOnEnter(" Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.castleIndex));
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                hoveringLabelSetupOnExit();
+            }
         });
         buildTownHallBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.townhallIndex);
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                TownTile tmpSelectedTown = (TownTile) gameSession.getSelectedTile();
+                hoveringLabelSetupOnEnter(" Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.townhallIndex));
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                hoveringLabelSetupOnExit();
             }
         });
         buildBarracksBtn.addListener(new ClickListener() {
@@ -680,11 +775,33 @@ public class GameSessionHud implements Disposable {
             public void clicked(InputEvent event, float x, float y) {
                 gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.barracksIndex);
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                TownTile tmpSelectedTown = (TownTile) gameSession.getSelectedTile();
+                hoveringLabelSetupOnEnter(" Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.barracksIndex));
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                hoveringLabelSetupOnExit();
+            }
         });
         buildStablesButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.stablesIndex);
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                TownTile tmpSelectedTown = (TownTile) gameSession.getSelectedTile();
+                hoveringLabelSetupOnEnter(" Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.stablesIndex));
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                hoveringLabelSetupOnExit();
             }
         });
         buildHousesBtn.addListener(new ClickListener() {
@@ -692,17 +809,50 @@ public class GameSessionHud implements Disposable {
             public void clicked(InputEvent event, float x, float y) {
                 gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.housesIndex);
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                TownTile tmpSelectedTown = (TownTile) gameSession.getSelectedTile();
+                hoveringLabelSetupOnEnter(" Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.housesIndex));
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                hoveringLabelSetupOnExit();
+            }
         });
         buildWallBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.wallIndex);
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                TownTile tmpSelectedTown = (TownTile) gameSession.getSelectedTile();
+                hoveringLabelSetupOnEnter(" Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.wallIndex));
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                hoveringLabelSetupOnExit();
+            }
         });
         buildBankBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 gameSession.getPlayerWhoseTurnIs().build((TownTile) gameSession.getSelectedTile(), GameplayConstants.bankIndex);
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                TownTile tmpSelectedTown = (TownTile) gameSession.getSelectedTile();
+                hoveringLabelSetupOnEnter(" Next level cost: " + tmpSelectedTown.buildingTotalCostToString(GameplayConstants.bankIndex));
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                hoveringLabelSetupOnExit();
             }
         });
 

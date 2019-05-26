@@ -4,15 +4,22 @@ package com.mygdx.fourxgame.mainclasses;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.fourxgame.controllers.GameSession;
 import com.mygdx.fourxgame.maptiles.Army;
+import com.mygdx.fourxgame.maptiles.EmptyTile;
 import com.mygdx.fourxgame.maptiles.MapTile;
+
+import java.util.ArrayList;
 
 public class GameSessionRenderer {
     private OrthographicCamera camera;
@@ -28,6 +35,7 @@ public class GameSessionRenderer {
 
     private Texture enemyMarkerTexture;
     private Texture myMarkerTexture;
+    private Texture tileToBuyTexture;
 
 
     public GameSessionRenderer(GameSession gameSession, SpriteBatch batch) {
@@ -50,6 +58,7 @@ public class GameSessionRenderer {
 
         enemyMarkerTexture = new Texture(Gdx.files.internal("enemyMarker.png"));
         myMarkerTexture = new Texture(Gdx.files.internal("myMarker.png"));
+        tileToBuyTexture = new Texture(Gdx.files.internal("buyTexture.png"));
     }
 
     private void setupInput() {
@@ -75,6 +84,9 @@ public class GameSessionRenderer {
         //renderGrid(batch);
         if (gameSession.isTileSelected()) {
             renderSelectionMarker(batch);
+        }
+        if(hud.isBuyTileMode){
+            showTilesToBuy(gameSession.getTilesToBuy(), batch);
         }
         batch.end();
         batch.setProjectionMatrix(hud.stage.getCamera().combined);
@@ -139,6 +151,15 @@ public class GameSessionRenderer {
         sprite.draw(batch);
     }
 
+    private void showTilesToBuy(ArrayList<EmptyTile> tilesAvailable, SpriteBatch batch) {
+        for (EmptyTile tile : tilesAvailable) {
+            sprite = new Sprite(tileToBuyTexture);
+            sprite.setSize(1, 1);
+            sprite.setPosition(tile.x, tile.y);
+            sprite.draw(batch);
+        }
+    }
+
     private void renderBorders(SpriteBatch batch) {
         if (gameSession.getPlayerWhoseTurnIs() != null) {
             for (MapTile playerTile : gameSession.getPlayerWhoseTurnIs().getArmyOwned()) {
@@ -176,4 +197,7 @@ public class GameSessionRenderer {
 
     }
 
+    public GameSessionHud getHud() {
+        return hud;
+    }
 }

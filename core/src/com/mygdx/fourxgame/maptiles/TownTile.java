@@ -3,9 +3,11 @@ package com.mygdx.fourxgame.maptiles;
 import com.badlogic.gdx.Game;
 import com.mygdx.fourxgame.mainclasses.GameplayConstants;
 
+import java.util.ArrayList;
+
 public class TownTile extends MapTile {
 
-
+    private ArrayList <MapTile> tilesNearTown;
     private String townName;
     private int castle;
     private int townHall;
@@ -30,6 +32,7 @@ public class TownTile extends MapTile {
     public TownTile(int x, int y, String owner) {
         super(x, y, owner, "townTexture.png");
         townName = "Town Name";
+        tilesNearTown = new ArrayList<>();
         castle = 0;
         townHall = 0;
         wall = 0;
@@ -299,4 +302,7 @@ public class TownTile extends MapTile {
         return "W:" + calculateWoodCostOfBuilding(buildingConstant) + " I:" + calculateIronCostOfBuilding(buildingConstant) + " G:" + calculateGoldCostOfBuilding(buildingConstant);
     }
 
+    public ArrayList<MapTile> getTilesNearTown() {
+        return tilesNearTown;
+    }
 }

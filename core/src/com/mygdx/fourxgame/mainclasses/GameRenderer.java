@@ -23,6 +23,7 @@ public class GameRenderer {
 
     public void startNewGame() {
         gameSessionRenderer = new GameSessionRenderer(gameController.getGameSession(), batch);
+        gameController.getGameSession().setHud(gameSessionRenderer.getHud());
     }
 
     public void render() {

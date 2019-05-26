@@ -253,6 +253,7 @@ public class WorldMap {
                 tmpChunk.add(tmpMapTile);
             }
         }
+        ((TownTile)tmpChunk.get(0)).getTilesNearTown().addAll(tmpChunk);
         mapOfWorld.addAll(tmpChunk);
         ownerOfStartingChunk.addMultipleTilesToPlayer(tmpChunk);
     }
