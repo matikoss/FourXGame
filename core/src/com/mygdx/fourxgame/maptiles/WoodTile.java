@@ -11,6 +11,16 @@ public class WoodTile extends ResourcesTile {
 
     }
 
+    @Override
+    public void build() {
+        isLumbermillBuilt = true;
+    }
+
+    @Override
+    public boolean isBuilt() {
+        return  isLumbermillBuilt;
+    }
+
     public boolean isLumbermillBuilt() {
         return isLumbermillBuilt;
     }

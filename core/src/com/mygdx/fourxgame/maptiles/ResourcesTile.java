@@ -7,4 +7,8 @@ public abstract class ResourcesTile extends  MapTile {
 
     @Override
     public abstract void newTurnUpdate();
+
+    public abstract void build();
+
+    public abstract boolean isBuilt();
 }

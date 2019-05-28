@@ -11,6 +11,16 @@ public class IronTile extends ResourcesTile {
         
     }
 
+    @Override
+    public void build() {
+        isIronMineBuilt = true;
+    }
+
+    @Override
+    public boolean isBuilt() {
+        return isIronMineBuilt;
+    }
+
     public boolean isIronMineBuilt() {
         return isIronMineBuilt;
     }

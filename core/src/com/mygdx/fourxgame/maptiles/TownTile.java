@@ -28,6 +28,8 @@ public class TownTile extends MapTile {
     private int footmansToRecruit;
     private int cavalryToRecruit;
 
+    private int numberOfHousesBuildInTurn;
+
 
     public TownTile(int x, int y, String owner) {
         super(x, y, owner, "townTexture.png");
@@ -45,6 +47,8 @@ public class TownTile extends MapTile {
         archersToRecruit = 0;
         footmansToRecruit = 0;
         cavalryToRecruit = 0;
+
+        numberOfHousesBuildInTurn = 0;
 
     }
 
@@ -129,6 +133,7 @@ public class TownTile extends MapTile {
             } else if (buildingInProgress == GameplayConstants.stablesIndex) {
                 stable++;
             } else if (buildingInProgress == GameplayConstants.housesIndex) {
+                numberOfHousesBuildInTurn++;
                 houses++;
             } else if (buildingInProgress == GameplayConstants.wallIndex) {
                 wall++;
@@ -304,5 +309,13 @@ public class TownTile extends MapTile {
 
     public ArrayList<MapTile> getTilesNearTown() {
         return tilesNearTown;
+    }
+
+    public int getNumberOfHousesBuildInTurn() {
+        return numberOfHousesBuildInTurn;
+    }
+
+    public void setNumberOfHousesBuildInTurn(int numberOfHousesBuildInTurn) {
+        this.numberOfHousesBuildInTurn = numberOfHousesBuildInTurn;
     }
 }

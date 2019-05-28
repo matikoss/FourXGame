@@ -1,6 +1,5 @@
 package com.mygdx.fourxgame.mainclasses;
 
-import com.badlogic.gdx.Game;
 import com.mygdx.fourxgame.maptiles.*;
 
 import java.util.ArrayList;
@@ -60,6 +59,11 @@ public class Player {
                 goldIncome+=GameplayConstants.goldIncome;
                 if(((GoldTile)resourceTile).isGoldMineBuilt()){
                     goldIncome+=GameplayConstants.goldIncome;
+                }
+            }else if (resourceTile.getClass().getSimpleName().equals("TownTile")){
+                if(((TownTile)resourceTile).getNumberOfHousesBuildInTurn()>0){
+                    population+=((TownTile)resourceTile).getNumberOfHousesBuildInTurn()*GameplayConstants.populationIncome;
+                    ((TownTile)resourceTile).setNumberOfHousesBuildInTurn(0);
                 }
             }
         }
@@ -135,6 +139,17 @@ public class Player {
         }
         return false;
 
+    }
+
+
+    public boolean payForResourceTile(){
+        if(amountOfWood>=GameplayConstants.woodCostResourceTile && amountOfIron>=GameplayConstants.ironCostResourceTile && amountOfGold>=GameplayConstants.goldCostResourceTile){
+            amountOfWood-=GameplayConstants.woodCostResourceTile;
+            amountOfIron-=GameplayConstants.ironCostResourceTile;
+            amountOfGold-=GameplayConstants.goldCostResourceTile;
+            return true;
+        }else
+            return false;
     }
 
     public boolean recruit(TownTile townWhereToDoIt, int archersToAdd, int footmansToAdd, int cavalryToAdd) {

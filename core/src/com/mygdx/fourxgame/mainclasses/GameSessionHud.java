@@ -20,8 +20,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.fourxgame.controllers.GameSession;
-import com.mygdx.fourxgame.maptiles.Army;
-import com.mygdx.fourxgame.maptiles.TownTile;
+import com.mygdx.fourxgame.maptiles.*;
 
 
 public class GameSessionHud implements Disposable {
@@ -118,6 +117,11 @@ public class GameSessionHud implements Disposable {
     public Label selectedToBuyTileCost;
     private Label selectedToBuyTileQuestion;
 
+    private Label resourceBuildingInfo;
+    private Label resourceTileBuildingCostInfo;
+    private Button buildResourceBuildingBtn;
+    private Button buildResourceBuildingBackBtn;
+
     private boolean isTownMenu = false;
     private boolean isBuildingMenu = false;
     private boolean isRecruitmentMenu = false;
@@ -125,6 +129,7 @@ public class GameSessionHud implements Disposable {
     private boolean isMouseOnButton = false;
     public boolean isBuyTileMenu = false;
     public boolean isBuyTileMode = false;
+    public boolean isResourceTileMenu = false;
 
 
     public GameSessionHud(SpriteBatch batch, GameSession gameSession) {
@@ -150,6 +155,7 @@ public class GameSessionHud implements Disposable {
         showTownButtons();
         showArmyInfo();
         emptyTileSelectedHud();
+        showResourceTileMenu();
         showBuildingCostLabel();
         showBuyTileMenu();
         System.out.println(isMouseOnButton);
@@ -343,36 +349,68 @@ public class GameSessionHud implements Disposable {
     }
 
     private void showArmyInfo() {
-        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("Army")) {
-            isTownMenu = false;
-            stage.clear();
-            showMainButtons();
-            addResourcesInfoToStage();
-
-            infoBackground.setPosition(viewport.getWorldWidth() - 330, 250);
-
-
-            Table armyInfoTable = new Table();
-            armyInfoTable.setPosition(viewport.getWorldWidth() - 165, 450);
-            armyArchersAmountInfo.setText("Archers: " + ((Army) gameSession.getSelectedTile()).getArchersAmount());
-            armyFootmansAmountInfo.setText("Footmans: " + ((Army) gameSession.getSelectedTile()).getFootmansAmount());
-            armyCavalryAmountInfo.setText("Cavalry:" + ((Army) gameSession.getSelectedTile()).getCavalryAmount());
-
-
-            armyInfoTable.add(armyInfo).pad(3);
-            armyInfoTable.row();
-            armyInfoTable.add(armyArchersAmountInfo).pad(1);
-            armyInfoTable.row();
-            armyInfoTable.add(armyFootmansAmountInfo).pad(1);
-            armyInfoTable.row();
-            armyInfoTable.add(armyCavalryAmountInfo).pad(1);
-            armyInfoTable.row();
-
-            stage.addActor(infoBackground);
-            stage.addActor(armyInfoTable);
-
+        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("Army") && gameSession.getPlayerWhoseTurnIs().getPlayerName().equals(gameSession.getSelectedTile().getOwner())) {
+            showFullArmyInfo();
+        } else if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("Army") && !gameSession.getPlayerWhoseTurnIs().getPlayerName().equals(gameSession.getSelectedTile().getOwner())) {
+            showShortArmyInfo();
         }
+    }
 
+    private void showFullArmyInfo() {
+        isTownMenu = false;
+        stage.clear();
+        showMainButtons();
+        addResourcesInfoToStage();
+
+        infoBackground.setPosition(viewport.getWorldWidth() - 330, 250);
+
+
+        Table armyInfoTable = new Table();
+        armyInfoTable.setPosition(viewport.getWorldWidth() - 165, 450);
+        armyArchersAmountInfo.setText("Archers: " + ((Army) gameSession.getSelectedTile()).getArchersAmount());
+        armyFootmansAmountInfo.setText("Footmans: " + ((Army) gameSession.getSelectedTile()).getFootmansAmount());
+        armyCavalryAmountInfo.setText("Cavalry:" + ((Army) gameSession.getSelectedTile()).getCavalryAmount());
+
+
+        armyInfoTable.add(armyInfo).pad(3);
+        armyInfoTable.row();
+        armyInfoTable.add(armyArchersAmountInfo).pad(1);
+        armyInfoTable.row();
+        armyInfoTable.add(armyFootmansAmountInfo).pad(1);
+        armyInfoTable.row();
+        armyInfoTable.add(armyCavalryAmountInfo).pad(1);
+        armyInfoTable.row();
+
+        stage.addActor(infoBackground);
+        stage.addActor(armyInfoTable);
+    }
+
+    private void showShortArmyInfo() {
+        isTownMenu = false;
+        stage.clear();
+        showMainButtons();
+        addResourcesInfoToStage();
+        infoBackground.setPosition(viewport.getWorldWidth() - 330, 250);
+
+
+        Table armyInfoTable = new Table();
+        armyInfoTable.setPosition(viewport.getWorldWidth() - 165, 450);
+
+        armyArchersAmountInfo.setText("Archers: " + calculateArmyInfo(((Army) gameSession.getSelectedTile()).getArchersAmount()));
+        armyFootmansAmountInfo.setText("Footmans: " + calculateArmyInfo(((Army) gameSession.getSelectedTile()).getFootmansAmount()));
+        armyCavalryAmountInfo.setText("Cavalry:" + calculateArmyInfo(((Army) gameSession.getSelectedTile()).getCavalryAmount()));
+
+        armyInfoTable.add(armyInfo).pad(3);
+        armyInfoTable.row();
+        armyInfoTable.add(armyArchersAmountInfo).pad(1);
+        armyInfoTable.row();
+        armyInfoTable.add(armyFootmansAmountInfo).pad(1);
+        armyInfoTable.row();
+        armyInfoTable.add(armyCavalryAmountInfo).pad(1);
+        armyInfoTable.row();
+
+        stage.addActor(infoBackground);
+        stage.addActor(armyInfoTable);
     }
 
     private void showBuyTilesButtons() {
@@ -435,8 +473,8 @@ public class GameSessionHud implements Disposable {
 
     }
 
-    private void showBuyTileMenu(){
-        if(gameSession.isTileToBuySelected() && !isBuyTileMenu) {
+    private void showBuyTileMenu() {
+        if (gameSession.isTileToBuySelected() && !isBuyTileMenu) {
             stage.clear();
             addResourcesInfoToStage();
             showTownInfo();
@@ -452,6 +490,49 @@ public class GameSessionHud implements Disposable {
 
             stage.addActor(buyTileTable);
             isBuyTileMenu = true;
+        }
+    }
+
+    private void showResourceTileMenu() {
+        if (gameSession.isTileSelected() && !gameSession.getSelectedTile().getClass().getSimpleName().equals("TownTile") && !gameSession.getSelectedTile().getClass().getSimpleName().equals("Army")
+                && !gameSession.getSelectedTile().getClass().getSimpleName().equals("EmptyTile") && !isResourceTileMenu) {
+            isTownMenu = false;
+            isResourceTileMenu = true;
+            stage.clear();
+            addResourcesInfoToStage();
+            Table resourceTileTable = new Table();
+            resourceTileTable.setPosition(480,-250);
+            resourceTileTable.setFillParent(true);
+            resourceTileBuildingCostInfo.setText("Building cost: " + GameplayConstants.woodCostResourceTile+"W " + GameplayConstants.ironCostResourceTile+"I " + GameplayConstants.goldCostResourceTile+"G");
+            resourceTileTable.add(resourceBuildingInfo).pad(2);
+            resourceTileTable.row();
+            if (gameSession.getSelectedTile().getClass().getSimpleName().equals("WoodTile")) {
+                resourceBuildingInfo.setText("Is lumber mill built: " + ((WoodTile)gameSession.getSelectedTile()).isLumbermillBuilt());
+
+                if(!((WoodTile)gameSession.getSelectedTile()).isLumbermillBuilt()){
+
+                    resourceTileTable.add(resourceTileBuildingCostInfo).pad(2);
+                    resourceTileTable.row();
+                    resourceTileTable.add(buildResourceBuildingBtn).pad(2);
+                }
+            } else if (gameSession.getSelectedTile().getClass().getSimpleName().equals("IronTile")) {
+                resourceBuildingInfo.setText("Is iron mine built: " + ((IronTile)gameSession.getSelectedTile()).isIronMineBuilt());
+                if(!((IronTile)gameSession.getSelectedTile()).isIronMineBuilt()){
+                    resourceTileTable.add(resourceTileBuildingCostInfo).pad(2);
+                    resourceTileTable.row();
+                    resourceTileTable.add(buildResourceBuildingBtn).pad(2);
+                }
+            } else if (gameSession.getSelectedTile().getClass().getSimpleName().equals("GoldTile")) {
+                resourceBuildingInfo.setText("Is gold mine built: " + ((GoldTile)gameSession.getSelectedTile()).isGoldMineBuilt());
+                if(!((GoldTile)gameSession.getSelectedTile()).isGoldMineBuilt()){
+                    resourceTileTable.add(resourceTileBuildingCostInfo).pad(2);
+                    resourceTileTable.row();
+                    resourceTileTable.add(buildResourceBuildingBtn).pad(2);
+                }
+
+            }
+            resourceTileTable.add(buildResourceBuildingBackBtn).pad(2);
+            stage.addActor(resourceTileTable);
         }
     }
 
@@ -631,6 +712,12 @@ public class GameSessionHud implements Disposable {
         armyFootmansAmountInfo = new Label("Footmans amount: ", labelStyleBlack);
         armyCavalryAmountInfo = new Label("Cavalry amount: ", labelStyleBlack);
         armyInfo.setFontScale(1.5f);
+
+        resourceTileBuildingCostInfo = new Label("", labelStyleGold);
+        resourceBuildingInfo = new Label("", labelStyleBlack);
+        buildResourceBuildingBtn = new TextButton("Build", emptyTextButtonStyle);
+        buildResourceBuildingBackBtn = new TextButton("Back", emptyTextButtonStyle);
+
         //Gdx.input.setInputProcessor(stage);
 
     }
@@ -897,7 +984,7 @@ public class GameSessionHud implements Disposable {
             }
         });
 
-        buyTileYesButton.addListener(new ClickListener(){
+        buyTileYesButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 gameSession.buyTile();
@@ -907,6 +994,32 @@ public class GameSessionHud implements Disposable {
             }
         });
 
+        buyTileNoButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                isBuyTileMenu = false;
+                gameSession.setTileToBuySelected(false);
+                gameSession.setSelectedTileToBuy(null);
+                showBuyTilesButtons();
+            }
+        });
+
+        buildResourceBuildingBtn.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameSession.buildResourceTile();
+            }
+        });
+
+        buildResourceBuildingBackBtn.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                isResourceTileMenu = false;
+                gameSession.setTileSelected(false);
+                gameSession.setSelectedTile(null);
+                showMainButtons();
+            }
+        });
     }
 
 }

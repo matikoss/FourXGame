@@ -109,6 +109,7 @@ public class GameSession implements InputProcessor {
     }
 
     private void selectTile() {
+        hud.isResourceTileMenu = false;
         int x = Gdx.input.getX();
         int y = Gdx.input.getY();
         System.out.println(x + " " + y);
@@ -164,6 +165,10 @@ public class GameSession implements InputProcessor {
     }
 
     private void moveArmy() {
+
+        if (!playerWhoseTurnIs.getPlayerName().equals(selectedTile.getOwner())) {
+            return;
+        }
 
         int newX = Gdx.input.getX();
         int newY = Gdx.input.getY();
@@ -630,8 +635,8 @@ public class GameSession implements InputProcessor {
 
         for (EmptyTile tile : tmpList) {
             if (tile.x == x && tile.y == y) {
-                for(MapTile tmpMapTile : worldMap.getMapOfWorld()){
-                    if(tmpMapTile.x == x && tmpMapTile.y == y && !tmpMapTile.getClass().getSimpleName().equals("Army")){
+                for (MapTile tmpMapTile : worldMap.getMapOfWorld()) {
+                    if (tmpMapTile.x == x && tmpMapTile.y == y && !tmpMapTile.getClass().getSimpleName().equals("Army")) {
                         selectedTileToBuy = tmpMapTile;
                         isTileToBuySelected = true;
                         hud.selectedToBuyTileCost.setText("Field cost: " + calculateTileCost(selectedTileToBuy, 10) + "G");
@@ -642,10 +647,10 @@ public class GameSession implements InputProcessor {
         }
     }
 
-    public void buyTile(){
+    public void buyTile() {
         playerWhoseTurnIs.setAmountOfGold(playerWhoseTurnIs.getAmountOfGold() - calculateTileCost(selectedTileToBuy, 10));
         playerWhoseTurnIs.addTileToPlayer(selectedTileToBuy);
-        ((TownTile)selectedTile).getTilesNearTown().add(selectedTileToBuy);
+        ((TownTile) selectedTile).getTilesNearTown().add(selectedTileToBuy);
         selectedTileToBuy = null;
         isTileToBuySelected = false;
     }
@@ -684,6 +689,23 @@ public class GameSession implements InputProcessor {
 
     public int calculateTileCost(MapTile mapTileToCalculate, int baseCost) {
         return baseCost * (worldMap.calculateDistance(selectedTile.x, selectedTile.y, mapTileToCalculate.x, mapTileToCalculate.y) - 2);
+    }
+
+    public void buildResourceTile() {
+        if(((ResourcesTile)selectedTile).isBuilt()){
+            return;
+        }
+        boolean canBuild = false;
+        for (MapTile mapTile : playerWhoseTurnIs.getTilesOwned()) {
+            if (mapTile.x == selectedTile.x && mapTile.y == selectedTile.y && !mapTile.getClass().getSimpleName().equals("Army")) {
+                canBuild = true;
+            }
+        }
+        if (canBuild) {
+            if (playerWhoseTurnIs.payForResourceTile()) {
+                ((ResourcesTile) selectedTile).build();
+            }
+        }
     }
 
     private void loadMapFromDatabase() {
@@ -836,7 +858,7 @@ public class GameSession implements InputProcessor {
             selectTile();
             return true;
         }
-        if(button == Input.Buttons.LEFT && hud.isBuyTileMode){
+        if (button == Input.Buttons.LEFT && hud.isBuyTileMode) {
             selectTileToBuy();
             return true;
         }
@@ -884,4 +906,11 @@ public class GameSession implements InputProcessor {
         return isTileToBuySelected;
     }
 
+    public void setTileToBuySelected(boolean tileToBuySelected) {
+        isTileToBuySelected = tileToBuySelected;
+    }
+
+    public void setSelectedTileToBuy(MapTile selectedTileToBuy) {
+        this.selectedTileToBuy = selectedTileToBuy;
+    }
 }

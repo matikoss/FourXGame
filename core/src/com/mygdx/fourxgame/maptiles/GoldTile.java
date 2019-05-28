@@ -12,6 +12,16 @@ public class GoldTile extends ResourcesTile {
 
     }
 
+    @Override
+    public void build() {
+        isGoldMineBuilt = true;
+    }
+
+    @Override
+    public boolean isBuilt() {
+        return isGoldMineBuilt;
+    }
+
     public boolean isGoldMineBuilt() {
         return isGoldMineBuilt;
     }

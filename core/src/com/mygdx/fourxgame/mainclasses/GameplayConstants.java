@@ -63,6 +63,11 @@ public class GameplayConstants {
     public static int woodIncome = 10;
     public static int ironIncome = 10;
     public static int goldIncome = 10;
+    public static int populationIncome = 50;
+
+    public static int woodCostResourceTile = 50;
+    public static int ironCostResourceTile = 50;
+    public static int goldCostResourceTile = 50;
 
     public static final int north = 1;
     public static final int north_east = 2;
