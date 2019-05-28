@@ -634,11 +634,20 @@ public class GameSession implements InputProcessor {
                     if(tmpMapTile.x == x && tmpMapTile.y == y && !tmpMapTile.getClass().getSimpleName().equals("Army")){
                         selectedTileToBuy = tmpMapTile;
                         isTileToBuySelected = true;
-                        System.out.println("TILE TO BUY SELECTED");
+                        hud.selectedToBuyTileCost.setText("Field cost: " + calculateTileCost(selectedTileToBuy, 10) + "G");
+                        hud.isBuyTileMenu = false;
                     }
                 }
             }
         }
+    }
+
+    public void buyTile(){
+        playerWhoseTurnIs.setAmountOfGold(playerWhoseTurnIs.getAmountOfGold() - calculateTileCost(selectedTileToBuy, 10));
+        playerWhoseTurnIs.addTileToPlayer(selectedTileToBuy);
+        ((TownTile)selectedTile).getTilesNearTown().add(selectedTileToBuy);
+        selectedTileToBuy = null;
+        isTileToBuySelected = false;
     }
 
 
@@ -870,4 +879,9 @@ public class GameSession implements InputProcessor {
     public void setHud(GameSessionHud hud) {
         this.hud = hud;
     }
+
+    public boolean isTileToBuySelected() {
+        return isTileToBuySelected;
+    }
+
 }

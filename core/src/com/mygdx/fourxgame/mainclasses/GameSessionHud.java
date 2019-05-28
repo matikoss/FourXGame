@@ -21,10 +21,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.fourxgame.controllers.GameSession;
 import com.mygdx.fourxgame.maptiles.Army;
-import com.mygdx.fourxgame.maptiles.EmptyTile;
 import com.mygdx.fourxgame.maptiles.TownTile;
-
-import java.util.ArrayList;
 
 
 public class GameSessionHud implements Disposable {
@@ -41,6 +38,12 @@ public class GameSessionHud implements Disposable {
     private Sprite ironIconSprite;
     private Sprite goldIconSprite;
     private Sprite populationIconSprite;
+
+    private BitmapFont bitmapFont;
+    private Label.LabelStyle labelStyleBlack;
+    private Label.LabelStyle labelStyleBrown;
+    private Label.LabelStyle labelStyleWhite;
+    private Label.LabelStyle labelStyleGold;
 
     private Label woodAmountLabel;
     private Label ironAmountLabel;
@@ -110,11 +113,17 @@ public class GameSessionHud implements Disposable {
 
     private Label hoveringLabel;
 
+    private Button buyTileYesButton;
+    private Button buyTileNoButton;
+    public Label selectedToBuyTileCost;
+    private Label selectedToBuyTileQuestion;
+
     private boolean isTownMenu = false;
     private boolean isBuildingMenu = false;
     private boolean isRecruitmentMenu = false;
     private boolean isArmyLeaveMenu = false;
     private boolean isMouseOnButton = false;
+    public boolean isBuyTileMenu = false;
     public boolean isBuyTileMode = false;
 
 
@@ -142,6 +151,7 @@ public class GameSessionHud implements Disposable {
         showArmyInfo();
         emptyTileSelectedHud();
         showBuildingCostLabel();
+        showBuyTileMenu();
         System.out.println(isMouseOnButton);
     }
 
@@ -425,6 +435,26 @@ public class GameSessionHud implements Disposable {
 
     }
 
+    private void showBuyTileMenu(){
+        if(gameSession.isTileToBuySelected() && !isBuyTileMenu) {
+            stage.clear();
+            addResourcesInfoToStage();
+            showTownInfo();
+            Table buyTileTable = new Table();
+            buyTileTable.setPosition(480, -250);
+            buyTileTable.setFillParent(true);
+            buyTileTable.add(selectedToBuyTileCost).pad(2);
+            buyTileTable.row();
+            buyTileTable.add(selectedToBuyTileQuestion).center().pad(2);
+            buyTileTable.row();
+            buyTileTable.add(buyTileNoButton).pad(2);
+            buyTileTable.add(buyTileYesButton).pad(2);
+
+            stage.addActor(buyTileTable);
+            isBuyTileMenu = true;
+        }
+    }
+
     private void initResourcesBar() {
         Texture texture = new Texture(Gdx.files.internal("woodIcon.png"));
         woodIconSprite = new Sprite(texture);
@@ -493,6 +523,12 @@ public class GameSessionHud implements Disposable {
     }
 
     private void initButtons() {
+        bitmapFont = new BitmapFont();
+        labelStyleBlack = new Label.LabelStyle(bitmapFont, Color.BLACK);
+        labelStyleBrown = new Label.LabelStyle(bitmapFont, Color.BROWN);
+        labelStyleWhite = new Label.LabelStyle(bitmapFont, Color.WHITE);
+        labelStyleGold = new Label.LabelStyle(bitmapFont, Color.GOLD);
+
         Texture emptyTextureBtnUp = new Texture(Gdx.files.internal("emptyButtonOff.png"));
         Texture emptyTextureBtnDown = new Texture(Gdx.files.internal("emptyButtonOn.png"));
         Texture buildingTextureBtnUp = new Texture(Gdx.files.internal("buildButtonOff.png"));
@@ -547,9 +583,9 @@ public class GameSessionHud implements Disposable {
 
         backRecruitmentMenuBtn = new TextButton("Back", emptyTextButtonStyle);
         recruitBtn = new TextButton("Recruit!", emptyTextButtonStyle);
-        recruitMenuArchersLabel = new Label("Amount of archers:", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        recruitMenuFootmanLabel = new Label("Amount of footman:", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        recruitMenuCavalryLabel = new Label("Amount of cavalry:", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        recruitMenuArchersLabel = new Label("Amount of archers:", labelStyleBlack);
+        recruitMenuFootmanLabel = new Label("Amount of footman:", labelStyleBlack);
+        recruitMenuCavalryLabel = new Label("Amount of cavalry:", labelStyleBlack);
         amountOfArchersToRecruitTF = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
         amountOfFootmansToRecruitTF = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
         amountOfCavalryToRecruitTF = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
@@ -558,37 +594,42 @@ public class GameSessionHud implements Disposable {
         amountOfFootmansToLeaveTown = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
         amountOfCavalryToLeaveTown = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
 
-        amountOfArchersToLeaveTownLabel = new Label("Archers leaving town: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        amountOfFootmansToLeaveTownLabel = new Label("Footmans leaving town: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        amountOfCavalryToLeaveTownLabel = new Label("Cavalry leaving town: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        amountOfArchersToLeaveTownLabel = new Label("Archers leaving town: ", labelStyleBlack);
+        amountOfFootmansToLeaveTownLabel = new Label("Footmans leaving town: ", labelStyleBlack);
+        amountOfCavalryToLeaveTownLabel = new Label("Cavalry leaving town: ", labelStyleBlack);
         leaveTownBtn = new TextButton("Leave town!", emptyTextButtonStyle);
         leaveTownBackBtn = new TextButton("Back", emptyTextButtonStyle);
 
         infoBackground = new Image(townInfoBackgroundTexture);
 
-        townInfoTitle = new Label("Town statistics", new Label.LabelStyle(new BitmapFont(), Color.BROWN));
-        townOwner = new Label("Owner: ", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        townInfoCastle = new Label("Castle: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        townInfoTownhall = new Label("Townhall: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        townInfoHouses = new Label("Houses: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        townInfoBank = new Label("Bank: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        townInfoBarracks = new Label("Barracks: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        townInfoStables = new Label("Stables: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        townInfoWall = new Label("Wall: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        townInfoTitle = new Label("Town statistics", labelStyleBrown);
+        townOwner = new Label("Owner: ", labelStyleWhite);
+        townInfoCastle = new Label("Castle: ", labelStyleBlack);
+        townInfoTownhall = new Label("Townhall: ", labelStyleBlack);
+        townInfoHouses = new Label("Houses: ", labelStyleBlack);
+        townInfoBank = new Label("Bank: ", labelStyleBlack);
+        townInfoBarracks = new Label("Barracks: ", labelStyleBlack);
+        townInfoStables = new Label("Stables: ", labelStyleBlack);
+        townInfoWall = new Label("Wall: ", labelStyleBlack);
 
-        hoveringLabel = new Label("", new Label.LabelStyle(new BitmapFont(), Color.GOLD));
+        hoveringLabel = new Label("", labelStyleGold);
         hoveringLabel.setFontScale(1f);
 
+        buyTileYesButton = new TextButton("Yes", emptyTextButtonStyle);
+        buyTileNoButton = new TextButton("No", emptyTextButtonStyle);
+        selectedToBuyTileCost = new Label("", labelStyleGold);
+        selectedToBuyTileQuestion = new Label("Buy field?", labelStyleBlack);
 
-        armySectionInfo = new Label("Army in town: ", new Label.LabelStyle(new BitmapFont(), Color.BROWN));
-        inTownArchersAmount = new Label("Archers: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        inTownFootmansAmount = new Label("Footmans: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        inTownCavalryAmount = new Label("Cavalry: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
 
-        armyInfo = new Label("Army statistics", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        armyArchersAmountInfo = new Label("Archers amount: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        armyFootmansAmountInfo = new Label("Footmans amount: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
-        armyCavalryAmountInfo = new Label("Cavalry amount: ", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        armySectionInfo = new Label("Army in town: ", labelStyleBrown);
+        inTownArchersAmount = new Label("Archers: ", labelStyleBlack);
+        inTownFootmansAmount = new Label("Footmans: ", labelStyleBlack);
+        inTownCavalryAmount = new Label("Cavalry: ", labelStyleBlack);
+
+        armyInfo = new Label("Army statistics", labelStyleBlack);
+        armyArchersAmountInfo = new Label("Archers amount: ", labelStyleBlack);
+        armyFootmansAmountInfo = new Label("Footmans amount: ", labelStyleBlack);
+        armyCavalryAmountInfo = new Label("Cavalry amount: ", labelStyleBlack);
         armyInfo.setFontScale(1.5f);
         //Gdx.input.setInputProcessor(stage);
 
@@ -853,6 +894,16 @@ public class GameSessionHud implements Disposable {
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 hoveringLabelSetupOnExit();
+            }
+        });
+
+        buyTileYesButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameSession.buyTile();
+                isBuyTileMenu = false;
+                isBuyTileMode = true;
+                showBuyTilesButtons();
             }
         });
 
