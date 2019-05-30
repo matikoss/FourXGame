@@ -28,6 +28,7 @@ public class GameRenderer {
 
     public void render() {
         if (gameController.isInMainMenu() && !gameController.isInGame()) {
+            mainMenu.render();
             batch.setProjectionMatrix(mainMenu.stage.getCamera().combined);
             mainMenu.stage.draw();
         } else if (gameController.isInGame() && !gameController.isInMainMenu()) {

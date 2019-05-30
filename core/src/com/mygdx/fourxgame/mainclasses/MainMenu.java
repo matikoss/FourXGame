@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -31,6 +32,7 @@ public class MainMenu {
     private TextField numberOfPlayersTextField;
     private Button startGameBtn;
     private Button backBtn;
+    private Sprite mainMenuBackground;
     private int numberOfPlayers;
     public boolean loading = false;
 
@@ -76,6 +78,9 @@ public class MainMenu {
         String text = "2";
         numberOfPlayers = Integer.parseInt(text);
         numberOfPlayersTextField = new TextField(text, new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
+        Texture backgroundTexture = new Texture(Gdx.files.internal("mainMenuBackground.png"));
+        mainMenuBackground = new Sprite(backgroundTexture);
+        mainMenuBackground.setPosition(0,0);
 
         Gdx.input.setInputProcessor(stage);
     }
@@ -123,6 +128,9 @@ public class MainMenu {
     }
 
     private void loadingScreen() {
+        batch.begin();
+        mainMenuBackground.draw(batch);
+        batch.end();
         loading = true;
         stage.clear();
 
@@ -138,7 +146,6 @@ public class MainMenu {
     }
 
     private void initButtons() {
-
         stage.clear();
         Texture textureBtnUp = new Texture(Gdx.files.internal("menubtnUp.png"));
         Texture textureBtnDown = new Texture(Gdx.files.internal("menubtnDown.png"));
@@ -251,6 +258,12 @@ public class MainMenu {
                 showFirstMenu();
             }
         });
+    }
+
+    public void render(){
+        batch.begin();
+        mainMenuBackground.draw(batch);
+        batch.end();
     }
 
     public void resize(int width, int height) {
