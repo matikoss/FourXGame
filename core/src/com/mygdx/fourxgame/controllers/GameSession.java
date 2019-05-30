@@ -47,7 +47,7 @@ public class GameSession implements InputProcessor {
         isTileSelected = false;
         selectedTileToBuy = null;
         isTileToBuySelected = false;
-        worldMap.getMapOfWorld().add(new Army(0, 0, "OWNER", 100, 115, 50));
+        //worldMap.getMapOfWorld().add(new Army(0, 0, "OWNER", 100, 115, 50));
         showBorder = false;
         //loadMapFromDatabase();
         //mapOfWorld.add(new Army(2, 2, "Mati", 0, 0, 0));
@@ -648,11 +648,13 @@ public class GameSession implements InputProcessor {
     }
 
     public void buyTile() {
-        playerWhoseTurnIs.setAmountOfGold(playerWhoseTurnIs.getAmountOfGold() - calculateTileCost(selectedTileToBuy, 10));
-        playerWhoseTurnIs.addTileToPlayer(selectedTileToBuy);
-        ((TownTile) selectedTile).getTilesNearTown().add(selectedTileToBuy);
-        selectedTileToBuy = null;
-        isTileToBuySelected = false;
+        if (playerWhoseTurnIs.getAmountOfGold() >= calculateTileCost(selectedTileToBuy, 10)) {
+            playerWhoseTurnIs.setAmountOfGold(playerWhoseTurnIs.getAmountOfGold() - calculateTileCost(selectedTileToBuy, 10));
+            playerWhoseTurnIs.addTileToPlayer(selectedTileToBuy);
+            ((TownTile) selectedTile).getTilesNearTown().add(selectedTileToBuy);
+            selectedTileToBuy = null;
+            isTileToBuySelected = false;
+        }
     }
 
 
@@ -692,7 +694,7 @@ public class GameSession implements InputProcessor {
     }
 
     public void buildResourceTile() {
-        if(((ResourcesTile)selectedTile).isBuilt()){
+        if (((ResourcesTile) selectedTile).isBuilt()) {
             return;
         }
         boolean canBuild = false;
@@ -790,6 +792,15 @@ public class GameSession implements InputProcessor {
         }
     }
 
+    private void selectionReset(){
+        selectedTile = null;
+        isTileSelected = false;
+        selectedTileIndex = 0;
+        selectedTileToBuy=null;
+        isTileToBuySelected = false;
+        hud.selectionHudReset();
+    }
+
     public boolean isTileSelected() {
         return isTileSelected;
     }
@@ -814,9 +825,7 @@ public class GameSession implements InputProcessor {
     public boolean keyDown(int keycode) {
         System.out.println("KeyDown");
         if (keycode == Input.Keys.ESCAPE && isTileSelected) {
-            selectedTile = null;
-            isTileSelected = false;
-            selectedTileIndex = 0;
+            selectionReset();
             return true;
         }
         if (keycode == Input.Keys.TAB && isTileSelected) {

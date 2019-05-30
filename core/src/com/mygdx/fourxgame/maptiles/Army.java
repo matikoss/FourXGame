@@ -182,6 +182,10 @@ public class Army extends MapTile {
         }
     }
 
+    public int getMoveDistanceLeft() {
+        return moveDistanceLeft;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {

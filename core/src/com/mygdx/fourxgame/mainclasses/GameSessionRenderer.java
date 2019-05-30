@@ -31,6 +31,7 @@ public class GameSessionRenderer {
     private Texture enemyMarkerTexture;
     private Texture myMarkerTexture;
     private Texture tileToBuyTexture;
+    private Texture armyRangeTexture;
 
 
     public GameSessionRenderer(GameSession gameSession, SpriteBatch batch) {
@@ -54,6 +55,7 @@ public class GameSessionRenderer {
         enemyMarkerTexture = new Texture(Gdx.files.internal("enemyMarker.png"));
         myMarkerTexture = new Texture(Gdx.files.internal("myMarker.png"));
         tileToBuyTexture = new Texture(Gdx.files.internal("buyTexture.png"));
+        armyRangeTexture = new Texture(Gdx.files.internal("armyRangeMarker.png"));
     }
 
     private void setupInput() {
@@ -82,6 +84,9 @@ public class GameSessionRenderer {
         }
         if(hud.isBuyTileMode){
             showTilesToBuy(gameSession.getTilesToBuy(), batch);
+        }
+        if(gameSession.getSelectedTile()!=null){
+            renderArmyRange(batch);
         }
         batch.end();
         batch.setProjectionMatrix(hud.stage.getCamera().combined);
@@ -190,6 +195,20 @@ public class GameSessionRenderer {
             }
         }
 
+    }
+
+    private void renderArmyRange(SpriteBatch batch){
+        if(gameSession.getSelectedTile().getClass().getSimpleName().equals("Army")){
+            int range = ((Army)gameSession.getSelectedTile()).getMoveDistanceLeft();
+            for(int i = -range; i<=range; i++){
+                for(int j=-range; j<=range; j++){
+                    sprite = new Sprite(armyRangeTexture);
+                    sprite.setSize(1,1);
+                    sprite.setPosition(gameSession.getSelectedTile().x+j, gameSession.getSelectedTile().y+i);
+                    sprite.draw(batch);
+                }
+            }
+        }
     }
 
     public GameSessionHud getHud() {

@@ -132,6 +132,8 @@ public class WorldMap {
         int low = -25;
         int playerX = random.nextInt(high + 1 - low) + low;
         int playerY = random.nextInt(high + 1 - low) + low;
+        playerX=0;
+        playerY=0;
         int tryCounter = 0;
         int lastTryIndex = 1;
         int last = checkedTiles.size() - lastTryIndex;
