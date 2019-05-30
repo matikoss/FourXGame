@@ -30,6 +30,8 @@ public class TownTile extends MapTile {
 
     private int numberOfHousesBuildInTurn;
 
+    private int timeToLoseTown;
+
 
     public TownTile(int x, int y, String owner) {
         super(x, y, owner, "townTexture.png");
@@ -49,6 +51,7 @@ public class TownTile extends MapTile {
         cavalryToRecruit = 0;
 
         numberOfHousesBuildInTurn = 0;
+        timeToLoseTown = GameplayConstants.timeToLoseTown;
 
     }
 

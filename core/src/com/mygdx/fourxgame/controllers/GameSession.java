@@ -14,6 +14,7 @@ import com.mygdx.fourxgame.maptiles.*;
 import org.neo4j.driver.v1.*;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 
 public class GameSession implements InputProcessor {
@@ -188,11 +189,16 @@ public class GameSession implements InputProcessor {
             return;
         }
 
+        if (checkMerge(newX, newY) != null) {
+            mergeArmy((Army) selectedTile, Objects.requireNonNull(checkMerge(newX, newY)));
+        }
+
         if (worldMap.calculateDistance(selectedTile.x, selectedTile.y, newX, newY) == 1 && checkIfFight(newX, newY) != null) {
             Army armyToFightWith = checkIfFight(newX, newY);
             fightAtField((Army) selectedTile, armyToFightWith);
             return;
         }
+
 
         //((Army) selectedTile).move(newX, newY);
         System.out.println(worldMap.getMapOfWorld().get(selectedTileIndex).x);
@@ -201,11 +207,6 @@ public class GameSession implements InputProcessor {
 
         checkAndExpandMapIfNecessary((Army) selectedTile, 10);
         //checkExpand((Army) selectedTile);
-
-        selectedTile = null;
-        isTileSelected = false;
-        selectedTileIndex = 0;
-
     }
 
     public void leaveTheTownWithArmy(int archersLeaving, int footmansLeaving, int cavalryLeaving) {
@@ -220,7 +221,7 @@ public class GameSession implements InputProcessor {
                 worldMap.addToMap(armyLeaving);
                 return;
             } else if (armyAtEntrance.getOwner().equals(playerWhoseTurnIs.playerName)) {
-                mergeArmy(armyAtEntrance, armyLeaving);
+                mergeArmyAtTownEntrance(armyAtEntrance, armyLeaving);
                 return;
             }
         }
@@ -378,13 +379,28 @@ public class GameSession implements InputProcessor {
         return chunkMiddleCoord;
     }
 
-    private void mergeArmy(Army armyAtEntrance, Army armyLeaving) {
+    private void mergeArmyAtTownEntrance(Army armyAtEntrance, Army armyLeaving) {
         armyAtEntrance.addArmy(armyLeaving.getArchersAmount(), armyLeaving.getFootmansAmount(), armyLeaving.getCavalryAmount());
+    }
+
+    private Army checkMerge(int newX, int newY) {
+        for (MapTile mapTile : worldMap.getMapOfWorld()) {
+            if (mapTile.getClass().getSimpleName().equals("Army") && mapTile.x == newX && mapTile.y == newY && mapTile.getOwner().equals(playerWhoseTurnIs.getPlayerName())) {
+                return (Army) mapTile;
+            }
+        }
+        return null;
+    }
+
+    private void mergeArmy(Army firstArmy, Army secondArmy) {
+        firstArmy.addArmy(secondArmy.getArchersAmount(), secondArmy.getFootmansAmount(), secondArmy.getCavalryAmount());
+        playerWhoseTurnIs.getArmyOwned().remove(secondArmy);
+        worldMap.getMapOfWorld().remove(secondArmy);
     }
 
     private Army checkIfFight(int newX, int newY) {
         for (MapTile mapTile : worldMap.getMapOfWorld()) {
-            if (mapTile.getClass().getSimpleName().equals("Army") && mapTile.x == newX && mapTile.y == newY) {
+            if (mapTile.getClass().getSimpleName().equals("Army") && mapTile.x == newX && mapTile.y == newY && !mapTile.getOwner().equals(playerWhoseTurnIs.getPlayerName())) {
                 return (Army) mapTile;
             }
         }
@@ -792,11 +808,11 @@ public class GameSession implements InputProcessor {
         }
     }
 
-    private void selectionReset(){
+    private void selectionReset() {
         selectedTile = null;
         isTileSelected = false;
         selectedTileIndex = 0;
-        selectedTileToBuy=null;
+        selectedTileToBuy = null;
         isTileToBuySelected = false;
         hud.selectionHudReset();
     }

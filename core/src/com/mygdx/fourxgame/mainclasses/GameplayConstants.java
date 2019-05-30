@@ -77,4 +77,6 @@ public class GameplayConstants {
     public static final int south_west = 6;
     public static final int west = 7;
     public static final int north_west = 8;
+
+    public static final int timeToLoseTown = 3;
 }
