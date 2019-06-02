@@ -5,13 +5,15 @@ import com.badlogic.gdx.graphics.Texture;
 
 
 public abstract class MapTile {
+    private String classType;
     public int x;
     public int y;
-    private String spriteImageDir;
-    private Texture texture;
+    private transient String  spriteImageDir;
+    private transient Texture texture;
     private String owner;
 
     public MapTile(int x, int y, String owner, String spriteImageDir) {
+        this.classType = this.getClass().getSimpleName();
         this.spriteImageDir = spriteImageDir;
         this.x = x;
         this.y = y;
@@ -36,4 +38,15 @@ public abstract class MapTile {
         this.owner = owner;
     }
 
+    public String getClassType() {
+        return classType;
+    }
+
+    public void setSpriteImageDir(String spriteImageDir) {
+        this.spriteImageDir = spriteImageDir;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
+    }
 }

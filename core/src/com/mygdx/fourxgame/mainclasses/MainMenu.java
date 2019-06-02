@@ -32,6 +32,9 @@ public class MainMenu {
     private TextField numberOfPlayersTextField;
     private Button startGameBtn;
     private Button backBtn;
+    private Button loadSaveOne;
+    private Button loadSaveTwo;
+    private Button loadSaveThree;
     private Sprite mainMenuBackground;
     private int numberOfPlayers;
     public boolean loading = false;
@@ -74,6 +77,11 @@ public class MainMenu {
 
         startGameBtn = new TextButton("Start Game", textButtonStyle);
         backBtn = new TextButton("Back", textButtonStyle);
+
+        loadSaveOne = new TextButton("Slot 1", textButtonStyle);
+        loadSaveTwo = new TextButton("Slot 2", textButtonStyle);
+        loadSaveThree = new TextButton("Slot 3", textButtonStyle);
+
 
         String text = "2";
         numberOfPlayers = Integer.parseInt(text);
@@ -125,6 +133,29 @@ public class MainMenu {
 
         stage.addActor(backBtn);
         stage.addActor(startGameTable);
+    }
+
+    private void showLoadSaveMenu(){
+        stage.clear();
+        Label selectSave = new Label("Pick save", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        selectSave.setFontScale(2f);
+        Table loadSaveMenuTable = new Table();
+        loadSaveMenuTable.center();
+        loadSaveMenuTable.setFillParent(true);
+
+        loadSaveMenuTable.add(selectSave).pad(10);
+        loadSaveMenuTable.row();
+        loadSaveMenuTable.add(loadSaveOne).pad(3);
+        loadSaveMenuTable.row();
+        loadSaveMenuTable.add(loadSaveTwo).pad(3);
+        loadSaveMenuTable.row();
+        loadSaveMenuTable.add(loadSaveThree).pad(3);
+
+        backBtn.setPosition(20,20);
+
+        stage.addActor(backBtn);
+        stage.addActor(loadSaveMenuTable);
+
     }
 
     private void loadingScreen() {
@@ -226,7 +257,7 @@ public class MainMenu {
         loadGameBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("LOADING!!!");
+               showLoadSaveMenu();
             }
         });
         exitGameBtn.addListener(new ClickListener() {
@@ -256,6 +287,37 @@ public class MainMenu {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 showFirstMenu();
+            }
+        });
+
+        loadSaveOne.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(!gameController.checkIfSaveFilesExists("../saves/savegame1/")){
+                    return;
+                }
+                gameController.loadGame(0, "../saves/savegame1/");
+                gameRenderer.startNewGame();
+            }
+        });
+        loadSaveTwo.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(!gameController.checkIfSaveFilesExists("../saves/savegame2/")){
+                    return;
+                }
+                gameController.loadGame(0,"../saves/savegame2/");
+                gameRenderer.startNewGame();
+            }
+        });
+        loadSaveThree.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(!gameController.checkIfSaveFilesExists("../saves/savegame3/")){
+                    return;
+                }
+                gameController.loadGame(0,"../saves/savegame3/");
+
             }
         });
     }

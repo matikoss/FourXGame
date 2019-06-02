@@ -1,5 +1,7 @@
 package com.mygdx.fourxgame.controllers;
 
+import java.io.File;
+
 public class GameController {
 
     private GameSession gameSession;
@@ -16,20 +18,61 @@ public class GameController {
 
     }
 
-    public void startNewGame(int numberOfPlayers){
-        initializeGameSession(numberOfPlayers);
+    public void startNewGame(int numberOfPlayers) {
+        initializeGameSession(numberOfPlayers, 1, null);
+    }
+
+    public void loadGame(int numberOfPlayers, String savePath) {
+        initializeGameSession(numberOfPlayers, 2, savePath);
     }
 
     public void update(float deltaTime) {
-        if(inGame && !inMainMenu){
+        if (inGame && !inMainMenu) {
             gameSession.update(deltaTime);
         }
     }
 
-    private void initializeGameSession(int numberOfPlayers) {
-        gameSession = new GameSession(numberOfPlayers);
+    private void initializeGameSession(int numberOfPlayers, int startMode, String savePath) {
+        gameSession = new GameSession(numberOfPlayers, startMode, savePath);
         inMainMenu = false;
         inGame = true;
+    }
+
+    public boolean checkIfSaveFilesExists(String directoryPath) {
+        if (!checkIfFileExists(directoryPath + "armyTilesSave.json")) {
+            return false;
+        }
+        if (!checkIfFileExists(directoryPath + "emptyTilesSave.json")) {
+            return false;
+        }
+        if (!checkIfFileExists(directoryPath + "gameState.json")) {
+            return false;
+        }
+        if (!checkIfFileExists(directoryPath + "goldTilesSave.json")) {
+            return false;
+        }
+        if (!checkIfFileExists(directoryPath + "ironTilesSave.json")) {
+            return false;
+        }
+        if (!checkIfFileExists(directoryPath + "woodTilesSave.json")) {
+            return false;
+        }
+        if (!checkIfFileExists(directoryPath + "playersSave.json")) {
+            return false;
+        }
+        if (!checkIfFileExists(directoryPath + "townTilesSave.json")) {
+            return false;
+        }
+        return true;
+
+    }
+
+    public boolean checkIfFileExists(String filePath) {
+        File f = new File(filePath);
+        if (f.exists() && !f.isDirectory()) {
+            return true;
+        }
+        return false;
     }
 
     public boolean isInMainMenu() {

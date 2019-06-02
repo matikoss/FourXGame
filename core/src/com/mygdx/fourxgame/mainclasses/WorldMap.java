@@ -11,7 +11,7 @@ public class WorldMap {
     private int numberOfPlayers;
     private ArrayList<Player> players;
 
-    public WorldMap(int numberOfPlayers, ArrayList<Player> players) {
+    public WorldMap(int numberOfPlayers, ArrayList<Player> players, int gameMode) {
         this.numberOfPlayers = numberOfPlayers;
 
         mapOfWorld = new ArrayList<>();
@@ -29,7 +29,17 @@ public class WorldMap {
 //        generatePlayerChunk("Mati", 10, 10);
 //        generateStandardChunk("Mati", 15, 15);
         //generatePlayers(3);
+        if(gameMode == 1){
+            startNewGame();
+        }
+    }
+
+    private void startNewGame(){
         generateMap(numberOfPlayers);
+    }
+
+    private void loadGame(){
+
     }
 
     public void update(float deltaTime) {
@@ -207,7 +217,7 @@ public class WorldMap {
             }
             if (!duplicate) {
                 System.out.println(playerX + " " + playerY);
-                tmpTile = new TownTile(playerX, playerY, players.get(i + 1).playerName);
+                tmpTile = new TownTile(playerX, playerY, players.get(i + 1).playerName, GameplayConstants.timeToLoseTown);
                 checkedTiles.add(tmpTile);
                 generatePlayerChunk(players.get(i + 1).playerName, playerX, playerY, players.get(i + 1));
                 changeOldPlayerXY = random.nextBoolean();
@@ -233,15 +243,15 @@ public class WorldMap {
 
             if (tmpChunk.isEmpty()) {
                 //tmpMapTile = new TownTile(tmpX, tmpY, playerName);
-                tmpMapTile = new TownTile(startingX, startingY, playerName);
+                tmpMapTile = new TownTile(startingX, startingY, playerName, GameplayConstants.timeToLoseTown);
             } else if (tmpChunk.size() == 1) {
-                tmpMapTile = new IronTile(tmpX, tmpY, playerName);
+                tmpMapTile = new IronTile(tmpX, tmpY, playerName, false);
             } else if (tmpChunk.size() == 2) {
-                tmpMapTile = new GoldTile(tmpX, tmpY, playerName);
+                tmpMapTile = new GoldTile(tmpX, tmpY, playerName, false);
             } else if (tmpChunk.size() == 3) {
-                tmpMapTile = new WoodTile(tmpX, tmpY, playerName);
+                tmpMapTile = new WoodTile(tmpX, tmpY, playerName, false);
             } else if (tmpChunk.size() == 4) {
-                tmpMapTile = new WoodTile(tmpX, tmpY, playerName);
+                tmpMapTile = new WoodTile(tmpX, tmpY, playerName,false);
             } else {
                 tmpMapTile = new EmptyTile(tmpX, tmpY, playerName);
             }
@@ -274,11 +284,11 @@ public class WorldMap {
                 int type = random.nextInt(100) + 1;
                 System.out.println(type);
                 if (type == 5 || type == 56) {
-                    tmpMapTile = new GoldTile(tmpX, tmpY, playerName);
+                    tmpMapTile = new GoldTile(tmpX, tmpY, playerName, false);
                 } else if (type == 85 || type == 1) {
-                    tmpMapTile = new IronTile(tmpX, tmpY, playerName);
+                    tmpMapTile = new IronTile(tmpX, tmpY, playerName, false);
                 } else if (type >= 11 && type <= 30) {
-                    tmpMapTile = new WoodTile(tmpX, tmpY, playerName);
+                    tmpMapTile = new WoodTile(tmpX, tmpY, playerName, false);
                 } else {
                     tmpMapTile = new EmptyTile(tmpX, tmpY, playerName);
                 }
@@ -366,5 +376,9 @@ public class WorldMap {
 
     public ArrayList<MapTile> getMapOfWorld() {
         return mapOfWorld;
+    }
+
+    public void addManyToMap(ArrayList<? extends MapTile> tmpMap){
+        mapOfWorld.addAll(tmpMap);
     }
 }

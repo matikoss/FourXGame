@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.fourxgame.mainclasses.GameSessionHud;
 import com.mygdx.fourxgame.mainclasses.GameplayConstants;
@@ -14,6 +15,7 @@ import com.mygdx.fourxgame.maptiles.*;
 import org.neo4j.driver.v1.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
@@ -30,20 +32,25 @@ public class GameSession implements InputProcessor {
     private GameSessionHud hud;
 
     private Player playerWhoseTurnIs;
+
     private int indexOfPlayerWhoseTurnIs;
 
     private boolean isTileToBuySelected;
     private MapTile selectedTileToBuy;
 
+    public SaveManager saveManager;
+
     public boolean showBorder;
 
 
-    public GameSession(int numberOfPlayers) {
+    public GameSession(int numberOfPlayers, int startMode, String savePath) {
         cameraController = new CameraController();
-        this.numberOfPlayers = numberOfPlayers;
-        players = new ArrayList<>();
-        createPlayers();
-        worldMap = new WorldMap(numberOfPlayers, players);
+        if(startMode == 1){
+            startNewGame(numberOfPlayers);
+        }else{
+            loadGame(savePath);
+        }
+
         selectedTile = null;
         isTileSelected = false;
         selectedTileToBuy = null;
@@ -54,6 +61,114 @@ public class GameSession implements InputProcessor {
         //mapOfWorld.add(new Army(2, 2, "Mati", 0, 0, 0));
         //Gdx.input.setInputProcessor(this);
         moveCameraToCurrentPlayerFirstTown(playerWhoseTurnIs);
+    }
+
+    private void startNewGame(int numberOfPlayers){
+        this.numberOfPlayers = numberOfPlayers;
+        players = new ArrayList<>();
+        createPlayers();
+        worldMap = new WorldMap(numberOfPlayers, players, 1);
+        saveManager = new SaveManager(this);
+    }
+
+    private void loadGame(String savePath){
+        saveManager = new SaveManager(this);
+        players = saveManager.loadPlayers(savePath);
+        this.numberOfPlayers = players.size();
+        worldMap = new WorldMap(numberOfPlayers, players, 2);
+        worldMap.addManyToMap(saveManager.loadTownTiles(savePath));
+        worldMap.addManyToMap(saveManager.loadArmyTiles(savePath));
+        worldMap.addManyToMap(saveManager.loadEmptyTiles(savePath));
+        worldMap.addManyToMap(saveManager.loadWoodTiles(savePath));
+        worldMap.addManyToMap(saveManager.loadIronTiles(savePath));
+        worldMap.addManyToMap(saveManager.loadGoldTiles(savePath));
+        indexOfPlayerWhoseTurnIs = saveManager.loadGameState(savePath);
+        playerWhoseTurnIs = players.get(indexOfPlayerWhoseTurnIs);
+        gameSetupAfterLoad();
+        textureSetupAfterLoad();
+    }
+
+    private void gameSetupAfterLoad(){
+        for(Player player : players){
+            ArrayList<MapTile> tmpTilesOwned = new ArrayList<>();
+            ArrayList<Army> tmpArmyOwned = new ArrayList<>();
+            for(MapTile mapTile : worldMap.getMapOfWorld()){
+                if(mapTile.getOwner().equals(player.getPlayerName()) && mapTile.getClass().getSimpleName().equals("Army")){
+                    tmpArmyOwned.add((Army)mapTile);
+                }else if(mapTile.getOwner().equals(player.getPlayerName())){
+                    tmpTilesOwned.add(mapTile);
+                }
+            }
+            player.setTilesOwned(tmpTilesOwned);
+            player.setArmyOwned(tmpArmyOwned);
+            tilesNearTownsSetup();
+        }
+    }
+
+    private void textureSetupAfterLoad() {
+        for (MapTile mapTile : worldMap.getMapOfWorld()) {
+            if (mapTile.getClass().getSimpleName().equals("Army")) {
+                mapTile.setSpriteImageDir("armyTexture.png");
+                mapTile.setTexture(new Texture(Gdx.files.internal("armyTexture.png")));
+            } else if (mapTile.getClass().getSimpleName().equals("EmptyTile")) {
+                mapTile.setSpriteImageDir("emptyTileTexture.png");
+                mapTile.setTexture(new Texture(Gdx.files.internal("emptyTileTexture.png")));
+            } else if (mapTile.getClass().getSimpleName().equals("GoldTile")) {
+                mapTile.setSpriteImageDir("goldTexture.png");
+                mapTile.setTexture(new Texture(Gdx.files.internal("goldTexture.png")));
+            } else if (mapTile.getClass().getSimpleName().equals("IronTile")) {
+                mapTile.setSpriteImageDir("ironTexture.png");
+                mapTile.setTexture(new Texture(Gdx.files.internal("ironTexture.png")));
+            } else if (mapTile.getClass().getSimpleName().equals("TownTile")) {
+                mapTile.setSpriteImageDir("townTexture.png");
+                mapTile.setTexture(new Texture(Gdx.files.internal("townTexture.png")));
+            } else if (mapTile.getClass().getSimpleName().equals("WoodTile")) {
+                mapTile.setSpriteImageDir("forestTexture.png");
+                mapTile.setTexture(new Texture(Gdx.files.internal("forestTexture.png")));
+            }
+        }
+    }
+
+    private void tilesNearTownsSetup(){
+        boolean noTilesAdded;
+        int maxX, maxY;
+        ArrayList<MapTile> tmpArrayList;
+        for(MapTile townTile : worldMap.getMapOfWorld()){
+            maxX=0;
+            maxY=0;
+            tmpArrayList = new ArrayList<>();
+            if(townTile.getClass().getSimpleName().equals("TownTile")){
+                tmpArrayList.add(townTile);
+                do {
+                    maxX++;
+                    maxY++;
+                    noTilesAdded = true;
+                    for (int i = townTile.y - maxY; i <= townTile.y + maxY; i++) {
+                        for (MapTile tmpTile : worldMap.getMapOfWorld()) {
+                            if (tmpTile.x == (townTile.x - maxX) && tmpTile.y == i && tmpTile.getOwner().equals(townTile.getOwner())) {
+                                tmpArrayList.add(tmpTile);
+                                noTilesAdded = false;
+                            }else if (tmpTile.x == (townTile.x + maxX) && tmpTile.y == i && tmpTile.getOwner().equals(townTile.getOwner())) {
+                                tmpArrayList.add(tmpTile);
+                                noTilesAdded = false;
+                            }
+                        }
+                    }
+                    for(int j=townTile.x - maxX +1; j<townTile.x + maxX; j++){
+                        for(MapTile tmpTile : worldMap.getMapOfWorld()){
+                            if(tmpTile.x == j && tmpTile.y == (townTile.y - maxY) && tmpTile.getOwner().equals(townTile.getOwner())){
+                                tmpArrayList.add(tmpTile);
+                                noTilesAdded = false;
+                            }else if (tmpTile.x == j && tmpTile.y == (townTile.y + maxY) && tmpTile.getOwner().equals(townTile.getOwner())){
+                                tmpArrayList.add(tmpTile);
+                                noTilesAdded = false;
+                            }
+                        }
+                    }
+                }while (!noTilesAdded);
+                ((TownTile)townTile).setTilesNearTown(tmpArrayList);
+            }
+        }
     }
 
     public void update(float deltaTime) {
@@ -67,8 +182,10 @@ public class GameSession implements InputProcessor {
         System.out.println(players.size());
         if (indexOfPlayerWhoseTurnIs < players.size()) {
             nextPlayerTurn();
+            saveManager.saveGame("../saves/savegame1/");
         } else {
             nextGameTurn();
+            //saveManager.loadGame("../saves/savegame1/");
         }
     }
 
@@ -140,6 +257,7 @@ public class GameSession implements InputProcessor {
                 selectedTile = tile;
                 isTileSelected = true;
                 selectedTileIndex = worldMap.getMapOfWorld().indexOf(tile);
+                System.out.println(selectedTile.getOwner());
                 if (selectedTile.getClass().getSimpleName().equals("Army")) {
                     return;
                 }
@@ -664,10 +782,11 @@ public class GameSession implements InputProcessor {
     }
 
     public void buyTile() {
-        if (playerWhoseTurnIs.getAmountOfGold() >= calculateTileCost(selectedTileToBuy, 10)) {
+        if (playerWhoseTurnIs.getAmountOfGold() >= calculateTileCost(selectedTileToBuy, 10) && selectedTileToBuy.getOwner().equals("none")) {
             playerWhoseTurnIs.setAmountOfGold(playerWhoseTurnIs.getAmountOfGold() - calculateTileCost(selectedTileToBuy, 10));
             playerWhoseTurnIs.addTileToPlayer(selectedTileToBuy);
             ((TownTile) selectedTile).getTilesNearTown().add(selectedTileToBuy);
+            selectedTileToBuy.setOwner(playerWhoseTurnIs.getPlayerName());
             selectedTileToBuy = null;
             isTileToBuySelected = false;
         }
@@ -743,9 +862,9 @@ public class GameSession implements InputProcessor {
                 if (tileType.equals("EmptyTile")) {
                     worldMap.addToMap(new EmptyTile(x, y, owner));
                 } else if (tileType.equals("TownTile")) {
-                    worldMap.addToMap(new TownTile(x, y, owner));
+                    worldMap.addToMap(new TownTile(x, y, owner, GameplayConstants.timeToLoseTown));
                 } else if (tileType.equals("WoodTile")) {
-                    worldMap.addToMap(new WoodTile(x, y, owner));
+                    worldMap.addToMap(new WoodTile(x, y, owner, false));
                 }
             }
 //            result = session.run("MATCH(t:City) RETURN t.x, t.y, t.owner");
@@ -801,8 +920,6 @@ public class GameSession implements InputProcessor {
     private void moveCameraToCurrentPlayerFirstTown(Player playerWhoseTurnIs) {
         for (MapTile mapTile : playerWhoseTurnIs.getTilesOwned()) {
             if (mapTile.getClass().getSimpleName().equals("TownTile")) {
-                //Vector3 vectorProjected = camera.project(new Vector3(mapTile.x, mapTile.y,0));
-                //cameraController.setPosition(vectorProjected.x, vectorProjected.y);
                 cameraController.setPosition(mapTile.x, mapTile.y);
             }
         }
@@ -938,4 +1055,10 @@ public class GameSession implements InputProcessor {
     public void setSelectedTileToBuy(MapTile selectedTileToBuy) {
         this.selectedTileToBuy = selectedTileToBuy;
     }
+
+    public int getIndexOfPlayerWhoseTurnIs() {
+        return indexOfPlayerWhoseTurnIs;
+    }
+
+
 }

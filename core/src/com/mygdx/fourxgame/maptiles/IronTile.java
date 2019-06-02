@@ -3,9 +3,9 @@ package com.mygdx.fourxgame.maptiles;
 public class IronTile extends ResourcesTile {
     private boolean isIronMineBuilt;
 
-    public IronTile(int x, int y, String owner) {
+    public IronTile(int x, int y, String owner, boolean isIronMineBuilt) {
         super(x, y, owner, "ironTexture.png");
-        isIronMineBuilt = false;
+        this.isIronMineBuilt = isIronMineBuilt;
     }
     public void newTurnUpdate(){
         

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class TownTile extends MapTile {
 
-    private ArrayList <MapTile> tilesNearTown;
+    private transient ArrayList <MapTile> tilesNearTown;
     private String townName;
     private int castle;
     private int townHall;
@@ -33,7 +33,7 @@ public class TownTile extends MapTile {
     private int timeToLoseTown;
 
 
-    public TownTile(int x, int y, String owner) {
+    public TownTile(int x, int y, String owner, int timeToLoseTown) {
         super(x, y, owner, "townTexture.png");
         townName = "Town Name";
         tilesNearTown = new ArrayList<>();
@@ -51,7 +51,7 @@ public class TownTile extends MapTile {
         cavalryToRecruit = 0;
 
         numberOfHousesBuildInTurn = 0;
-        timeToLoseTown = GameplayConstants.timeToLoseTown;
+        this.timeToLoseTown = timeToLoseTown;
 
     }
 
@@ -320,5 +320,9 @@ public class TownTile extends MapTile {
 
     public void setNumberOfHousesBuildInTurn(int numberOfHousesBuildInTurn) {
         this.numberOfHousesBuildInTurn = numberOfHousesBuildInTurn;
+    }
+
+    public void setTilesNearTown(ArrayList<MapTile> tilesNearTown) {
+        this.tilesNearTown = tilesNearTown;
     }
 }

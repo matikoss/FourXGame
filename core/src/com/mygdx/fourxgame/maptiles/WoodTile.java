@@ -2,9 +2,10 @@ package com.mygdx.fourxgame.maptiles;
 
 public class WoodTile extends ResourcesTile {
     private boolean isLumbermillBuilt;
-    public WoodTile(int x, int y, String owner) {
+
+    public WoodTile(int x, int y, String owner, boolean isLumbermillBuilt) {
         super(x, y, owner, "forestTexture.png");
-        isLumbermillBuilt = false;
+        this.isLumbermillBuilt = isLumbermillBuilt;
     }
 
     public void newTurnUpdate(){

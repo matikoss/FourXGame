@@ -2,9 +2,10 @@ package com.mygdx.fourxgame.maptiles;
 
 public class GoldTile extends ResourcesTile {
     private boolean isGoldMineBuilt;
-    public GoldTile(int x, int y, String owner) {
+
+    public GoldTile(int x, int y, String owner, boolean isGoldMineBuilt) {
         super(x, y, owner, "goldTexture.png");
-        isGoldMineBuilt = false;
+        this.isGoldMineBuilt = isGoldMineBuilt;
     }
 
     @Override

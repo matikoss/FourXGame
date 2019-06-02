@@ -160,7 +160,6 @@ public class GameSessionHud implements Disposable {
         showResourceTileMenu();
         showBuildingCostLabel();
         showBuyTileMenu();
-        System.out.println(isMouseOnButton);
     }
 
     private void drawBasicHUD() {

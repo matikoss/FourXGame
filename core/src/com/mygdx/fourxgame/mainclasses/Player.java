@@ -5,10 +5,11 @@ import com.mygdx.fourxgame.maptiles.*;
 import java.util.ArrayList;
 
 public class Player {
+    private String classType;
     public String playerName;
 
-    private ArrayList<MapTile> tilesOwned;
-    private ArrayList<Army> armyOwned;
+    private transient ArrayList<MapTile> tilesOwned;
+    private transient ArrayList<Army> armyOwned;
 
 
     private int amountOfWood;
@@ -16,7 +17,9 @@ public class Player {
     private int amountOfGold;
     private int population;
 
+
     public Player(String playerName, int amountOfWood, int amountOfIron, int amountOfGold, int population) {
+        this.classType = this.getClass().getSimpleName();
         this.playerName = playerName;
         this.tilesOwned = new ArrayList<>();
         this.armyOwned = new ArrayList<>();
@@ -251,5 +254,13 @@ public class Player {
 
     public void removeArmy(Army armyToRemove) {
         armyOwned.remove(armyToRemove);
+    }
+
+    public void setTilesOwned(ArrayList<MapTile> tilesOwned) {
+        this.tilesOwned = tilesOwned;
+    }
+
+    public void setArmyOwned(ArrayList<Army> armyOwned) {
+        this.armyOwned = armyOwned;
     }
 }
