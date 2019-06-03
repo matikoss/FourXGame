@@ -87,6 +87,7 @@ public class GameSessionRenderer {
         }
         if(gameSession.getSelectedTile()!=null){
             renderArmyRange(batch);
+            renderAttackMarker(batch);
         }
         batch.end();
         batch.setProjectionMatrix(hud.stage.getCamera().combined);
@@ -198,7 +199,7 @@ public class GameSessionRenderer {
     }
 
     private void renderArmyRange(SpriteBatch batch){
-        if(gameSession.getSelectedTile().getClass().getSimpleName().equals("Army")){
+        if(gameSession.getSelectedTile().getClass().getSimpleName().equals("Army") && gameSession.getSelectedTile().getOwner().equals(gameSession.getPlayerWhoseTurnIs().getPlayerName())){
             int range = ((Army)gameSession.getSelectedTile()).getMoveDistanceLeft();
             for(int i = -range; i<=range; i++){
                 for(int j=-range; j<=range; j++){
@@ -207,6 +208,19 @@ public class GameSessionRenderer {
                     sprite.setPosition(gameSession.getSelectedTile().x+j, gameSession.getSelectedTile().y+i);
                     sprite.draw(batch);
                 }
+            }
+        }
+    }
+
+    private void renderAttackMarker(SpriteBatch batch){
+        if(gameSession.getSelectedTile().getClass().getSimpleName().equals("Army") && gameSession.getArmiesThatCanBeAttacked()!=null){
+            ArrayList<MapTile> armiesThatCanBeAttacked = gameSession.getArmiesThatCanBeAttacked();
+            Texture attackMarkerTexture = new Texture(Gdx.files.internal("attackMarkerTexture.png"));
+            for(MapTile mapTile : armiesThatCanBeAttacked){
+                sprite = new Sprite(attackMarkerTexture);
+                sprite.setSize(1,1);
+                sprite.setPosition(mapTile.x, mapTile.y);
+                sprite.draw(batch);
             }
         }
     }

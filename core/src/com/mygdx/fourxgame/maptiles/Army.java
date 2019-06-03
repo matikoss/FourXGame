@@ -2,6 +2,7 @@ package com.mygdx.fourxgame.maptiles;
 
 import com.mygdx.fourxgame.mainclasses.GameplayConstants;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Army extends MapTile {
@@ -10,7 +11,7 @@ public class Army extends MapTile {
     private int cavalryAmount;
 
     private int moveDistanceLeft;
-    private boolean isFighting;
+    public boolean canAttack;
 
 
     public Army(int x, int y, String owner, int archersAmount, int footmansAmount, int cavalryAmount) {
@@ -19,9 +20,11 @@ public class Army extends MapTile {
         this.footmansAmount = footmansAmount;
         this.cavalryAmount = cavalryAmount;
         moveDistanceLeft = calculateRange();
+        canAttack = true;
     }
 
     public void newTurnUpdate() {
+        canAttack = true;
         resetMovement();
     }
 

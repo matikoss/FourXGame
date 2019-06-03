@@ -45,9 +45,9 @@ public class GameSession implements InputProcessor {
 
     public GameSession(int numberOfPlayers, int startMode, String savePath) {
         cameraController = new CameraController();
-        if(startMode == 1){
+        if (startMode == 1) {
             startNewGame(numberOfPlayers);
-        }else{
+        } else {
             loadGame(savePath);
         }
 
@@ -63,7 +63,7 @@ public class GameSession implements InputProcessor {
         moveCameraToCurrentPlayerFirstTown(playerWhoseTurnIs);
     }
 
-    private void startNewGame(int numberOfPlayers){
+    private void startNewGame(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
         players = new ArrayList<>();
         createPlayers();
@@ -71,7 +71,7 @@ public class GameSession implements InputProcessor {
         saveManager = new SaveManager(this);
     }
 
-    private void loadGame(String savePath){
+    private void loadGame(String savePath) {
         saveManager = new SaveManager(this);
         players = saveManager.loadPlayers(savePath);
         this.numberOfPlayers = players.size();
@@ -88,14 +88,14 @@ public class GameSession implements InputProcessor {
         textureSetupAfterLoad();
     }
 
-    private void gameSetupAfterLoad(){
-        for(Player player : players){
+    private void gameSetupAfterLoad() {
+        for (Player player : players) {
             ArrayList<MapTile> tmpTilesOwned = new ArrayList<>();
             ArrayList<Army> tmpArmyOwned = new ArrayList<>();
-            for(MapTile mapTile : worldMap.getMapOfWorld()){
-                if(mapTile.getOwner().equals(player.getPlayerName()) && mapTile.getClass().getSimpleName().equals("Army")){
-                    tmpArmyOwned.add((Army)mapTile);
-                }else if(mapTile.getOwner().equals(player.getPlayerName())){
+            for (MapTile mapTile : worldMap.getMapOfWorld()) {
+                if (mapTile.getOwner().equals(player.getPlayerName()) && mapTile.getClass().getSimpleName().equals("Army")) {
+                    tmpArmyOwned.add((Army) mapTile);
+                } else if (mapTile.getOwner().equals(player.getPlayerName())) {
                     tmpTilesOwned.add(mapTile);
                 }
             }
@@ -129,15 +129,15 @@ public class GameSession implements InputProcessor {
         }
     }
 
-    private void tilesNearTownsSetup(){
+    private void tilesNearTownsSetup() {
         boolean noTilesAdded;
         int maxX, maxY;
         ArrayList<MapTile> tmpArrayList;
-        for(MapTile townTile : worldMap.getMapOfWorld()){
-            maxX=0;
-            maxY=0;
+        for (MapTile townTile : worldMap.getMapOfWorld()) {
+            maxX = 0;
+            maxY = 0;
             tmpArrayList = new ArrayList<>();
-            if(townTile.getClass().getSimpleName().equals("TownTile")){
+            if (townTile.getClass().getSimpleName().equals("TownTile")) {
                 tmpArrayList.add(townTile);
                 do {
                     maxX++;
@@ -148,25 +148,25 @@ public class GameSession implements InputProcessor {
                             if (tmpTile.x == (townTile.x - maxX) && tmpTile.y == i && tmpTile.getOwner().equals(townTile.getOwner())) {
                                 tmpArrayList.add(tmpTile);
                                 noTilesAdded = false;
-                            }else if (tmpTile.x == (townTile.x + maxX) && tmpTile.y == i && tmpTile.getOwner().equals(townTile.getOwner())) {
+                            } else if (tmpTile.x == (townTile.x + maxX) && tmpTile.y == i && tmpTile.getOwner().equals(townTile.getOwner())) {
                                 tmpArrayList.add(tmpTile);
                                 noTilesAdded = false;
                             }
                         }
                     }
-                    for(int j=townTile.x - maxX +1; j<townTile.x + maxX; j++){
-                        for(MapTile tmpTile : worldMap.getMapOfWorld()){
-                            if(tmpTile.x == j && tmpTile.y == (townTile.y - maxY) && tmpTile.getOwner().equals(townTile.getOwner())){
+                    for (int j = townTile.x - maxX + 1; j < townTile.x + maxX; j++) {
+                        for (MapTile tmpTile : worldMap.getMapOfWorld()) {
+                            if (tmpTile.x == j && tmpTile.y == (townTile.y - maxY) && tmpTile.getOwner().equals(townTile.getOwner())) {
                                 tmpArrayList.add(tmpTile);
                                 noTilesAdded = false;
-                            }else if (tmpTile.x == j && tmpTile.y == (townTile.y + maxY) && tmpTile.getOwner().equals(townTile.getOwner())){
+                            } else if (tmpTile.x == j && tmpTile.y == (townTile.y + maxY) && tmpTile.getOwner().equals(townTile.getOwner())) {
                                 tmpArrayList.add(tmpTile);
                                 noTilesAdded = false;
                             }
                         }
                     }
-                }while (!noTilesAdded);
-                ((TownTile)townTile).setTilesNearTown(tmpArrayList);
+                } while (!noTilesAdded);
+                ((TownTile) townTile).setTilesNearTown(tmpArrayList);
             }
         }
     }
@@ -311,7 +311,7 @@ public class GameSession implements InputProcessor {
             mergeArmy((Army) selectedTile, Objects.requireNonNull(checkMerge(newX, newY)));
         }
 
-        if (worldMap.calculateDistance(selectedTile.x, selectedTile.y, newX, newY) == 1 && checkIfFight(newX, newY) != null) {
+        if (worldMap.calculateDistance(selectedTile.x, selectedTile.y, newX, newY) == 1 && checkIfFight(newX, newY) != null && ((Army) selectedTile).canAttack) {
             Army armyToFightWith = checkIfFight(newX, newY);
             fightAtField((Army) selectedTile, armyToFightWith);
             return;
@@ -525,6 +525,24 @@ public class GameSession implements InputProcessor {
         return null;
     }
 
+    public ArrayList<MapTile> getArmiesThatCanBeAttacked() {
+        if (isTileSelected && selectedTile.getClass().getSimpleName().equals("Army") && selectedTile.getOwner().equals(playerWhoseTurnIs.getPlayerName())) {
+            ArrayList<MapTile> tilesThatCanBeAttacked = new ArrayList<>();
+            for (MapTile tmpTile : worldMap.getMapOfWorld()) {
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if (tmpTile.x == selectedTile.x + j && tmpTile.y == selectedTile.y + i && !tmpTile.getOwner().equals(playerWhoseTurnIs.getPlayerName()) &&
+                                (tmpTile.getClass().getSimpleName().equals("Army") || tmpTile.getClass().getSimpleName().equals("TownTile"))) {
+                            tilesThatCanBeAttacked.add(tmpTile);
+                        }
+                    }
+                }
+            }
+            return tilesThatCanBeAttacked;
+        }
+        return null;
+    }
+
     private void fightAtField(Army armyAttacking, Army armyAttacked) {
 
         if (armyAttacking.getArchersAmount() > 0) {
@@ -544,6 +562,7 @@ public class GameSession implements InputProcessor {
         if (armyAttacked.isArmyEmpty()) {
             removeArmy(armyAttacked);
         }
+        armyAttacking.canAttack = false;
     }
 
     private void archersFightingSequence(Army armyAttacking, Army armyAttacked) {
