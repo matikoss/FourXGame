@@ -38,8 +38,8 @@ public class GameRenderer {
     }
 
     public void resize(int width, int height) {
-        if(!gameController.isInGame() && gameController.isInMainMenu()){
-            mainMenu.resize(width,height);
+        if (!gameController.isInGame() && gameController.isInMainMenu()) {
+            mainMenu.resize(width, height);
         }
         if (gameController.isInGame() && !gameController.isInMainMenu()) {
             gameSessionRenderer.resize(width, height);
@@ -54,6 +54,11 @@ public class GameRenderer {
     public void update() {
         if (gameController.isInGame() && !gameController.isInMainMenu()) {
             gameSessionRenderer.update();
+        }
+
+        if (gameController.backToMainMenu) {
+            mainMenu = new MainMenu(batch, this, gameController);
+            gameController.backToMainMenu = false;
         }
 
     }

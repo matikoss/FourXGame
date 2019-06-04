@@ -1,5 +1,7 @@
 package com.mygdx.fourxgame.controllers;
 
+import com.badlogic.gdx.utils.viewport.Viewport;
+
 import java.io.File;
 
 public class GameController {
@@ -7,6 +9,7 @@ public class GameController {
     private GameSession gameSession;
     private boolean inMainMenu;
     private boolean inGame;
+    public boolean backToMainMenu = false;
 
     public GameController() {
         inMainMenu = true;
@@ -29,6 +32,11 @@ public class GameController {
     public void update(float deltaTime) {
         if (inGame && !inMainMenu) {
             gameSession.update(deltaTime);
+        }
+        if (gameSession != null && !gameSession.inGame && !inMainMenu) {
+            inMainMenu = true;
+            inGame = false;
+            backToMainMenu = true;
         }
     }
 
@@ -86,5 +94,10 @@ public class GameController {
     public GameSession getGameSession() {
         return gameSession;
     }
+
+    private boolean checkIfGameSessionInGame() {
+        return gameSession.inGame;
+    }
+
 }
 

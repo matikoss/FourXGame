@@ -88,7 +88,7 @@ public class MainMenu {
         numberOfPlayersTextField = new TextField(text, new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
         Texture backgroundTexture = new Texture(Gdx.files.internal("mainMenuBackground.png"));
         mainMenuBackground = new Sprite(backgroundTexture);
-        mainMenuBackground.setPosition(0,0);
+        mainMenuBackground.setPosition(0, 0);
 
         Gdx.input.setInputProcessor(stage);
     }
@@ -135,7 +135,7 @@ public class MainMenu {
         stage.addActor(startGameTable);
     }
 
-    private void showLoadSaveMenu(){
+    private void showLoadSaveMenu() {
         stage.clear();
         Label selectSave = new Label("Pick save", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         selectSave.setFontScale(2f);
@@ -151,7 +151,7 @@ public class MainMenu {
         loadSaveMenuTable.row();
         loadSaveMenuTable.add(loadSaveThree).pad(3);
 
-        backBtn.setPosition(20,20);
+        backBtn.setPosition(20, 20);
 
         stage.addActor(backBtn);
         stage.addActor(loadSaveMenuTable);
@@ -257,7 +257,7 @@ public class MainMenu {
         loadGameBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-               showLoadSaveMenu();
+                showLoadSaveMenu();
             }
         });
         exitGameBtn.addListener(new ClickListener() {
@@ -277,6 +277,7 @@ public class MainMenu {
                     Gdx.app.postRunnable(() -> {
                         gameController.startNewGame(numberOfPlayers);
                         gameRenderer.startNewGame();
+                        showFirstMenu();
                     });
 
                 }
@@ -290,39 +291,39 @@ public class MainMenu {
             }
         });
 
-        loadSaveOne.addListener(new ClickListener(){
+        loadSaveOne.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(!gameController.checkIfSaveFilesExists("../saves/savegame1/")){
+                if (!gameController.checkIfSaveFilesExists("../saves/savegame1/")) {
                     return;
                 }
                 gameController.loadGame(0, "../saves/savegame1/");
                 gameRenderer.startNewGame();
             }
         });
-        loadSaveTwo.addListener(new ClickListener(){
+        loadSaveTwo.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(!gameController.checkIfSaveFilesExists("../saves/savegame2/")){
+                if (!gameController.checkIfSaveFilesExists("../saves/savegame2/")) {
                     return;
                 }
-                gameController.loadGame(0,"../saves/savegame2/");
+                gameController.loadGame(0, "../saves/savegame2/");
                 gameRenderer.startNewGame();
             }
         });
-        loadSaveThree.addListener(new ClickListener(){
+        loadSaveThree.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(!gameController.checkIfSaveFilesExists("../saves/savegame3/")){
+                if (!gameController.checkIfSaveFilesExists("../saves/savegame3/")) {
                     return;
                 }
-                gameController.loadGame(0,"../saves/savegame3/");
-
+                gameController.loadGame(0, "../saves/savegame3/");
+                gameRenderer.startNewGame();
             }
         });
     }
 
-    public void render(){
+    public void render() {
         batch.begin();
         mainMenuBackground.draw(batch);
         batch.end();

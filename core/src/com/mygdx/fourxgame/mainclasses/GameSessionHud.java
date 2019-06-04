@@ -124,6 +124,17 @@ public class GameSessionHud implements Disposable {
     private Button buildResourceBuildingBtn;
     private Button buildResourceBuildingBackBtn;
 
+    private Button inGameMenuBack;
+    private Button menuExitToMainMenu;
+    private Button closeGame;
+    private Button menuSaveGame;
+
+    private Button saveToSlot1;
+    private Button saveToSlot2;
+    private Button saveToSlot3;
+    private Button saveMenuBack;
+
+
     private boolean isTownMenu = false;
     private boolean isBuildingMenu = false;
     private boolean isRecruitmentMenu = false;
@@ -197,6 +208,34 @@ public class GameSessionHud implements Disposable {
 
         stage.addActor(buttonTable);
 
+    }
+
+    private void showMenuButtons() {
+        showMenuOrSaveMenuPattern(menuSaveGame, menuExitToMainMenu, closeGame, inGameMenuBack);
+    }
+
+    private void showSaveMenu() {
+        showMenuOrSaveMenuPattern(saveToSlot1, saveToSlot2, saveToSlot3, saveMenuBack);
+
+
+    }
+
+    private void showMenuOrSaveMenuPattern(Button button1, Button button2, Button button3, Button button4) {
+        stage.clear();
+
+        addResourcesInfoToStage();
+
+        Table saveTable = new Table();
+        saveTable.setPosition(480, -250);
+        saveTable.setFillParent(true);
+
+        saveTable.add(button1).pad(2);
+        saveTable.add(button2).pad(2);
+        saveTable.add(button3).pad(2);
+        saveTable.row();
+        saveTable.add(button4);
+
+        stage.addActor(saveTable);
     }
 
     private void showTownButtons() {
@@ -298,11 +337,11 @@ public class GameSessionHud implements Disposable {
                 recruitmentTotalCostLabel.setText("Podano złe wartości");
                 return;
             }
-            woodTotalCost = amountOfArchers* GameplayConstants.archersWoodCost + amountOfFootmans*GameplayConstants.footmansWoodCost + amountOfCavalry*GameplayConstants.cavalryWoodCost;
-            ironTotalCost = amountOfArchers* GameplayConstants.archersIronCost + amountOfFootmans*GameplayConstants.footmansIronCost + amountOfCavalry*GameplayConstants.cavalryIronCost;
-            goldTotalCost = amountOfArchers* GameplayConstants.archersGoldCost + amountOfFootmans*GameplayConstants.footmansGoldCost + amountOfCavalry*GameplayConstants.cavalryGoldCost;
+            woodTotalCost = amountOfArchers * GameplayConstants.archersWoodCost + amountOfFootmans * GameplayConstants.footmansWoodCost + amountOfCavalry * GameplayConstants.cavalryWoodCost;
+            ironTotalCost = amountOfArchers * GameplayConstants.archersIronCost + amountOfFootmans * GameplayConstants.footmansIronCost + amountOfCavalry * GameplayConstants.cavalryIronCost;
+            goldTotalCost = amountOfArchers * GameplayConstants.archersGoldCost + amountOfFootmans * GameplayConstants.footmansGoldCost + amountOfCavalry * GameplayConstants.cavalryGoldCost;
 
-            recruitmentTotalCostLabel.setText("Recruitment cost: " + woodTotalCost+"W " + ironTotalCost+"I " + goldTotalCost+"G");
+            recruitmentTotalCostLabel.setText("Recruitment cost: " + woodTotalCost + "W " + ironTotalCost + "I " + goldTotalCost + "G");
         }
     }
 
@@ -746,6 +785,17 @@ public class GameSessionHud implements Disposable {
         buildResourceBuildingBtn = new TextButton("Build", emptyTextButtonStyle);
         buildResourceBuildingBackBtn = new TextButton("Back", emptyTextButtonStyle);
 
+
+        inGameMenuBack = new TextButton("Back", emptyTextButtonStyle);
+        menuExitToMainMenu = new TextButton("Exit to main menu", emptyTextButtonStyle);
+        closeGame = new TextButton("Close game", emptyTextButtonStyle);
+        menuSaveGame = new TextButton("Save", emptyTextButtonStyle);
+
+        saveToSlot1 = new TextButton("Save to slot 1", emptyTextButtonStyle);
+        saveToSlot2 = new TextButton("Save to slot 2", emptyTextButtonStyle);
+        saveToSlot3 = new TextButton("Save to slot 3", emptyTextButtonStyle);
+        saveMenuBack = new TextButton("Back", emptyTextButtonStyle);
+
         //Gdx.input.setInputProcessor(stage);
 
     }
@@ -777,13 +827,13 @@ public class GameSessionHud implements Disposable {
         hoveringLabel.setText("");
     }
 
-    public void selectionHudReset(){
-        isTownMenu=false;
-        isBuildingMenu=false;
-        isArmyLeaveMenu=false;
-        isRecruitmentMenu=false;
-        isBuyTileMode=false;
-        isBuyTileMenu=false;
+    public void selectionHudReset() {
+        isTownMenu = false;
+        isBuildingMenu = false;
+        isArmyLeaveMenu = false;
+        isRecruitmentMenu = false;
+        isBuyTileMode = false;
+        isBuyTileMenu = false;
         showMainButtons();
     }
 
@@ -1056,6 +1106,71 @@ public class GameSessionHud implements Disposable {
                 gameSession.setTileSelected(false);
                 gameSession.setSelectedTile(null);
                 showMainButtons();
+            }
+        });
+
+        menuBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameSession.setSelectedTile(null);
+                gameSession.setTileSelected(false);
+                showMenuButtons();
+            }
+        });
+
+        menuSaveGame.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showSaveMenu();
+            }
+        });
+
+        saveMenuBack.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showMenuButtons();
+            }
+        });
+
+        inGameMenuBack.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showMainButtons();
+            }
+        });
+
+        saveToSlot1.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameSession.saveManager.saveGame("../saves/savegame1/");
+            }
+        });
+
+        saveToSlot2.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameSession.saveManager.saveGame("../saves/savegame2/");
+            }
+        });
+
+        saveToSlot3.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameSession.saveManager.saveGame("../saves/savegame3/");
+            }
+        });
+
+        closeGame.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.exit();
+            }
+        });
+
+        menuExitToMainMenu.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameSession.inGame = false;
             }
         });
     }

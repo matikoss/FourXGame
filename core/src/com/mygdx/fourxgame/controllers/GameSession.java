@@ -15,7 +15,6 @@ import com.mygdx.fourxgame.maptiles.*;
 import org.neo4j.driver.v1.*;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
@@ -42,9 +41,12 @@ public class GameSession implements InputProcessor {
 
     public boolean showBorder;
 
+    public boolean inGame;
+
 
     public GameSession(int numberOfPlayers, int startMode, String savePath) {
         cameraController = new CameraController();
+        inGame = true;
         if (startMode == 1) {
             startNewGame(numberOfPlayers);
         } else {
@@ -182,10 +184,8 @@ public class GameSession implements InputProcessor {
         System.out.println(players.size());
         if (indexOfPlayerWhoseTurnIs < players.size()) {
             nextPlayerTurn();
-            saveManager.saveGame("../saves/savegame1/");
         } else {
             nextGameTurn();
-            //saveManager.loadGame("../saves/savegame1/");
         }
     }
 
