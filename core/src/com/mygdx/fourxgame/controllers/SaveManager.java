@@ -19,6 +19,7 @@ public class SaveManager {
 
     public void saveGame(String savePath) {
         saveGameState(savePath);
+        saveTurnNumber(savePath);
         savePlayers(savePath);
         saveArmyTiles(savePath);
         saveTownTiles(savePath);
@@ -154,6 +155,20 @@ public class SaveManager {
         return -1;
     }
 
+    public int loadTurnNumber(String savePath){
+        Reader reader = null;
+        Gson gson = new Gson();
+
+        try {
+            reader = new BufferedReader(new FileReader(savePath + "turnNumber.json"));
+            return gson.fromJson(reader, int.class);
+
+        } catch (IOException e) {
+
+        }
+        return -1;
+    }
+
     private boolean saveGameState(String savePath) {
         Writer writer = null;
         Gson gson = new Gson();
@@ -167,6 +182,20 @@ public class SaveManager {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private boolean saveTurnNumber(String savePath) {
+        Writer writer = null;
+        Gson gson = new Gson();
+        try{
+            writer = new FileWriter(savePath+"turnNumber.json");
+            gson.toJson(gameSession.turnNumber, writer);
+            writer.flush();
+            writer.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return  false;
     }
 
     private boolean savePlayers(String savePath) {

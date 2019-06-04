@@ -29,6 +29,7 @@ public class GameSession implements InputProcessor {
     private ArrayList<Player> players;
     private int numberOfPlayers;
     private GameSessionHud hud;
+    public int turnNumber;
 
     private Player playerWhoseTurnIs;
 
@@ -71,6 +72,7 @@ public class GameSession implements InputProcessor {
         createPlayers();
         worldMap = new WorldMap(numberOfPlayers, players, 1);
         saveManager = new SaveManager(this);
+        turnNumber = 1;
     }
 
     private void loadGame(String savePath) {
@@ -85,6 +87,7 @@ public class GameSession implements InputProcessor {
         worldMap.addManyToMap(saveManager.loadIronTiles(savePath));
         worldMap.addManyToMap(saveManager.loadGoldTiles(savePath));
         indexOfPlayerWhoseTurnIs = saveManager.loadGameState(savePath);
+        turnNumber = saveManager.loadTurnNumber(savePath);
         playerWhoseTurnIs = players.get(indexOfPlayerWhoseTurnIs);
         gameSetupAfterLoad();
         textureSetupAfterLoad();
@@ -198,6 +201,7 @@ public class GameSession implements InputProcessor {
         indexOfPlayerWhoseTurnIs = 0;
         playerWhoseTurnIs = players.get(indexOfPlayerWhoseTurnIs);
         newTurnUpdate();
+        turnNumber++;
         moveCameraToCurrentPlayerFirstTown(playerWhoseTurnIs);
 
     }
