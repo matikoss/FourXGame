@@ -207,9 +207,66 @@ public class GameSession implements InputProcessor {
     }
 
     private void newTurnUpdate() {
+        for (MapTile townTile : worldMap.getMapOfWorld()) {
+            if (townTile.getClass().getSimpleName().equals("TownTile")) {
+                ((TownTile) townTile).checkIfArmyCapturingTown(worldMap.getMapOfWorld());
+                if (((TownTile) townTile).getTimeToLoseTown() <= 0) {
+                    townCaptured((TownTile) townTile);
+                }
+            }
+        }
+        checkPlayersAndRemoveIfNecessary();
         for (Player player : players) {
             player.newTurnUpdate();
         }
+    }
+
+    private void townCaptured(TownTile townTile) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                for (MapTile tmpTile : worldMap.getMapOfWorld()) {
+                    if (tmpTile.getClass().getSimpleName().equals("Army") && (townTile.x + j == tmpTile.x) && (townTile.y + i == tmpTile.y)) {
+                        String playerWhoCaptured = tmpTile.getOwner();
+                        transferTownAfterCapture(townTile.getOwner(), playerWhoCaptured, townTile);
+                    }
+                }
+            }
+        }
+    }
+
+    private void transferTownAfterCapture(String oldOwner, String newOwner, TownTile townCaptured) {
+        Player oldOwnerPlayer = null, newOwnerPlayer = null;
+        for (Player tmpPlayer : players) {
+            if (tmpPlayer.getPlayerName().equals(oldOwner)) {
+                oldOwnerPlayer = tmpPlayer;
+            }
+            if (tmpPlayer.getPlayerName().equals(newOwner)) {
+                newOwnerPlayer = tmpPlayer;
+            }
+        }
+
+        for (int i = -2; i <= 2; i++) {
+            for (int j = -2; j <= 2; j++) {
+                for (MapTile tmpTile : townCaptured.getTilesNearTown()) {
+                    if (tmpTile.x == townCaptured.x + j && tmpTile.y == townCaptured.y + i) {
+                        assert newOwnerPlayer != null;
+                        newOwnerPlayer.addTileToPlayer(tmpTile);
+                        tmpTile.setOwner(newOwner);
+                        assert oldOwnerPlayer != null;
+                        oldOwnerPlayer.getTilesOwned().remove(tmpTile);
+                    }
+                }
+            }
+        }
+
+        for (MapTile tmpTile : townCaptured.getTilesNearTown()) {
+            if (!tmpTile.getOwner().equals(newOwner)) {
+                tmpTile.setOwner("none");
+                townCaptured.getTilesNearTown().remove(tmpTile);
+            }
+        }
+        townCaptured.setTimeToLoseTown(GameplayConstants.timeToLoseTown);
+
     }
 
     public void recruit(int amountOfArchers, int amountOfFootmans, int amountOfCavalry, TownTile townWhereRecruit) {
@@ -228,6 +285,23 @@ public class GameSession implements InputProcessor {
         if (Gdx.input.justTouched() && !isTileSelected) {
             selectTile();
         }
+    }
+
+    private void checkPlayersAndRemoveIfNecessary() {
+        ArrayList<Player> playersToRemove = new ArrayList<>();
+        for (Player checkedPlayer : players) {
+            if (checkIfRemovePlayerFromGame(checkedPlayer)) {
+                playersToRemove.add(checkedPlayer);
+            }
+        }
+        players.removeAll(playersToRemove);
+    }
+
+    private boolean checkIfRemovePlayerFromGame(Player playerToCheck) {
+        if (playerToCheck.getTilesOwned().isEmpty() && playerToCheck.getArmyOwned().isEmpty()) {
+            return true;
+        }
+        return false;
     }
 
     private void selectTile() {

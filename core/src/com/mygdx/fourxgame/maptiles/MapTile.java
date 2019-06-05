@@ -49,4 +49,22 @@ public abstract class MapTile {
     public void setTexture(Texture texture) {
         this.texture = texture;
     }
+
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof MapTile)) {
+            return false;
+        }
+
+        MapTile mapTile = (MapTile) obj;
+
+        if (x == mapTile.x && y == mapTile.y && getOwner().equals(mapTile.getOwner()) && classType.equals(mapTile.classType)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

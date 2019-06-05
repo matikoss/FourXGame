@@ -49,30 +49,30 @@ public class Player {
 
         for (MapTile resourceTile : tilesOwned) {
             if (resourceTile.getClass().getSimpleName().equals("WoodTile")) {
-                woodIncome+=GameplayConstants.woodIncome;
-                if(((WoodTile)resourceTile).isLumbermillBuilt()){
-                    woodIncome+=GameplayConstants.woodIncome;
+                woodIncome += GameplayConstants.woodIncome;
+                if (((WoodTile) resourceTile).isLumbermillBuilt()) {
+                    woodIncome += GameplayConstants.woodIncome;
                 }
-            }else if(resourceTile.getClass().getSimpleName().equals("IronTile")){
-                ironIncome+=GameplayConstants.ironIncome;
-                if(((IronTile)resourceTile).isIronMineBuilt()){
-                    ironIncome+=GameplayConstants.ironIncome;
+            } else if (resourceTile.getClass().getSimpleName().equals("IronTile")) {
+                ironIncome += GameplayConstants.ironIncome;
+                if (((IronTile) resourceTile).isIronMineBuilt()) {
+                    ironIncome += GameplayConstants.ironIncome;
                 }
-            }else if (resourceTile.getClass().getSimpleName().equals("GoldTile")){
-                goldIncome+=GameplayConstants.goldIncome;
-                if(((GoldTile)resourceTile).isGoldMineBuilt()){
-                    goldIncome+=GameplayConstants.goldIncome;
+            } else if (resourceTile.getClass().getSimpleName().equals("GoldTile")) {
+                goldIncome += GameplayConstants.goldIncome;
+                if (((GoldTile) resourceTile).isGoldMineBuilt()) {
+                    goldIncome += GameplayConstants.goldIncome;
                 }
-            }else if (resourceTile.getClass().getSimpleName().equals("TownTile")){
-                if(((TownTile)resourceTile).getNumberOfHousesBuildInTurn()>0){
-                    population+=((TownTile)resourceTile).getNumberOfHousesBuildInTurn()*GameplayConstants.populationIncome;
-                    ((TownTile)resourceTile).setNumberOfHousesBuildInTurn(0);
+            } else if (resourceTile.getClass().getSimpleName().equals("TownTile")) {
+                if (((TownTile) resourceTile).getNumberOfHousesBuildInTurn() > 0) {
+                    population += ((TownTile) resourceTile).getNumberOfHousesBuildInTurn() * GameplayConstants.populationIncome;
+                    ((TownTile) resourceTile).setNumberOfHousesBuildInTurn(0);
                 }
             }
         }
-        amountOfWood+=woodIncome;
-        amountOfIron+=ironIncome;
-        amountOfGold+=goldIncome;
+        amountOfWood += woodIncome;
+        amountOfIron += ironIncome;
+        amountOfGold += goldIncome;
     }
 
     public boolean build(TownTile townWhereToDoIt, int typeOfBuilding) {
@@ -145,13 +145,13 @@ public class Player {
     }
 
 
-    public boolean payForResourceTile(){
-        if(amountOfWood>=GameplayConstants.woodCostResourceTile && amountOfIron>=GameplayConstants.ironCostResourceTile && amountOfGold>=GameplayConstants.goldCostResourceTile){
-            amountOfWood-=GameplayConstants.woodCostResourceTile;
-            amountOfIron-=GameplayConstants.ironCostResourceTile;
-            amountOfGold-=GameplayConstants.goldCostResourceTile;
+    public boolean payForResourceTile() {
+        if (amountOfWood >= GameplayConstants.woodCostResourceTile && amountOfIron >= GameplayConstants.ironCostResourceTile && amountOfGold >= GameplayConstants.goldCostResourceTile) {
+            amountOfWood -= GameplayConstants.woodCostResourceTile;
+            amountOfIron -= GameplayConstants.ironCostResourceTile;
+            amountOfGold -= GameplayConstants.goldCostResourceTile;
             return true;
-        }else
+        } else
             return false;
     }
 
@@ -159,8 +159,8 @@ public class Player {
         if (townWhereToDoIt.getBarrack() <= 0) {
             return false;
         }
-        if(townWhereToDoIt.getStable() <= 0){
-            cavalryToAdd=0;
+        if (townWhereToDoIt.getStable() <= 0) {
+            cavalryToAdd = 0;
         }
         int woodForArchers = archersToAdd * GameplayConstants.archersWoodCost;
         int ironForArchers = archersToAdd * GameplayConstants.archersIronCost;
@@ -262,5 +262,23 @@ public class Player {
 
     public void setArmyOwned(ArrayList<Army> armyOwned) {
         this.armyOwned = armyOwned;
+    }
+
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof MapTile)) {
+            return false;
+        }
+
+        Player player = (Player) obj;
+
+        if (this.playerName.equals(player.getPlayerName()) && amountOfGold == player.getAmountOfGold() && amountOfIron == player.getAmountOfIron() && amountOfWood == player.getAmountOfWood()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
