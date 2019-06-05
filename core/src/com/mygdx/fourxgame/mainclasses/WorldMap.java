@@ -11,6 +11,9 @@ public class WorldMap {
     private int numberOfPlayers;
     private ArrayList<Player> players;
 
+    private ArrayList<Player> playersWaitingToBeAdded;
+    private ArrayList<MapTile> tilesToBeAdded;
+
     public WorldMap(int numberOfPlayers, ArrayList<Player> players, int gameMode) {
         this.numberOfPlayers = numberOfPlayers;
 
@@ -29,16 +32,16 @@ public class WorldMap {
 //        generatePlayerChunk("Mati", 10, 10);
 //        generateStandardChunk("Mati", 15, 15);
         //generatePlayers(3);
-        if(gameMode == 1){
+        if (gameMode == 1) {
             startNewGame();
         }
     }
 
-    private void startNewGame(){
+    private void startNewGame() {
         generateMap(numberOfPlayers);
     }
 
-    private void loadGame(){
+    private void loadGame() {
 
     }
 
@@ -142,8 +145,8 @@ public class WorldMap {
         int low = -25;
         int playerX = random.nextInt(high + 1 - low) + low;
         int playerY = random.nextInt(high + 1 - low) + low;
-        playerX=0;
-        playerY=0;
+        playerX = 0;
+        playerY = 0;
         int tryCounter = 0;
         int lastTryIndex = 1;
         int last = checkedTiles.size() - lastTryIndex;
@@ -251,7 +254,7 @@ public class WorldMap {
             } else if (tmpChunk.size() == 3) {
                 tmpMapTile = new WoodTile(tmpX, tmpY, playerName, false);
             } else if (tmpChunk.size() == 4) {
-                tmpMapTile = new WoodTile(tmpX, tmpY, playerName,false);
+                tmpMapTile = new WoodTile(tmpX, tmpY, playerName, false);
             } else {
                 tmpMapTile = new EmptyTile(tmpX, tmpY, playerName);
             }
@@ -265,7 +268,7 @@ public class WorldMap {
                 tmpChunk.add(tmpMapTile);
             }
         }
-        ((TownTile)tmpChunk.get(0)).getTilesNearTown().addAll(tmpChunk);
+        ((TownTile) tmpChunk.get(0)).getTilesNearTown().addAll(tmpChunk);
         mapOfWorld.addAll(tmpChunk);
         ownerOfStartingChunk.addMultipleTilesToPlayer(tmpChunk);
     }
@@ -298,14 +301,14 @@ public class WorldMap {
         mapOfWorld.addAll(tmpChunk);
     }
 
-    public void expandMapHorizontally(String playerName, int startingX, int endingX, int yLevel){
-        for(int i=startingX; i<=endingX; i+=5){
+    public void expandMapHorizontally(String playerName, int startingX, int endingX, int yLevel) {
+        for (int i = startingX; i <= endingX; i += 5) {
             generateStandardChunk(playerName, i, yLevel);
         }
     }
 
-    public void expandMapSimpleVertically(String playerName, int xLevel, int startingY, int endingY){
-        for(int i=startingY; i<=endingY; i+=5){
+    public void expandMapSimpleVertically(String playerName, int xLevel, int startingY, int endingY) {
+        for (int i = startingY; i <= endingY; i += 5) {
             generateStandardChunk(playerName, xLevel, i);
         }
     }
@@ -333,10 +336,10 @@ public class WorldMap {
     private void generationToExpand(String playerName, int emptyX, int emptyY, int startX, int endX, int startY, int endY) {
         for (int i = startY; i <= endY; i++) {
             for (int j = startX; j <= endX; j++) {
-                if (checkExistanceOfChunk(emptyX + j*5, emptyY + i*5)) {
+                if (checkExistanceOfChunk(emptyX + j * 5, emptyY + i * 5)) {
                     continue;
                 }
-                generateStandardChunk(playerName, emptyX + j*5, emptyY + i*5);
+                generateStandardChunk(playerName, emptyX + j * 5, emptyY + i * 5);
             }
         }
     }
@@ -344,14 +347,14 @@ public class WorldMap {
     private void generationToExpandWithException(String playerName, int emptyX, int emptyY, int exX, int exY) {
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
-                if (checkExistanceOfChunk(emptyX + j*5, emptyY + i*5)) {
+                if (checkExistanceOfChunk(emptyX + j * 5, emptyY + i * 5)) {
                     continue;
                 }
 
                 if (i == exY && j == exX) {
                     continue;
                 } else {
-                    generateStandardChunk(playerName, emptyX + j*5, emptyY + i*5);
+                    generateStandardChunk(playerName, emptyX + j * 5, emptyY + i * 5);
                 }
             }
         }
@@ -363,6 +366,51 @@ public class WorldMap {
                 return true;
             }
         }
+        return false;
+    }
+
+    private void createNewPlayer(int turnNumber) {
+        playersWaitingToBeAdded = new ArrayList<>();
+        int distance = 15;
+        if (turnNumber <= 15) {
+            distance = (turnNumber / 5) * 5 + 15;
+        } else {
+            distance = 30;
+        }
+
+        for (MapTile mapTile : mapOfWorld) {
+            if (mapTile.getClass().getSimpleName().equals("TownTile")) {
+
+            }
+        }
+
+    }
+
+    private boolean tryToPlaceNewPlayer(TownTile townTileChecked, int distance) {
+        int maxX = townTileChecked.x, minX = townTileChecked.x, maxY = townTileChecked.y, minY = townTileChecked.y;
+        int westDistance = distance, eastDistance = distance, northDistance = distance, southDistance = distance;
+
+        for (MapTile mapTile : townTileChecked.getTilesNearTown()) {
+            if (maxX < mapTile.x) {
+                maxX = mapTile.x;
+            }
+            if (minX > mapTile.x) {
+                minX = mapTile.x;
+            }
+            if (maxY < mapTile.y) {
+                maxY = mapTile.y;
+            }
+            if (minY > mapTile.y) {
+                minY = mapTile.y;
+            }
+        }
+
+        westDistance = -(distance + (calculateDistance(townTileChecked.x, townTileChecked.y, minX, townTileChecked.y) / 5) * 5);
+        eastDistance = (distance + (calculateDistance(townTileChecked.x, townTileChecked.y, maxX, townTileChecked.y) / 5) * 5);
+        northDistance = (distance + (calculateDistance(townTileChecked.x, townTileChecked.y, townTileChecked.x, maxY) / 5) * 5);
+        southDistance = -(distance + (calculateDistance(townTileChecked.x, townTileChecked.y, townTileChecked.x, minY) / 5) * 5);
+
+
         return false;
     }
 
@@ -378,7 +426,7 @@ public class WorldMap {
         return mapOfWorld;
     }
 
-    public void addManyToMap(ArrayList<? extends MapTile> tmpMap){
+    public void addManyToMap(ArrayList<? extends MapTile> tmpMap) {
         mapOfWorld.addAll(tmpMap);
     }
 }
