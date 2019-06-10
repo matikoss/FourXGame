@@ -12,13 +12,13 @@ public class WorldMap {
     private ArrayList<Player> players;
 
     private ArrayList<Player> playersWaitingToBeAdded;
-    private ArrayList<MapTile> tilesToBeAdded;
 
     public WorldMap(int numberOfPlayers, ArrayList<Player> players, int gameMode) {
         this.numberOfPlayers = numberOfPlayers;
 
         mapOfWorld = new ArrayList<>();
         this.players = players;
+        playersWaitingToBeAdded = new ArrayList<>();
 //        generatePlayerChunk("Mati", 0, 0);
 //        generatePlayerChunk("Mati", 5, 0);
 //        generatePlayerChunk("Mati", 10, 0);
@@ -369,24 +369,35 @@ public class WorldMap {
         return false;
     }
 
+    public void addWaitingPlayers(int turnNumber) {
+        while (!playersWaitingToBeAdded.isEmpty()) {
+            createNewPlayer(turnNumber);
+        }
+    }
+
     private void createNewPlayer(int turnNumber) {
-        playersWaitingToBeAdded = new ArrayList<>();
         int distance = 15;
         if (turnNumber <= 15) {
             distance = (turnNumber / 5) * 5 + 15;
         } else {
             distance = 30;
         }
-
+        boolean succeeded = false;
         for (MapTile mapTile : mapOfWorld) {
             if (mapTile.getClass().getSimpleName().equals("TownTile")) {
-
+                succeeded = tryToPlaceNewPlayer((TownTile) mapTile, distance);
+                if (succeeded) {
+                    break;
+                }
             }
         }
-
     }
 
     private boolean tryToPlaceNewPlayer(TownTile townTileChecked, int distance) {
+        Random random = new Random();
+
+        int direction = random.nextInt(4) + 1;
+
         int maxX = townTileChecked.x, minX = townTileChecked.x, maxY = townTileChecked.y, minY = townTileChecked.y;
         int westDistance = distance, eastDistance = distance, northDistance = distance, southDistance = distance;
 
@@ -410,8 +421,95 @@ public class WorldMap {
         northDistance = (distance + (calculateDistance(townTileChecked.x, townTileChecked.y, townTileChecked.x, maxY) / 5) * 5);
         southDistance = -(distance + (calculateDistance(townTileChecked.x, townTileChecked.y, townTileChecked.x, minY) / 5) * 5);
 
+        int newTownX;
+        int newTownY;
+        boolean canBePlaced;
+
+        for (int i = 0; i < 4; i++) {
+            if (direction + i % 4 == 0) {
+                newTownX = townTileChecked.x;
+                newTownY = townTileChecked.y + northDistance;
+            } else if (direction + i % 4 == 1) {
+                newTownX = townTileChecked.x + eastDistance;
+                newTownY = townTileChecked.y;
+            } else if (direction + i % 4 == 2) {
+                newTownX = townTileChecked.x;
+                newTownY = townTileChecked.y + southDistance;
+            } else {
+                newTownX = townTileChecked.x + westDistance;
+                newTownY = townTileChecked.y;
+            }
+
+            canBePlaced = true;
+
+            for (Player playerWhoseTilesAreChecked : players) {
+                for (MapTile tileChecked : playerWhoseTilesAreChecked.getTilesOwned()) {
+                    if (calculateDistance(newTownX, newTownY, tileChecked.x, tileChecked.y) < distance - 5) {
+                        canBePlaced = false;
+                        break;
+                    }
+                }
+                if (!canBePlaced) {
+                    break;
+                }
+            }
+
+            if (canBePlaced) {
+                placeNewPlayer(newTownX, newTownY);
+                return true;
+            }
+        }
 
         return false;
+    }
+
+    private boolean placeNewPlayer(int newTownX, int newTownY) {
+        ArrayList<MapTile> tilesToRemove = new ArrayList<>();
+        for (int i = -2; i <= 2; i++) {
+            for (int j = -2; j <= 2; j++) {
+                for (MapTile tileToCheck : mapOfWorld) {
+                    if ((tileToCheck.x == newTownX + j) && (tileToCheck.y == newTownY + i) && !tileToCheck.getClass().getSimpleName().equals("Army")) {
+                        tilesToRemove.add(tileToCheck);
+                    }
+                }
+            }
+        }
+        mapOfWorld.removeAll(tilesToRemove);
+
+        Player newPlayer = playersWaitingToBeAdded.get(0);
+        players.add(newPlayer);
+        generatePlayerChunk(newPlayer.getPlayerName(), newTownX, newTownY, newPlayer);
+        generateMapAroundTheAddedPlayer(newTownX, newTownY);
+        playersWaitingToBeAdded.remove(newPlayer);
+
+        return true;
+    }
+
+    private boolean generateMapAroundTheAddedPlayer(int newTownX, int newTownY){
+        boolean tileExists;
+        for(int i=-15; i<=15; i+=5){
+            for(int j=-15; j<=15; j+=5){
+                tileExists = false;
+                for(MapTile mapTileToCheck : mapOfWorld){
+                    if((newTownX + j == mapTileToCheck.x) && (newTownY + i == mapTileToCheck.y)){
+                        tileExists = true;
+                        break;
+                    }
+                }
+                if(!tileExists){
+                    generateStandardChunk("none", newTownX + j, newTownY + i);
+                }
+            }
+        }
+        return true;
+    }
+
+    private Player generateNewPlayer(String playerName, int amountOfWood, int amountOfIron, int amountOfGold, int population) {
+        return new Player(playerName, amountOfWood, amountOfIron, amountOfGold, population);
+    }
+
+    public void addNewPlayerToWaitingList(String newPlayerName) {
+        playersWaitingToBeAdded.add(generateNewPlayer(newPlayerName, 100, 100, 100, 50));
     }
 
     public int calculateDistance(int firstTileX, int firstTileY, int secondTileX, int secondTileY) {
@@ -428,5 +526,9 @@ public class WorldMap {
 
     public void addManyToMap(ArrayList<? extends MapTile> tmpMap) {
         mapOfWorld.addAll(tmpMap);
+    }
+
+    public ArrayList<Player> getPlayersWaitingToBeAdded() {
+        return playersWaitingToBeAdded;
     }
 }

@@ -127,6 +127,7 @@ public class GameSessionHud implements Disposable {
     private Button inGameMenuBack;
     private Button menuExitToMainMenu;
     private Button closeGame;
+    private Button addNewPlayerButton;
     private Button menuSaveGame;
 
     private Button saveToSlot1;
@@ -211,16 +212,16 @@ public class GameSessionHud implements Disposable {
     }
 
     private void showMenuButtons() {
-        showMenuOrSaveMenuPattern(menuSaveGame, menuExitToMainMenu, closeGame, inGameMenuBack);
+        showMenuOrSaveMenuPattern(menuSaveGame, menuExitToMainMenu, closeGame, inGameMenuBack, addNewPlayerButton);
     }
 
     private void showSaveMenu() {
-        showMenuOrSaveMenuPattern(saveToSlot1, saveToSlot2, saveToSlot3, saveMenuBack);
+        showMenuOrSaveMenuPattern(saveToSlot1, saveToSlot2, saveToSlot3, saveMenuBack, null);
 
 
     }
 
-    private void showMenuOrSaveMenuPattern(Button button1, Button button2, Button button3, Button button4) {
+    private void showMenuOrSaveMenuPattern(Button button1, Button button2, Button button3, Button button4, Button button5) {
         stage.clear();
 
         addResourcesInfoToStage();
@@ -234,6 +235,7 @@ public class GameSessionHud implements Disposable {
         saveTable.add(button3).pad(2);
         saveTable.row();
         saveTable.add(button4);
+        saveTable.add(button5).pad(2);
 
         stage.addActor(saveTable);
     }
@@ -790,6 +792,7 @@ public class GameSessionHud implements Disposable {
         menuExitToMainMenu = new TextButton("Exit to main menu", emptyTextButtonStyle);
         closeGame = new TextButton("Close game", emptyTextButtonStyle);
         menuSaveGame = new TextButton("Save", emptyTextButtonStyle);
+        addNewPlayerButton = new TextButton("Add new player", emptyTextButtonStyle);
 
         saveToSlot1 = new TextButton("Save to slot 1", emptyTextButtonStyle);
         saveToSlot2 = new TextButton("Save to slot 2", emptyTextButtonStyle);
@@ -1171,6 +1174,13 @@ public class GameSessionHud implements Disposable {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 gameSession.inGame = false;
+            }
+        });
+
+        addNewPlayerButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameSession.addNewPlayer();
             }
         });
     }

@@ -219,6 +219,7 @@ public class GameSession implements InputProcessor {
         for (Player player : players) {
             player.newTurnUpdate();
         }
+        updatePlayersWaitingToBeAdded();
     }
 
     private void townCaptured(TownTile townTile) {
@@ -430,6 +431,15 @@ public class GameSession implements InputProcessor {
             }
         }
         return null;
+    }
+
+    private void updatePlayersWaitingToBeAdded(){
+        worldMap.addWaitingPlayers(turnNumber);
+    }
+
+    public void addNewPlayer(){
+        String playerName = "Player" + (players.size() + worldMap.getPlayersWaitingToBeAdded().size());
+        worldMap.addNewPlayerToWaitingList(playerName);
     }
 
     private void checkExpand(Army armyToCheck) {
