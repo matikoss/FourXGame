@@ -388,6 +388,15 @@ public class GameSession implements InputProcessor {
 
         if (checkMerge(newX, newY) != null) {
             mergeArmy((Army) selectedTile, Objects.requireNonNull(checkMerge(newX, newY)));
+            return;
+        }
+
+        TownTile townWithWhichMightMerge = checkMergeWithTown(newX, newY);
+        if(townWithWhichMightMerge != null){
+            mergeArmyWithTown((Army) selectedTile, townWithWhichMightMerge);
+            selectedTile = null;
+            isTileSelected = false;
+            return;
         }
 
         if (worldMap.calculateDistance(selectedTile.x, selectedTile.y, newX, newY) == 1 && checkIfFight(newX, newY) != null && ((Army) selectedTile).canAttack) {
@@ -596,6 +605,22 @@ public class GameSession implements InputProcessor {
             }
         }
         return null;
+    }
+
+    private TownTile checkMergeWithTown(int newX, int newY){
+        for(MapTile mapTile : worldMap.getMapOfWorld()){
+            if(mapTile.getClass().getSimpleName().equals("TownTile") && mapTile.x == newX && mapTile.y == newY && mapTile.getOwner().equals(playerWhoseTurnIs.getPlayerName())){
+                return (TownTile) mapTile;
+            }
+        }
+        return null;
+    }
+
+    private boolean mergeArmyWithTown(Army armyToMerge, TownTile townWithWhichMerge){
+        townWithWhichMerge.addArmy(armyToMerge.getArchersAmount(), armyToMerge.getFootmansAmount(), armyToMerge.getCavalryAmount());
+        playerWhoseTurnIs.getArmyOwned().remove(armyToMerge);
+        worldMap.getMapOfWorld().remove(armyToMerge);
+        return true;
     }
 
     private void mergeArmy(Army firstArmy, Army secondArmy) {

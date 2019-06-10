@@ -381,4 +381,12 @@ public class TownTile extends MapTile {
     public void setTimeToLoseTown(int timeToLoseTown) {
         this.timeToLoseTown = timeToLoseTown;
     }
+
+    public boolean addArmy(int archersAmount, int foormansAmount, int cavalryAmount){
+        archersInTown+=archersAmount;
+        footmansInTown+=foormansAmount;
+        cavalryInTown+=cavalryAmount;
+
+        return true;
+    }
 }
