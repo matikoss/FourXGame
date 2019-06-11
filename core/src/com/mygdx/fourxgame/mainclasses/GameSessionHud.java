@@ -100,6 +100,12 @@ public class GameSessionHud implements Disposable {
     private Label armyArchersAmountInfo;
     private Label armyFootmansAmountInfo;
     private Label armyCavalryAmountInfo;
+    private Button armyBackButton;
+    private Button armySplitButtonMenu;
+    private Button armySplitButton;
+    private TextField amountOfArchersToSplitTF;
+    private TextField amountOfFootmansToSplitTF;
+    private TextField amountOfCavalryToSplitTF;
 
     private Label currentPlayer;
 
@@ -144,6 +150,7 @@ public class GameSessionHud implements Disposable {
     public boolean isBuyTileMenu = false;
     public boolean isBuyTileMode = false;
     public boolean isResourceTileMenu = false;
+    private boolean isSplitArmyMenu = false;
 
 
     public GameSessionHud(SpriteBatch batch, GameSession gameSession) {
@@ -417,8 +424,9 @@ public class GameSessionHud implements Disposable {
     }
 
     private void showArmyInfo() {
-        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("Army") && gameSession.getPlayerWhoseTurnIs().getPlayerName().equals(gameSession.getSelectedTile().getOwner())) {
+        if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("Army") && gameSession.getPlayerWhoseTurnIs().getPlayerName().equals(gameSession.getSelectedTile().getOwner()) && !isSplitArmyMenu) {
             showFullArmyInfo();
+            showArmyButtons();
         } else if (gameSession.isTileSelected() && gameSession.getSelectedTile().getClass().getSimpleName().equals("Army") && !gameSession.getPlayerWhoseTurnIs().getPlayerName().equals(gameSession.getSelectedTile().getOwner())) {
             showShortArmyInfo();
         }
@@ -427,7 +435,7 @@ public class GameSessionHud implements Disposable {
     private void showFullArmyInfo() {
         isTownMenu = false;
         stage.clear();
-        showMainButtons();
+        //showMainButtons();
         addResourcesInfoToStage();
 
         infoBackground.setPosition(viewport.getWorldWidth() - 330, 250);
@@ -448,13 +456,13 @@ public class GameSessionHud implements Disposable {
         armyInfoTable.row();
         armyInfoTable.add(armyCavalryAmountInfo).pad(1);
         armyInfoTable.row();
+        isSplitArmyMenu = true;
 
         stage.addActor(infoBackground);
         stage.addActor(armyInfoTable);
     }
 
     private void showShortArmyInfo() {
-        isTownMenu = false;
         stage.clear();
         showMainButtons();
         addResourcesInfoToStage();
@@ -479,6 +487,36 @@ public class GameSessionHud implements Disposable {
 
         stage.addActor(infoBackground);
         stage.addActor(armyInfoTable);
+    }
+
+    private void showArmyButtons() {
+        Table armyButtonsTable = new Table();
+        armyButtonsTable.setPosition(380, -250);
+        armyButtonsTable.setFillParent(true);
+        armyButtonsTable.add(armySplitButtonMenu).pad(2);
+        armyButtonsTable.row();
+        armyButtonsTable.add(armyBackButton);
+        stage.addActor(armyButtonsTable);
+    }
+
+    private void showSplitArmyMenu() {
+        stage.clear();
+        showFullArmyInfo();
+        Table splitMenuTable = new Table();
+        splitMenuTable.setPosition(480, -250);
+        splitMenuTable.setFillParent(true);
+        splitMenuTable.add(recruitMenuArchersLabel).pad(2);
+        splitMenuTable.add(amountOfArchersToSplitTF).pad(2);
+        splitMenuTable.row();
+        splitMenuTable.add(recruitMenuFootmanLabel).pad(2);
+        splitMenuTable.add(amountOfFootmansToSplitTF).pad(2);
+        splitMenuTable.row();
+        splitMenuTable.add(recruitMenuCavalryLabel);
+        splitMenuTable.add(amountOfCavalryToSplitTF).pad(2);
+        splitMenuTable.row();
+        splitMenuTable.add(armyBackButton).pad(2);
+        splitMenuTable.add(armySplitButton).pad(2);
+        stage.addActor(splitMenuTable);
     }
 
     private void showBuyTilesButtons() {
@@ -781,6 +819,12 @@ public class GameSessionHud implements Disposable {
         armyFootmansAmountInfo = new Label("Footmans amount: ", labelStyleBlack);
         armyCavalryAmountInfo = new Label("Cavalry amount: ", labelStyleBlack);
         armyInfo.setFontScale(1.5f);
+        armyBackButton = new TextButton("Back", emptyTextButtonStyle);
+        armySplitButtonMenu = new TextButton("Split army", emptyTextButtonStyle);
+        armySplitButton = new TextButton("Ok", emptyTextButtonStyle);
+        amountOfArchersToSplitTF = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
+        amountOfFootmansToSplitTF = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
+        amountOfCavalryToSplitTF = new TextField("0", new Skin(Gdx.files.internal("defaultAssets/uiskin.json")));
 
         resourceTileBuildingCostInfo = new Label("", labelStyleGold);
         resourceBuildingInfo = new Label("", labelStyleBlack);
@@ -798,6 +842,7 @@ public class GameSessionHud implements Disposable {
         saveToSlot2 = new TextButton("Save to slot 2", emptyTextButtonStyle);
         saveToSlot3 = new TextButton("Save to slot 3", emptyTextButtonStyle);
         saveMenuBack = new TextButton("Back", emptyTextButtonStyle);
+
 
         //Gdx.input.setInputProcessor(stage);
 
@@ -1177,10 +1222,41 @@ public class GameSessionHud implements Disposable {
             }
         });
 
-        addNewPlayerButton.addListener(new ClickListener(){
+        addNewPlayerButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 gameSession.addNewPlayer();
+            }
+        });
+
+        armySplitButtonMenu.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showSplitArmyMenu();
+            }
+        });
+
+        armyBackButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showMainButtons();
+                isSplitArmyMenu = false;
+                gameSession.setTileSelected(false);
+                gameSession.setSelectedTile(null);
+            }
+        });
+
+        armySplitButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                int amountOfArchers, amountOfFootmans, amountOfCavalry;
+                try {
+                    amountOfArchers = Integer.parseInt(amountOfArchersToSplitTF.getText());
+                    amountOfFootmans = Integer.parseInt(amountOfFootmansToSplitTF.getText());
+                    amountOfCavalry = Integer.parseInt(amountOfCavalryToSplitTF.getText());
+                    gameSession.splitArmy((Army)gameSession.getSelectedTile(), amountOfArchers, amountOfFootmans, amountOfCavalry);
+                } catch (NumberFormatException e) {
+                }
             }
         });
     }

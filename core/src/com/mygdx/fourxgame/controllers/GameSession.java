@@ -392,7 +392,7 @@ public class GameSession implements InputProcessor {
         }
 
         TownTile townWithWhichMightMerge = checkMergeWithTown(newX, newY);
-        if(townWithWhichMightMerge != null){
+        if (townWithWhichMightMerge != null) {
             mergeArmyWithTown((Army) selectedTile, townWithWhichMightMerge);
             selectedTile = null;
             isTileSelected = false;
@@ -442,11 +442,11 @@ public class GameSession implements InputProcessor {
         return null;
     }
 
-    private void updatePlayersWaitingToBeAdded(){
+    private void updatePlayersWaitingToBeAdded() {
         worldMap.addWaitingPlayers(turnNumber);
     }
 
-    public void addNewPlayer(){
+    public void addNewPlayer() {
         String playerName = "Player" + (players.size() + worldMap.getPlayersWaitingToBeAdded().size());
         worldMap.addNewPlayerToWaitingList(playerName);
     }
@@ -607,16 +607,16 @@ public class GameSession implements InputProcessor {
         return null;
     }
 
-    private TownTile checkMergeWithTown(int newX, int newY){
-        for(MapTile mapTile : worldMap.getMapOfWorld()){
-            if(mapTile.getClass().getSimpleName().equals("TownTile") && mapTile.x == newX && mapTile.y == newY && mapTile.getOwner().equals(playerWhoseTurnIs.getPlayerName())){
+    private TownTile checkMergeWithTown(int newX, int newY) {
+        for (MapTile mapTile : worldMap.getMapOfWorld()) {
+            if (mapTile.getClass().getSimpleName().equals("TownTile") && mapTile.x == newX && mapTile.y == newY && mapTile.getOwner().equals(playerWhoseTurnIs.getPlayerName())) {
                 return (TownTile) mapTile;
             }
         }
         return null;
     }
 
-    private boolean mergeArmyWithTown(Army armyToMerge, TownTile townWithWhichMerge){
+    private boolean mergeArmyWithTown(Army armyToMerge, TownTile townWithWhichMerge) {
         townWithWhichMerge.addArmy(armyToMerge.getArchersAmount(), armyToMerge.getFootmansAmount(), armyToMerge.getCavalryAmount());
         playerWhoseTurnIs.getArmyOwned().remove(armyToMerge);
         worldMap.getMapOfWorld().remove(armyToMerge);
@@ -1027,6 +1027,15 @@ public class GameSession implements InputProcessor {
         }
 
         System.out.println(worldMap.getMapOfWorld());
+    }
+
+    public void splitArmy(Army armyToSplit, int archersAmount, int footmansAmount, int cavalryAmount){
+        if(armyToSplit.getArchersAmount()> archersAmount && armyToSplit.getFootmansAmount()>footmansAmount && armyToSplit.getCavalryAmount()>cavalryAmount){
+            Army armyCreated = new Army(armyToSplit.x, armyToSplit.y-1, armyToSplit.getOwner(), archersAmount, footmansAmount, cavalryAmount);
+            armyToSplit.removeUnitsFromArmy(archersAmount, footmansAmount, cavalryAmount);
+            worldMap.getMapOfWorld().add(armyCreated);
+            playerWhoseTurnIs.getArmyOwned().add(armyCreated);
+        }
     }
 
     private void removeArmy(Army armyToRemove) {
