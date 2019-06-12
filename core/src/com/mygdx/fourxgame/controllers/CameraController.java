@@ -45,7 +45,6 @@ public class CameraController {
             changePositionOfCamera(0, -cameraMoveSpeed);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.BACKSPACE)) {
-            //this.setPosition(0, 0);
         }
     }
 
@@ -68,11 +67,6 @@ public class CameraController {
         if (mouseY <= 10) {
             changePositionOfCamera(0, cameraMoveSpeed);
         }
-
-        //System.out.println(mouseX);
-        //System.out.println(mouseY);
-        //System.out.println(Gdx.app.getGraphics().getWidth());
-        //System.out.println(Gdx.app.getGraphics().getHeight());
 
     }
 

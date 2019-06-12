@@ -19,19 +19,6 @@ public class WorldMap {
         mapOfWorld = new ArrayList<>();
         this.players = players;
         playersWaitingToBeAdded = new ArrayList<>();
-//        generatePlayerChunk("Mati", 0, 0);
-//        generatePlayerChunk("Mati", 5, 0);
-//        generatePlayerChunk("Mati", 10, 0);
-//        generatePlayerChunk("Mati", 0, 5);
-//        generatePlayerChunk("Mati", 0, 10);
-//        generatePlayerChunk("Mati", 0, 15);
-//        generatePlayerChunk("Mati", -5, 0);
-//        generatePlayerChunk("Mati", -10, 5);
-//        generatePlayerChunk("Mati", -15, 10);
-//        generatePlayerChunk("Mati", 5, 5);
-//        generatePlayerChunk("Mati", 10, 10);
-//        generateStandardChunk("Mati", 15, 15);
-        //generatePlayers(3);
         if (gameMode == 1) {
             startNewGame();
         }
@@ -97,43 +84,6 @@ public class WorldMap {
                 }
             }
         }
-
-//        int radius = 3;
-//        ArrayList<MapTile> tilesWithTowns = new ArrayList<>();
-//        ArrayList<MapTile> generatorSeeds = new ArrayList<>();
-//        for (MapTile mapTile : mapOfWorld) {
-//            if (mapTile.getClass().getSimpleName().equals("TownTile")) {
-//                tilesWithTowns.add(mapTile);
-//            }
-//        }
-//        for (MapTile mapTile : tilesWithTowns) {
-//            for (int i = radius * (-5); i <= radius * 5; i += 5) {
-//                for (int j = radius * (-5); j <= radius * 5; j += 5) {
-//                    if (i != 0 || j != 0) {
-//                        generatorSeeds.add(new EmptyTile(j + mapTile.x, i + mapTile.y, "none"));
-//                    }
-//                }
-//            }
-//        }
-//        LinkedHashSet<MapTile> noDuplicates = new LinkedHashSet<>();
-//        noDuplicates.addAll(generatorSeeds);
-//        generatorSeeds.clear();
-//        generatorSeeds.addAll(noDuplicates);
-//        for (int i = 0; i < generatorSeeds.size(); i++) {
-//            for (int j = i + 1; j < generatorSeeds.size(); j++) {
-//                if (generatorSeeds.get(i).x == generatorSeeds.get(j).x && generatorSeeds.get(i).y == generatorSeeds.get(j).y) {
-//                    generatorSeeds.remove(j);
-//                }
-//            }
-//        }
-//
-//        for (MapTile mapTile : generatorSeeds) {
-//            for (MapTile mapTileTowns : tilesWithTowns) {
-//                if ((mapTile.x != mapTileTowns.x) || (mapTile.y != mapTileTowns.y)) {
-//                    generateStandardChunk("none", mapTile.x, mapTile.y);
-//                }
-//            }
-//        }
     }
 
     private void generatePlayers(int numberOfPlayers) {

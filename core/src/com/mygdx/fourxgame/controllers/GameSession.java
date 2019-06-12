@@ -12,7 +12,6 @@ import com.mygdx.fourxgame.mainclasses.Player;
 import com.mygdx.fourxgame.mainclasses.WorldMap;
 import com.mygdx.fourxgame.maptiles.*;
 
-import org.neo4j.driver.v1.*;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -58,11 +57,7 @@ public class GameSession implements InputProcessor {
         isTileSelected = false;
         selectedTileToBuy = null;
         isTileToBuySelected = false;
-        //worldMap.getMapOfWorld().add(new Army(0, 0, "OWNER", 100, 115, 50));
         showBorder = false;
-        //loadMapFromDatabase();
-        //mapOfWorld.add(new Army(2, 2, "Mati", 0, 0, 0));
-        //Gdx.input.setInputProcessor(this);
         moveCameraToCurrentPlayerFirstTown(playerWhoseTurnIs);
     }
 
@@ -309,15 +304,12 @@ public class GameSession implements InputProcessor {
         hud.isResourceTileMenu = false;
         int x = Gdx.input.getX();
         int y = Gdx.input.getY();
-        System.out.println(x + " " + y);
         if ((y >= (Gdx.graphics.getHeight() - 20 * (Gdx.graphics.getHeight() / 720))) || (y <= (40 * (Gdx.graphics.getHeight() / 720))) || ((x >= (Gdx.graphics.getWidth() - 330 * Gdx.graphics.getWidth() / 1280)) && (y >= (Gdx.graphics.getHeight() - 220 * Gdx.graphics.getHeight() / 720)))) {
-            System.out.println(Gdx.graphics.getWidth() + " " + Gdx.graphics.getHeight());
             return;
         }
 
         Vector3 tileCoordinates = translateCoordinates(x, y);
 
-        System.out.println(tileCoordinates.x + " " + tileCoordinates.y);
 
         x = (int) tileCoordinates.x;
         y = (int) tileCoordinates.y;
@@ -329,7 +321,6 @@ public class GameSession implements InputProcessor {
         if (tileCoordinates.y < 0) {
             y--;
         }
-        System.out.println(x + " " + y);
 
         for (MapTile tile : worldMap.getMapOfWorld()) {
             if (tile.x == x && tile.y == y) {
@@ -342,11 +333,6 @@ public class GameSession implements InputProcessor {
                 }
             }
         }
-        System.out.println(selectedTile.getClass().getSimpleName());
-
-        //System.out.println(selectedTile.getClass().getSimpleName().equals("Army"));
-        //System.out.println(selectedTileIndex);
-        //System.out.println(selectedTile.x + " " + selectedTile.y);
     }
 
     private void switchSelection() {
@@ -359,7 +345,6 @@ public class GameSession implements InputProcessor {
                 return;
             }
         }
-        System.out.println("Nazwa znalezionej klasy" + selectedTile.getClass().getSimpleName());
     }
 
     private void moveArmy() {
@@ -405,14 +390,10 @@ public class GameSession implements InputProcessor {
             return;
         }
 
-
-        //((Army) selectedTile).move(newX, newY);
         System.out.println(worldMap.getMapOfWorld().get(selectedTileIndex).x);
         ((Army) worldMap.getMapOfWorld().get(selectedTileIndex)).move(newX, newY, worldMap.calculateDistance(selectedTile.x, selectedTile.y, newX, newY));
         System.out.println(worldMap.getMapOfWorld().get(selectedTileIndex).x);
-
         checkAndExpandMapIfNecessary((Army) selectedTile, 10);
-        //checkExpand((Army) selectedTile);
     }
 
     public void leaveTheTownWithArmy(int archersLeaving, int footmansLeaving, int cavalryLeaving) {
@@ -490,18 +471,6 @@ public class GameSession implements InputProcessor {
     private void checkAndExpandMapIfNecessary(Army armyToCheck, int range) {
         int chunkX, chunkY;
 
-
-        /*if ((armyToCheck.x + moduloForX) % 5 == 0) {
-            chunkX = armyToCheck.x + moduloForX;
-        } else {
-            chunkX = armyToCheck.x - moduloForX;
-        }
-
-        if ((armyToCheck.y + moduloForY) % 5 == 0) {
-            chunkY = armyToCheck.y + moduloForY;
-        } else {
-            chunkY = armyToCheck.y - moduloForY;
-        }*/
 
         chunkX = findMiddleOfChunkCoord(armyToCheck.x);
         chunkY = findMiddleOfChunkCoord(armyToCheck.y);
@@ -975,58 +944,6 @@ public class GameSession implements InputProcessor {
                 ((ResourcesTile) selectedTile).build();
             }
         }
-    }
-
-    private void loadMapFromDatabase() {
-        Driver driver = null;
-        try {
-            driver = GraphDatabase.driver("bolt://localhost:7687", AuthTokens.basic("neo4j", "0000"));
-            Session session = driver.session();
-            StatementResult result = session.run("MATCH(e) WHERE e:EmptyField OR e:City OR e:Forest " +
-                    " RETURN e.class, e.x, e.y, e.owner");
-            while (result.hasNext()) {
-                Record record = result.next();
-                String tileType = record.get("e.class").asString();
-                int x = record.get("e.x").asInt();
-                int y = record.get("e.y").asInt();
-                String owner = record.get("e.owner").asString();
-                System.out.println(tileType);
-                if (tileType.equals("EmptyTile")) {
-                    worldMap.addToMap(new EmptyTile(x, y, owner));
-                } else if (tileType.equals("TownTile")) {
-                    worldMap.addToMap(new TownTile(x, y, owner, GameplayConstants.timeToLoseTown));
-                } else if (tileType.equals("WoodTile")) {
-                    worldMap.addToMap(new WoodTile(x, y, owner, false));
-                }
-            }
-//            result = session.run("MATCH(t:City) RETURN t.x, t.y, t.owner");
-//            while(result.hasNext()){
-//                Record record = result.next();
-//                int x = record.get("t.x").asInt();
-//                int y = record.get("t.y").asInt();
-//                String owner = record.get("t.owner").asString();
-//                addToMap(new TownTile(x,y,owner));
-//            }
-//
-//            result = session.run("MATCH(w:Forest) RETURN w.x, w.y, w.owner");
-//            while(result.hasNext()){
-//                Record record = result.next();
-//                int x = record.get("w.x").asInt();
-//                int y = record.get("w.y").asInt();
-//                String owner = record.get("w.owner").asString();
-//                addToMap(new WoodTile(x,y,owner));
-//            }
-            session.close();
-
-        } catch (Exception e) {
-
-        } finally {
-            if (driver != null) {
-                driver.close();
-            }
-        }
-
-        System.out.println(worldMap.getMapOfWorld());
     }
 
     public void splitArmy(Army armyToSplit, int archersAmount, int footmansAmount, int cavalryAmount){

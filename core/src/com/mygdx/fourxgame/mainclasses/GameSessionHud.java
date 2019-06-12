@@ -21,7 +21,6 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.fourxgame.controllers.GameSession;
 import com.mygdx.fourxgame.maptiles.*;
-import jdk.nashorn.internal.runtime.GlobalConstants;
 
 
 public class GameSessionHud implements Disposable {
