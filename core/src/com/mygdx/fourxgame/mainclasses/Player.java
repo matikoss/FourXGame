@@ -4,6 +4,7 @@ import com.mygdx.fourxgame.maptiles.*;
 
 import java.util.ArrayList;
 
+//Klasa reprezentująca gracza
 public class Player {
     private String classType;
     public String playerName;

@@ -22,7 +22,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.fourxgame.controllers.GameSession;
 import com.mygdx.fourxgame.maptiles.*;
 
-
+//Klasa zarządzająca rysowaniem interfejsu użytkownika w czasie gry (HUDu)
 public class GameSessionHud implements Disposable {
 
     private GameSession gameSession;

@@ -1,5 +1,6 @@
 package com.mygdx.fourxgame.maptiles;
 
+//Klasa reprezentująca na mapie las
 public class WoodTile extends ResourcesTile {
     private boolean isLumbermillBuilt;
 

@@ -1,5 +1,6 @@
 package com.mygdx.fourxgame.mainclasses;
 
+//Stałe wartości związane z rozgrywką
 public class GameplayConstants {
     public static int archersAndFootmansSpeed = 3;
     public static int cavalrySpeed = 5;

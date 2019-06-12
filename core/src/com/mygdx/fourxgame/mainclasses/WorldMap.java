@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.lang.Math;
 
+
+//Klasa odpowiadająca za zarządzanie mapą na której toczy się rozgrywka.
 public class WorldMap {
     private ArrayList<MapTile> mapOfWorld;
     private int numberOfPlayers;

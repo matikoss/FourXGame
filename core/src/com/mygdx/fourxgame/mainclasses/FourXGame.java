@@ -6,6 +6,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.mygdx.fourxgame.controllers.GameController;
 
+//Główna klasa w module core
+//Odpowiada za rozpoczęcie gry i koordynowaniem wszystkiego co się dzieje w trakcie
 public class FourXGame implements ApplicationListener {
 	private GameController gameController;
 	private GameRenderer gameRenderer;

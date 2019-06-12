@@ -3,7 +3,7 @@ package com.mygdx.fourxgame.maptiles;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
-
+//Klasa abstrakcyjna stanowiąca ogólny obraz pola mapy
 public abstract class MapTile {
     private String classType;
     public int x;

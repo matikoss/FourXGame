@@ -5,6 +5,7 @@ import com.mygdx.fourxgame.mainclasses.GameplayConstants;
 import java.util.ArrayList;
 import java.util.Random;
 
+//Klasa reprezentująca armię
 public class Army extends MapTile {
     private int archersAmount;
     private int footmansAmount;

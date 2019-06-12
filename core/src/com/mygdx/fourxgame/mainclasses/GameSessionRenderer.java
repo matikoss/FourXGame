@@ -16,6 +16,8 @@ import com.mygdx.fourxgame.maptiles.MapTile;
 
 import java.util.ArrayList;
 
+//Klasa odpowiadająca za rysowanie wszystkich obiektów podczas trwania rozgrywki
+//(Wszystko po rozpoczęciu nowej gry lub wczytaniu stanu gry)
 public class GameSessionRenderer {
     private OrthographicCamera camera;
     private GameSession gameSession;

@@ -3,6 +3,7 @@ package com.mygdx.fourxgame.mainclasses;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.fourxgame.controllers.GameController;
 
+//Klasa zarządzająca rysowaniem w grze
 public class GameRenderer {
 
     private GameController gameController;

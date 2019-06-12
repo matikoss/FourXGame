@@ -1,5 +1,6 @@
 package com.mygdx.fourxgame.mainclasses;
 
+//Stałe związane z kamerą
 public class Constants {
     public static final float VIEWPORT_WIDTH = 15.0f;
 

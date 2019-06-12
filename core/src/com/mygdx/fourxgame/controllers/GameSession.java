@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 
+//Klasa sterująca rozgrywką, logika wewnątrz rozgrywki
 public class GameSession implements InputProcessor {
 
     public CameraController cameraController;

@@ -1,11 +1,10 @@
 package com.mygdx.fourxgame.maptiles;
 
-import com.badlogic.gdx.Game;
 import com.mygdx.fourxgame.mainclasses.GameplayConstants;
-import org.ietf.jgss.GSSManager;
 
 import java.util.ArrayList;
 
+//Klasa reprezentująca miasto
 public class TownTile extends MapTile {
     private transient ArrayList<MapTile> tilesNearTown;
     private String townName;
@@ -253,7 +252,7 @@ public class TownTile extends MapTile {
             for (int j = -1; j <= 1; j++) {
                 for (MapTile tmpMapTile : worldMap) {
                     if ((tmpMapTile.x == x + j) && (tmpMapTile.y == y + i) && !tmpMapTile.getOwner().equals(this.getOwner()) && tmpMapTile.getClass().getSimpleName().equals("Army")) {
-                        armiesNearTown.add((Army)tmpMapTile);
+                        armiesNearTown.add((Army) tmpMapTile);
                         System.out.println("DODANO");
                     } else if ((tmpMapTile.x == x + j) && (tmpMapTile.y == y + i) && tmpMapTile.getOwner().equals(this.getOwner()) && tmpMapTile.getClass().getSimpleName().equals("Army")) {
                         isAlliedArmyNearTown = true;
@@ -261,20 +260,20 @@ public class TownTile extends MapTile {
                 }
             }
         }
-        if(armiesNearTown.isEmpty()){
+        if (armiesNearTown.isEmpty()) {
             timeToLoseTown = GameplayConstants.timeToLoseTown;
             System.out.println("PUSTO");
         }
-        if(isAlliedArmyNearTown){
+        if (isAlliedArmyNearTown) {
             return null;
         }
         return armiesNearTown;
     }
 
-    private boolean checkIfAllArmiesNearbyFromSameOwner(ArrayList<Army> armiesNearTown){
-        for(Army tmpArmy : armiesNearTown){
-            for(Army armyToWhichCompare : armiesNearTown){
-                if(!tmpArmy.getOwner().equals(armyToWhichCompare.getOwner())){
+    private boolean checkIfAllArmiesNearbyFromSameOwner(ArrayList<Army> armiesNearTown) {
+        for (Army tmpArmy : armiesNearTown) {
+            for (Army armyToWhichCompare : armiesNearTown) {
+                if (!tmpArmy.getOwner().equals(armyToWhichCompare.getOwner())) {
                     return false;
                 }
             }
@@ -284,8 +283,8 @@ public class TownTile extends MapTile {
 
     public boolean checkIfArmyCapturingTown(ArrayList<MapTile> worldMap) {
         ArrayList<Army> tmpArmy = checkIfEnemyArmyNearTownAlone(worldMap);
-        if (!(tmpArmy == null) && !tmpArmy.isEmpty()  && archersInTown <= 0 && footmansInTown <= 0 && cavalryInTown <= 0) {
-            if(checkIfAllArmiesNearbyFromSameOwner(tmpArmy)){
+        if (!(tmpArmy == null) && !tmpArmy.isEmpty() && archersInTown <= 0 && footmansInTown <= 0 && cavalryInTown <= 0) {
+            if (checkIfAllArmiesNearbyFromSameOwner(tmpArmy)) {
                 timeToLoseTown--;
                 return true;
             }
@@ -382,10 +381,10 @@ public class TownTile extends MapTile {
         this.timeToLoseTown = timeToLoseTown;
     }
 
-    public boolean addArmy(int archersAmount, int foormansAmount, int cavalryAmount){
-        archersInTown+=archersAmount;
-        footmansInTown+=foormansAmount;
-        cavalryInTown+=cavalryAmount;
+    public boolean addArmy(int archersAmount, int foormansAmount, int cavalryAmount) {
+        archersInTown += archersAmount;
+        footmansInTown += foormansAmount;
+        cavalryInTown += cavalryAmount;
 
         return true;
     }

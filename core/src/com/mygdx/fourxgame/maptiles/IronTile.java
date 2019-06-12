@@ -1,5 +1,6 @@
 package com.mygdx.fourxgame.maptiles;
 
+//Klasa reprezentująca złoże żelaza na mapie
 public class IronTile extends ResourcesTile {
     private boolean isIronMineBuilt;
 

@@ -1,5 +1,6 @@
 package com.mygdx.fourxgame.maptiles;
 
+//Klasa reprezentująca złoże złota na mapie
 public class GoldTile extends ResourcesTile {
     private boolean isGoldMineBuilt;
 

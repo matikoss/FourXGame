@@ -9,6 +9,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+//Klasa odpowiadająca za zapisywanie i wczytywanie stanu gry
 public class SaveManager {
 
     private GameSession gameSession;

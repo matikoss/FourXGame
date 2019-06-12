@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.fourxgame.controllers.GameController;
 
+//Klasa odpowiadająca za to co wyświetla się w menu głównym
 public class MainMenu {
 
     private SpriteBatch batch;

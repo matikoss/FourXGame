@@ -1,9 +1,9 @@
 package com.mygdx.fourxgame.controllers;
 
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.io.File;
 
+//Klasa zarządzająca logiką gry
 public class GameController {
 
     private GameSession gameSession;
